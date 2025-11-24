@@ -165,10 +165,13 @@ public enum SqlKeyword {
             case "IS NOT NULL":
             case "IS_NOT_NULL":
                 return SqlKeyword.IS_NOT_NULL.getKeyword();
+            case "BIT ANY":
             case "BIT_ANY":
                 return SqlKeyword.BIT_ANY.getKeyword();
+            case "BIT ALL":
             case "BIT_ALL":
                 return SqlKeyword.BIT_ALL.getKeyword();
+            case "BIT NONE":
             case "BIT_NONE":
                 return SqlKeyword.BIT_NONE.getKeyword();
             default:
