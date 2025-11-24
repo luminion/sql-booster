@@ -352,9 +352,9 @@ public class SysUserController {
 | `=`           | 等于        | (无)                          | `"name": "mike"`                                         | String, Number, Boolean     |
 | `<>`          | 不等于       | `Ne` / `_ne`                 | `"ageNe": 18` / `"age_ne": 18`                           | String, Number, Boolean     |
 | `<`           | 小于        | `Lt` / `_lt`                 | `"ageLt": 18` / `"age_lt": 18`                           | Number, Date                |
-| `<=`          | 小于等于      | `Le` / `_le`                 | `"ageLe": 18` / `"age_le": 18`                           | Number, Date                |
+| `<=`          | 小于等于      | `Lte` / `_lte`               | `"ageLte": 18` / `"age_lte": 18`                         | Number, Date                |
 | `>`           | 大于        | `Gt` / `_gt`                 | `"ageGt": 18` / `"age_gt": 18`                           | Number, Date                |
-| `>=`          | 大于等于      | `Ge` / `_ge`                 | `"ageGe": 18` / `"age_ge": 18`                           | Number, Date                |
+| `>=`          | 大于等于      | `Gte` / `_gte`               | `"ageGte": 18` / `"age_gte": 18`                         | Number, Date                |
 | `LIKE`        | 模糊匹配      | `Like` / `_like`             | `"nameLike": "mike"` / `"name_like": "mike"`             | String                      |
 | `NOT LIKE`    | 反模糊匹配     | `NotLike` / `_not_like`      | `"nameNotLike": "mike"` / `"name_not_like": "mike"`      | String                      |
 | `IN`          | IN 查询     | `In` / `_in`                 | `"stateIn": [1, 2, 3]` / `"state_in": [1, 2, 3]`         | List/Array (String, Number) |

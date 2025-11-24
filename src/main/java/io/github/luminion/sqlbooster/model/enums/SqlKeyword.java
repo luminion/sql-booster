@@ -137,12 +137,14 @@ public enum SqlKeyword {
                 return SqlKeyword.LT.getKeyword();
             case "<=":
             case "LE":
+            case "LTE":
                 return SqlKeyword.LE.getKeyword();
             case ">":
             case "GT":
                 return SqlKeyword.GT.getKeyword();
             case ">=":
             case "GE":
+            case "GTE":
                 return SqlKeyword.GE.getKeyword();
             case "$":
             case "LIKE":
