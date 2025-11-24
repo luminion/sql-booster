@@ -44,9 +44,9 @@ public class SuffixProcessor {
         HashMap<String, String> map = new HashMap<>();
         addBothCamelCaseAndUnderscore(map, "Ne", SqlKeyword.NE.getKeyword());
         addBothCamelCaseAndUnderscore(map, "Lt", SqlKeyword.LT.getKeyword());
-        addBothCamelCaseAndUnderscore(map, "Le", SqlKeyword.LE.getKeyword());
+        addBothCamelCaseAndUnderscore(map, "Lte", SqlKeyword.LTE.getKeyword());
         addBothCamelCaseAndUnderscore(map, "Gt", SqlKeyword.GT.getKeyword());
-        addBothCamelCaseAndUnderscore(map, "Ge", SqlKeyword.GE.getKeyword());
+        addBothCamelCaseAndUnderscore(map, "Gte", SqlKeyword.GTE.getKeyword());
         addBothCamelCaseAndUnderscore(map, "Like", SqlKeyword.LIKE.getKeyword());
         addBothCamelCaseAndUnderscore(map, "NotLike", SqlKeyword.NOT_LIKE.getKeyword());
         addBothCamelCaseAndUnderscore(map, "In", SqlKeyword.IN.getKeyword());

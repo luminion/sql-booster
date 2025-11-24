@@ -72,7 +72,7 @@ public class MysqlMapperTest {
     public void testvoListWithPagination() {
         // 创建查询条件 todo 暂未处理分页
         SqlWrapper sqlEntity = new SqlWrapper();
-        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GE.getKeyword(), 25));
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GTE.getKeyword(), 25));
 
         // 创建分页对象
 //        IPage<SysUserVO> page = new Page<>(1, 2);
@@ -94,8 +94,8 @@ public class MysqlMapperTest {
     @Order(3)
     public void testMultipleConditions() {
         SqlWrapper sqlEntity = new SqlWrapper();
-        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GE.getKeyword(), 25));
-        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.LE.getKeyword(), 35));
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GTE.getKeyword(), 25));
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.LTE.getKeyword(), 35));
         sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
