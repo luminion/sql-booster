@@ -271,7 +271,7 @@ public interface LambdaHelper<T, S extends LambdaHelper<T, S>> extends BaseHelpe
      *
      * @param getter 字段的 getter 方法引用
      * @param value  位码值
-     * @param     字段类型
+     * @param <R>    字段类型
      * @return 当前实例
      * @since 1.0.0
      */
