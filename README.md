@@ -347,22 +347,23 @@ public class SysUserController {
 
 #### 动态后缀映射表
 
-| 操作符           | 操作说明      | 后缀                           | 示例 (JSON Key)                                            | 值类型                         |
-|---------------|-----------|------------------------------|----------------------------------------------------------|-----------------------------|
-| `=`           | 等于        | (无)                          | `"name": "mike"`                                         | String, Number, Boolean     |
-| `<>`          | 不等于       | `Ne` / `_ne`                 | `"ageNe": 18` / `"age_ne": 18`                           | String, Number, Boolean     |
-| `<`           | 小于        | `Lt` / `_lt`                 | `"ageLt": 18` / `"age_lt": 18`                           | Number, Date                |
-| `<=`          | 小于等于      | `Lte` / `_lte`               | `"ageLte": 18` / `"age_lte": 18`                         | Number, Date                |
-| `>`           | 大于        | `Gt` / `_gt`                 | `"ageGt": 18` / `"age_gt": 18`                           | Number, Date                |
-| `>=`          | 大于等于      | `Gte` / `_gte`               | `"ageGte": 18` / `"age_gte": 18`                         | Number, Date                |
-| `LIKE`        | 模糊匹配      | `Like` / `_like`             | `"nameLike": "mike"` / `"name_like": "mike"`             | String                      |
-| `NOT LIKE`    | 反模糊匹配     | `NotLike` / `_not_like`      | `"nameNotLike": "mike"` / `"name_not_like": "mike"`      | String                      |
-| `IN`          | IN 查询     | `In` / `_in`                 | `"stateIn": [1, 2, 3]` / `"state_in": [1, 2, 3]`         | List/Array (String, Number) |
-| `NOT IN`      | NOT IN 查询 | `NotIn` / `_not_in`          | `"stateNotIn": [1, 2, 3]` / `"state_not_in": [1, 2, 3]`  | List/Array (String, Number) |
-| `IS NULL`     | 为空        | `IsNull` / `_is_null`        | `"nameIsNull": true` / `"name_is_null": true`            | Boolean (true)              |
-| `IS NOT NULL` | 不为空       | `IsNotNull` / `_is_not_null` | `"nameIsNotNull": true` / `"name_is_not_null": true`     | Boolean (true)              |
-| `&`           | 位运算 (包含)  | `BitIn` / `_bit_in`          | `"permissionBitIn": 4` / `"permission_bit_in": 4`        | Number                      |
-| `!&`          | 位运算 (不包含) | `BitNotIn` / `_bit_not_in`   | `"permissionBitNotIn": 4` / `"permission_bit_not_in": 4` | Number                      |
+| sql操作符号       | W操作说明      | 后缀                           | 示例 (JSON Key)                                           | 值类型                         |
+|---------------|------------|------------------------------|---------------------------------------------------------|-----------------------------|
+| `=`           | 等于         | (无)                          | `"name": "mike"`                                        | String, Number, Boolean     |
+| `<>`          | 不等于        | `Ne` / `_ne`                 | `"ageNe": 18` / `"age_ne": 18`                          | String, Number, Boolean     |
+| `<`           | 小于         | `Lt` / `_lt`                 | `"ageLt": 18` / `"age_lt": 18`                          | Number, Date                |
+| `<=`          | 小于等于       | `Lte` / `_lte`               | `"ageLte": 18` / `"age_lte": 18`                        | Number, Date                |
+| `>`           | 大于         | `Gt` / `_gt`                 | `"ageGt": 18` / `"age_gt": 18`                          | Number, Date                |
+| `>=`          | 大于等于       | `Gte` / `_gte`               | `"ageGte": 18` / `"age_gte": 18`                        | Number, Date                |
+| `LIKE`        | 模糊匹配       | `Like` / `_like`             | `"nameLike": "mike"` / `"name_like": "mike"`            | String                      |
+| `NOT LIKE`    | 反模糊匹配      | `NotLike` / `_not_like`      | `"nameNotLike": "mike"` / `"name_not_like": "mike"`     | String                      |
+| `IN`          | IN 查询      | `In` / `_in`                 | `"stateIn": [1, 2, 3]` / `"state_in": [1, 2, 3]`        | List/Array (String, Number) |
+| `NOT IN`      | NOT IN 查询  | `NotIn` / `_not_in`          | `"stateNotIn": [1, 2, 3]` / `"state_not_in": [1, 2, 3]` | List/Array (String, Number) |
+| `IS NULL`     | 为空         | `IsNull` / `_is_null`        | `"nameIsNull": true` / `"name_is_null": true`           | Boolean (true)              |
+| `IS NOT NULL` | 不为空        | `IsNotNull` / `_is_not_null` | `"nameIsNotNull": true` / `"name_is_not_null": true`    | Boolean (true)              |
+| `& ? > 0`     | 包含任意指定bit位 | `BitAny` / `_bit_any`        | `"permissionBitAny": 4` / `"permission_bit_any": 4`     | Number                      |
+| `& ? = ?`     | 包含所有指定bit位 | `BitAll` / `_bit_all`        | `"permissionBitAll": 4` / `"permission_bit_all": 4`     | Number                      |
+| `& ? = 0`     | 不包含指定bit位  | `BitNone` / `_bit_none`      | `"permissionBitNone": 4` / `"permission_bit_none": 4`   | Number                      |
 
 #### 入参示例
 
@@ -461,22 +462,23 @@ public class App {
 
 #### 查询类型映射表
 
-| sql查询类型       | 说明        | operator参数值                        | 值类型                         |
-|:--------------|:----------|:-----------------------------------|:----------------------------|
-| `=`           | 等于(默认)    | `=`, `==`, `eq`, `EQ`              | String, Number, Boolean     |
-| `<>`          | 不等于       | `<>`, `!=`, `ne`, `NE`             | String, Number, Boolean     |
-| `>`           | 大于        | `>`, `gt`, `GT`                    | Number, Date                |
-| `>=`          | 大于等于      | `>=`, `ge`, `GE`                   | Number, Date                |
-| `<`           | 小于        | `<`, `lt`, `LT`                    | Number, Date                |
-| `<=`          | 小于等于      | `<=`, `le`, `LE`                   | Number, Date                |
-| `LIKE`        | 模糊匹配      | `$`,`like`, `LIKE`                 | String                      |
-| `NOT LIKE`    | 反模糊匹配     | `!$`,`not_like`, `NOT_LIKE`        | String                      |
-| `IN`          | 在指定列表中    | `@`,`in`, `IN`                     | List/Array (String, Number) |
-| `NOT IN`      | 不在指定列表中   | `!@`,`not_in`, `NOT_IN`            | List/Array (String, Number) |
-| `IS NULL`     | 为空        | `?`, `is_null`, `IS_NULL`          | Boolean (true)              |
-| `IS NOT NULL` | 不为空       | `!?`, `is_not_null`, `IS_NOT_NULL` | Boolean (true)              |
-| `&`           | 包含指定bit位  | `&`, `bit_in`, `BIT_IN`            | Number                      |
-| `!&`          | 不包含指定bit位 | `!&`, `bit_not_in`, `BIT_NOT_IN`   | Number                      |
+| sql操作符号       | 说明         | operator参数值                  | 值类型                         |
+|:--------------|:-----------|:-----------------------------|:----------------------------|
+| `=`           | 等于         | 无需传参                         | Any                         |
+| `<>`          | 不等于        | `<>`, `!=`, `ne`             | Any                         |
+| `>`           | 大于         | `>`, `gt`                    | Number, Date                |
+| `>=`          | 大于等于       | `>=`, `gte`                  | Number, Date                |
+| `<`           | 小于         | `<`, `lt`                    | Number, Date                |
+| `<=`          | 小于等于       | `<=`, `lte`                  | Number, Date                |
+| `LIKE`        | 模糊匹配       | `like`                       | String                      |
+| `NOT LIKE`    | 反模糊匹配      | `not_like`, `not like`       | String                      |
+| `IN`          | 在指定列表中     | `in`                         | List/Array (String, Number) |
+| `NOT IN`      | 不在指定列表中    | `not_in`, `not in`           | List/Array (String, Number) |
+| `IS NULL`     | 为空         | `is_null`, `is null`         | Boolean (true)              |
+| `IS NOT NULL` | 不为空        | `is_not_null`, `is not null` | Boolean (true)              |
+| `& ? > 0`     | 包含任意指定bit位 | `bit_any`, `bit any`         | Number                      |
+| `& ? = ?`     | 包含所有指定bit位 | `bit_all`, `bit all`         | Number                      |
+| `& ? = 0`     | 不包含指定bit位  | `bit_none`, `bit none`       | Number                      |
 
 > **提示: 其中 `=` 为默认值, 当查询的类型为`=`时无需传递operator参数**
 

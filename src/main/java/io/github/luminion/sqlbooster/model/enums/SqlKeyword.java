@@ -158,6 +158,7 @@ public enum SqlKeyword {
             case "IN":
                 return SqlKeyword.IN.getKeyword();
             case "NOT IN":
+            case "NOT_IN":
                 return SqlKeyword.NOT_IN.getKeyword();
             case "IS NULL":
             case "IS_NULL":
