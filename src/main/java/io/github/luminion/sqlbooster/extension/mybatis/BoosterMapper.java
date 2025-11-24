@@ -1,7 +1,7 @@
 //package io.github.luminion.sqlbooster.extension.mybatis;
 //
 //import io.github.luminion.sqlbooster.core.BoosterEngine;
-//import io.github.luminion.sqlbooster.core.Page;
+//import io.github.luminion.sqlbooster.core.BoosterPage;
 //import io.github.luminion.sqlbooster.model.api.Wrapper;
 //import org.apache.ibatis.annotations.Param;
 //

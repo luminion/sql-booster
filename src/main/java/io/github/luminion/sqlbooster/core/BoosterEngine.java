@@ -44,7 +44,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default void voPostProcess(List<V> records, Wrapper<T> wrapper, Page<V> page) {
+    default void voPostProcess(List<V> records, Wrapper<T> wrapper, BoosterPage<V> page) {
         // do nothing here, only for override
     }
 
@@ -175,22 +175,22 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default Page<V> voPage(Wrapper<T> wrapper, int pageNum, int pageSize) {
+    default BoosterPage<V> voPage(Wrapper<T> wrapper, int pageNum, int pageSize) {
         return voPage(wrapper, (long) pageNum, pageSize);
     }
 
     @Override
-    default Page<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize) {
+    default BoosterPage<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    default <R> Page<R> voPage(Wrapper<T> wrapper, int pageNum, int pageSize, Class<R> targetType) {
+    default <R> BoosterPage<R> voPage(Wrapper<T> wrapper, int pageNum, int pageSize, Class<R> targetType) {
         return voPage(wrapper, (long) pageNum, pageSize, targetType);
     }
 
     @Override
-    default <R> Page<R> voPage(Wrapper<T> wrapper, long pageNum, long pageSize, Class<R> targetType) {
+    default <R> BoosterPage<R> voPage(Wrapper<T> wrapper, long pageNum, long pageSize, Class<R> targetType) {
         return voPage(wrapper, pageNum, pageSize).convertRecords(targetType);
     }
 

@@ -63,7 +63,7 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @param page      分页对象
      * @since 1.0.0
      */
-    void voPostProcess(List<V> records, Wrapper<T> wrapper, Page<V> page);
+    void voPostProcess(List<V> records, Wrapper<T> wrapper, BoosterPage<V> page);
 
     // ==================== 根据ID查询 ====================
 
@@ -257,7 +257,7 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    Page<V> voPage(Wrapper<T> wrapper, int pageNum, int pageSize);
+    BoosterPage<V> voPage(Wrapper<T> wrapper, int pageNum, int pageSize);
 
 
     /**
@@ -269,7 +269,7 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    Page<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize);
+    BoosterPage<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize);
 
     /**
      * 根据条件查询VO对象列表并转换类型（分页）.
@@ -282,7 +282,7 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    <R> Page<R> voPage(Wrapper<T> wrapper, int pageNum, int pageSize, Class<R> targetType);
+    <R> BoosterPage<R> voPage(Wrapper<T> wrapper, int pageNum, int pageSize, Class<R> targetType);
 
     /**
      * 根据条件查询VO对象列表（分页）.
@@ -295,5 +295,5 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    <R> Page<R> voPage(Wrapper<T> wrapper, long pageNum, long pageSize, Class<R> targetType);
+    <R> BoosterPage<R> voPage(Wrapper<T> wrapper, long pageNum, long pageSize, Class<R> targetType);
 }

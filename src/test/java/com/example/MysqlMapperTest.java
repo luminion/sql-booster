@@ -4,7 +4,7 @@ package com.example;
 import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
-import io.github.luminion.sqlbooster.core.Page;
+import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.sql.SqlCondition;
 import io.github.luminion.sqlbooster.model.sql.SqlSort;
@@ -75,10 +75,10 @@ public class MysqlMapperTest {
         sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GTE.getKeyword(), 25));
 
         // 创建分页对象
-//        IPage<SysUserVO> page = new Page<>(1, 2);
+//        IPage<SysUserVO> page = new BoosterPage<>(1, 2);
 
 //        List<SysUserVO> result = sysUserMapper.voPage(sqlEntity, 1,2);
-        Page<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
+        BoosterPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
 
         assertNotNull(page);
         assertTrue(page.getPages() <= 2);
@@ -107,7 +107,7 @@ public class MysqlMapperTest {
             assertTrue(user.getAge() >= 25 && user.getAge() <= 35);
         });
         
-        Page<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
+        BoosterPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
         System.out.println(page);
         
     }
@@ -340,7 +340,7 @@ public class MysqlMapperTest {
     @Order(24)
     public void testPaginationBoundaries() {
 
-        Page<SysUserVO> page = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> page = SqlHelper.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-2, 10);
@@ -348,7 +348,7 @@ public class MysqlMapperTest {
         assertTrue(page.getTotal() >= 4);
         
         // 测试第一页
-        Page<SysUserVO> firstPage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> firstPage = SqlHelper.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(1L, 2L);
@@ -357,7 +357,7 @@ public class MysqlMapperTest {
         assertEquals(2, firstPage.getSize());
         assertTrue(firstPage.getTotal() >= 4);
         // 测试超出范围的页码
-        Page<SysUserVO> outOfRangePage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> outOfRangePage = SqlHelper.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(999L, 10L);
@@ -366,7 +366,7 @@ public class MysqlMapperTest {
         assertTrue(outOfRangePage.getRecords().isEmpty());
 
         // 测试负数页码（应该被修正为1）
-        Page<SysUserVO> negativePage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> negativePage = SqlHelper.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-1L, 10L);

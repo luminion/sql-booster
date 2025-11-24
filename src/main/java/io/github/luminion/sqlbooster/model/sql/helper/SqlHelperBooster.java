@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.model.sql.helper;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
-import io.github.luminion.sqlbooster.core.Page;
+import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.model.api.Wrapper;
 
 import java.util.List;
@@ -141,7 +141,7 @@ public class SqlHelperBooster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    public Page<V> page(int pageNum, int pageSize) {
+    public BoosterPage<V> page(int pageNum, int pageSize) {
         return boosterCore.voPage(this.wrapper, pageNum, pageSize);
     }
 
@@ -153,7 +153,7 @@ public class SqlHelperBooster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    public Page<V> page(long pageNum, long pageSize) {
+    public BoosterPage<V> page(long pageNum, long pageSize) {
         return boosterCore.voPage(this.wrapper, pageNum, pageSize);
     }
 
@@ -166,7 +166,7 @@ public class SqlHelperBooster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    public <R> Page<R> page(int pageNum, int pageSize, Class<R> targetType) {
+    public <R> BoosterPage<R> page(int pageNum, int pageSize, Class<R> targetType) {
         return boosterCore.voPage(this.wrapper, pageNum, pageSize, targetType);
     }
 
@@ -179,7 +179,7 @@ public class SqlHelperBooster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    public <R> Page<R> page(long pageNum, long pageSize, Class<R> targetType) {
+    public <R> BoosterPage<R> page(long pageNum, long pageSize, Class<R> targetType) {
         return boosterCore.voPage(this.wrapper, pageNum, pageSize, targetType);
     }
 
