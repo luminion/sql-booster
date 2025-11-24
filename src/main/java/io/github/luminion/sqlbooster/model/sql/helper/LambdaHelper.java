@@ -250,7 +250,7 @@ public interface LambdaHelper<T, S extends LambdaHelper<T, S>> extends BaseHelpe
     }
 
     /**
-     * 添加位运算包含条件.
+     * 包含任意指定bit位
      *
      * @param getter 字段的 getter 方法引用
      * @param value  位码值
@@ -258,16 +258,33 @@ public interface LambdaHelper<T, S extends LambdaHelper<T, S>> extends BaseHelpe
      * @return 当前实例
      * @since 1.0.0
      */
-    default <R> S bitIn(MethodReference<T, R> getter, R value) {
+    default <R> S bitAny(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_IN.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
+        return (S) this;
+    }
+    
+    /**
+     * 包含所有指定bit位
+     *
+     * @param getter 字段的 getter 方法引用
+     * @param value  位码值
+     * @param     字段类型
+     * @return 当前实例
+     * @since 1.0.0
+     */
+    default <R> S bitAll(MethodReference<T, R> getter, R value) {
+        if (value == null) {
+            return (S) this;
+        }
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
         return (S) this;
     }
 
     /**
-     * 添加位运算不包含条件.
+     * 不包含指定bit位
      *
      * @param getter 字段的 getter 方法引用
      * @param value  位码值
@@ -275,11 +292,11 @@ public interface LambdaHelper<T, S extends LambdaHelper<T, S>> extends BaseHelpe
      * @return 当前实例
      * @since 1.0.0
      */
-    default <R> S bitNotIn(MethodReference<T, R> getter, R value) {
+    default <R> S bitNone(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NOT_IN.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
         return (S) this;
     }
 

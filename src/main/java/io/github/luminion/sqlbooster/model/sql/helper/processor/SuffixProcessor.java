@@ -55,8 +55,9 @@ public class SuffixProcessor {
         addBothCamelCaseAndUnderscore(map, "IsNull", SqlKeyword.IS_NULL.getKeyword());
         addBothCamelCaseAndUnderscore(map, "NotNull", SqlKeyword.IS_NOT_NULL.getKeyword());
         addBothCamelCaseAndUnderscore(map, "IsNotNull", SqlKeyword.IS_NOT_NULL.getKeyword());
-        addBothCamelCaseAndUnderscore(map, "BitIn", SqlKeyword.BIT_IN.getKeyword());
-        addBothCamelCaseAndUnderscore(map, "BitNotIn", SqlKeyword.BIT_NOT_IN.getKeyword());
+        addBothCamelCaseAndUnderscore(map, "BitAny", SqlKeyword.BIT_ANY.getKeyword());
+        addBothCamelCaseAndUnderscore(map, "BitAll", SqlKeyword.BIT_ALL.getKeyword());
+        addBothCamelCaseAndUnderscore(map, "BitNone", SqlKeyword.BIT_NONE.getKeyword());
         defaultSuffixToOperatorMap = Collections.unmodifiableMap(map);
     }
 

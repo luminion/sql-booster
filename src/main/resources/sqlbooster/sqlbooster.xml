@@ -18,11 +18,14 @@
                                 <when test='item.operator == "IS NULL" or item.operator == "IS NOT NULL"'>
                                     ${item.field} ${item.operator}
                                 </when>
-                                <when test='item.operator == "&amp;"'>
-                                    ${item.field} &amp; #{item.value} &gt; 0
+                                <when test='item.operator == "BIT ANY"'>
+                                    (${item.field} &amp; #{item.value}) &gt; 0
                                 </when>
-                                <when test='item.operator == "!&amp;"'>
-                                    ${item.field} &amp; #{item.value} = 0
+                                <when test='item.operator == "BIT ALL"'>
+                                    (${item.field} &amp; #{item.value}) = ${item.value}
+                                </when>
+                                <when test='item.operator == "BIT NONE"'>
+                                    (${item.field} &amp; #{item.value}) = 0
                                 </when>
                                 <otherwise>
                                     ${item.field} ${item.operator} #{item.value}

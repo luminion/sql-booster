@@ -76,13 +76,17 @@ public enum SqlKeyword {
     NOT_IN("NOT IN"),
 
     /**
-     * 位运算包含操作符
+     * 包含任意指定bit位
      */
-    BIT_IN("&"),
+    BIT_ANY("BIT ANY"),
     /**
-     * 位运算不包含操作符
+     * 包含所有指定bit位
      */
-    BIT_NOT_IN("!&"),
+    BIT_ALL("BIT ALL"),
+    /**
+     * 不包含指定bit位
+     */
+    BIT_NONE("BIT NONE"),
 
     ;
     /**
@@ -146,35 +150,27 @@ public enum SqlKeyword {
             case "GE":
             case "GTE":
                 return SqlKeyword.GTE.getKeyword();
-            case "$":
             case "LIKE":
                 return SqlKeyword.LIKE.getKeyword();
-            case "!$":
             case "NOT LIKE":
             case "NOT_LIKE":
                 return SqlKeyword.NOT_LIKE.getKeyword();
-            case "@":
             case "IN":
                 return SqlKeyword.IN.getKeyword();
-            case "!@":
             case "NOT IN":
                 return SqlKeyword.NOT_IN.getKeyword();
-            case "?":
             case "IS NULL":
             case "IS_NULL":
                 return SqlKeyword.IS_NULL.getKeyword();
-            case "!?":
             case "IS NOT NULL":
             case "IS_NOT_NULL":
                 return SqlKeyword.IS_NOT_NULL.getKeyword();
-            case "&":
-            case "BIT IN":
-            case "BIT_IN":
-                return SqlKeyword.BIT_IN.getKeyword();
-            case "!&":
-            case "BIT NOT IN":
-            case "BIT_NOT_IN":
-                return SqlKeyword.BIT_NOT_IN.getKeyword();
+            case "BIT_ANY":
+                return SqlKeyword.BIT_ANY.getKeyword();
+            case "BIT_ALL":
+                return SqlKeyword.BIT_ALL.getKeyword();
+            case "BIT_NONE":
+                return SqlKeyword.BIT_NONE.getKeyword();
             default:
                 throw new IllegalArgumentException("illegal operator: " + operator);
         }
@@ -245,7 +241,7 @@ public enum SqlKeyword {
      * @since 1.0.0
      */
     public static boolean isBitOperator(String operator) {
-        return SqlKeyword.BIT_IN.getKeyword().equals(operator) || SqlKeyword.BIT_NOT_IN.getKeyword().equals(operator);
+        return SqlKeyword.BIT_ANY.getKeyword().equals(operator) || SqlKeyword.BIT_ALL.getKeyword().equals(operator)|| SqlKeyword.BIT_NONE.getKeyword().equals(operator);
     }
 
 }

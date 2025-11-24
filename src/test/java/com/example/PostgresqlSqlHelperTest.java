@@ -291,7 +291,7 @@ public class PostgresqlSqlHelperTest {
         // 测试具有指定位的用户 (state & 1 > 0)
         // 张三(state=1)和王五(state=3)应该匹配这个条件
         List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
-                .bitIn(SysUser::getState, 1)
+                .bitAny(SysUser::getState, 1)
                 .boost(baseService)
                 .list();
         assertNotNull(list1);
@@ -301,7 +301,7 @@ public class PostgresqlSqlHelperTest {
         // 测试具有指定位的用户 (state & 2 > 0)
         // 李四(state=2)和王五(state=3)应该匹配这个条件
         List<SysUserVO> list2 = SqlHelper.of(SysUser.class)
-                .bitIn(SysUser::getState, 2)
+                .bitAny(SysUser::getState, 2)
                 .boost(baseService)
                 .list();
         assertNotNull(list2);
@@ -318,7 +318,7 @@ public class PostgresqlSqlHelperTest {
         // 测试不具有指定位的用户 (state & 2 = 0)
         // 只有张三(state=1)应该匹配这个条件
         List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
-                .bitNotIn(SysUser::getState, 2)
+                .bitNone(SysUser::getState, 2)
                 .boost(baseService)
                 .list();
         assertNotNull(list1);
@@ -328,7 +328,7 @@ public class PostgresqlSqlHelperTest {
         // 测试不具有指定位的用户 (state & 1 = 0)
         // 只有李四(state=2)应该匹配这个条件
         List<SysUserVO> list2 = SqlHelper.of(SysUser.class)
-                .bitNotIn(SysUser::getState, 1)
+                .bitNone(SysUser::getState, 1)
                 .boost(baseService)
                 .list();
         assertNotNull(list2);
