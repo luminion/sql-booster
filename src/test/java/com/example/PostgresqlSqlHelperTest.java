@@ -4,7 +4,7 @@ import com.example.entity.SysUser;
 import com.example.impl.PostgresService;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;

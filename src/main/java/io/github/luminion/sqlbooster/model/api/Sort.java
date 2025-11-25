@@ -1,29 +1,42 @@
 package io.github.luminion.sqlbooster.model.api;
 
+import lombok.*;
+
 /**
- * 排序接口.
+ * SQL 排序实体类.
  * <p>
- * 定义查询中的排序规则, 包括排序字段和排序方向.
+ * 实现了 {@link Sort} 接口, 用于表示 SQL 查询中的排序规则.
  *
  * @author luminion
  * @since 1.0.0
  */
-public interface Sort {
+
+@Getter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+public class Sort {
 
     /**
-     * 获取排序字段的属性名.
-     *
-     * @return 属性名
-     * @since 1.0.0
+     * 排序字段.
      */
-    String getField();
+    protected String field;
 
     /**
-     * 是否为升序排列
+     * 是否为升序排列.
+     */
+    protected boolean asc;
+
+    /**
+     * 从 {@link Sort} 实例创建 {@link Sort} 实例.
      *
-     * @return true 表示升序, false 表示降序
+     * @param sort SQL 排序接口实例
+     * @return {@link Sort} SQL 排序实体实例
      * @since 1.0.0
      */
-    boolean isAsc();
+    public static Sort of(Sort sort) {
+        return new Sort(sort.getField(), sort.isAsc());
+    }
 
 }

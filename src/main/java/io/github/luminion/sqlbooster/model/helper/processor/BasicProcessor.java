@@ -1,15 +1,12 @@
-package io.github.luminion.sqlbooster.model.sql.helper.processor;
+package io.github.luminion.sqlbooster.model.helper.processor;
 
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.Tree;
-import io.github.luminion.sqlbooster.model.sql.SqlCondition;
-import io.github.luminion.sqlbooster.model.sql.SqlSort;
-import io.github.luminion.sqlbooster.model.sql.SqlTree;
-import io.github.luminion.sqlbooster.model.sql.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.model.sql.helper.BaseHelper;
-import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
+import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
+import io.github.luminion.sqlbooster.model.helper.BaseHelper;
+import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,7 +93,7 @@ public abstract class BasicProcessor {
                 value = "%" + value + "%";
             }
         }
-        return new SqlCondition(jdbcColumn, operator, value);
+        return new Condition(jdbcColumn, operator, value);
     }
 
     /**
@@ -113,18 +110,18 @@ public abstract class BasicProcessor {
             log.warn("sort field [{}] not exist in fieldMap , it will be removed", sort.getField());
             return null;
         }
-        return new SqlSort(jdbcColumn, sort.isAsc());
+        return new Sort(jdbcColumn, sort.isAsc());
     }
 
     /**
-     * 将一组 SQL 条件包装到 {@link AbstractHelper} 中.
+     * 将一组 SQL 条件包装到 {@link BaseHelper} 中.
      *
      * @param sqlHelper  目标 SQL 助手
      * @param conditions 待包装的 SQL 条件集合
      * @param symbol     连接这些条件的逻辑符号 (AND/OR)
      * @since 1.0.0
      */
-    public static void warpConditions(AbstractHelper<?, ?> sqlHelper, Collection<Condition> conditions, String symbol) {
+    public static void warpConditions(BaseHelper<?, ?> sqlHelper, Collection<Condition> conditions, String symbol) {
         if (sqlHelper == null || conditions == null || conditions.isEmpty()) {
             return;
         }
@@ -133,19 +130,19 @@ public abstract class BasicProcessor {
             sqlHelper.getConditions().addAll(conditions);
             return;
         }
-        SqlTree iSqlTrees = new SqlTree(conditions, SqlKeyword.OR.getKeyword());
-        sqlHelper.merge(iSqlTrees);
+        Tree iTrees = new Tree(conditions, SqlKeyword.OR.getKeyword());
+        sqlHelper.merge(iTrees);
     }
 
     /**
-     * 将一组 SQL 排序规则包装到 {@link AbstractHelper} 中.
+     * 将一组 SQL 排序规则包装到 {@link BaseHelper} 中.
      *
      * @param sqlHelper                目标 SQL 助手
      * @param sorts                    待包装的 SQL 排序规则集合
      * @param propertyToColumnAliasMap 属性名到数据库列名的映射
      * @since 1.0.0
      */
-    public static void wrapSorts(AbstractHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
+    public static void wrapSorts(BaseHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
         for (Sort sort : sorts) {
             Sort validateSort = validateSort(sort, propertyToColumnAliasMap);
             if (validateSort != null) {
@@ -159,11 +156,11 @@ public abstract class BasicProcessor {
      *
      * @param rootHelper 根 SQL 助手
      * @param <T>        实体类型
-     * @return 处理后的 {@link BaseHelper} 实例
+     * @return 处理后的实例
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public static <T> BaseHelper<T> process(BaseHelper<T> rootHelper) {
+    public static <T> AbstractHelper<T> process(AbstractHelper<T> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");

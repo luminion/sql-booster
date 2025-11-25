@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.sql.helper;
+package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.core.BoosterPage;
@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * 具备扩展查询功能的 SQL 构建助手.
  * <p>
- * 封装了 {@link BoosterCore} 和 {@link BaseHelper}, 提供了方便的链式调用查询方法.
+ * 封装了 {@link BoosterCore} 和 {@link AbstractHelper}, 提供了方便的链式调用查询方法.
  *
  * @param <T> 实体类型
  * @param <V> VO 类型
