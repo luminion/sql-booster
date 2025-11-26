@@ -11,9 +11,7 @@ import lombok.*;
  * @author luminion
  * @since 1.0.0
  */
-@Getter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 public class Condition {
 
@@ -24,53 +22,21 @@ public class Condition {
     /**
      * 操作符.
      */
-    protected String operator;
+    protected String operator = SqlKeyword.EQ.getKeyword();
     /**
      * 条件值.
      */
-    protected Object value;
+    protected Object value = "";
 
-    {
-        this.operator = SqlKeyword.EQ.getKeyword();
-        this.value = "";
-    }
-
-    /**
-     * 使用字段名和值构造一个默认操作符为等于 (EQ) 的条件.
-     *
-     * @param field 字段名
-     * @param value 条件值
-     * @since 1.0.0
-     */
     public Condition(String field, Object value) {
         this.field = field;
         this.value = value;
     }
 
-    /**
-     * 使用字段名、操作符和值构造一个条件.
-     *
-     * @param field    字段名
-     * @param operator 操作符
-     * @param value    条件值
-     * @since 1.0.0
-     */
     public Condition(String field, String operator, Object value) {
         this.field = field;
         this.operator = SqlKeyword.replaceOperator(operator);
         this.value = value;
     }
-
-    /**
-     * 从 {@link Condition} 实例创建 {@link Condition} 实例.
-     *
-     * @param sqlCondition SQL 条件接口实例
-     * @return {@link Condition} SQL 条件实体实例
-     * @since 1.0.0
-     */
-    public static Condition of(Condition sqlCondition) {
-        return new Condition(sqlCondition.getField(), sqlCondition.getOperator(), sqlCondition.getValue());
-    }
-
 
 }

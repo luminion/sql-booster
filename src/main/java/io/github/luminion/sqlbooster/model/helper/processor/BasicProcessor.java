@@ -5,7 +5,7 @@ import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.Tree;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.model.helper.BaseHelper;
+import io.github.luminion.sqlbooster.model.helper.ChainHelper;
 import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -114,14 +114,14 @@ public abstract class BasicProcessor {
     }
 
     /**
-     * 将一组 SQL 条件包装到 {@link BaseHelper} 中.
+     * 将一组 SQL 条件包装到 {@link ChainHelper} 中.
      *
      * @param sqlHelper  目标 SQL 助手
      * @param conditions 待包装的 SQL 条件集合
      * @param symbol     连接这些条件的逻辑符号 (AND/OR)
      * @since 1.0.0
      */
-    public static void warpConditions(BaseHelper<?, ?> sqlHelper, Collection<Condition> conditions, String symbol) {
+    public static void warpConditions(ChainHelper<?, ?> sqlHelper, Collection<Condition> conditions, String symbol) {
         if (sqlHelper == null || conditions == null || conditions.isEmpty()) {
             return;
         }
@@ -131,18 +131,18 @@ public abstract class BasicProcessor {
             return;
         }
         Tree iTrees = new Tree(conditions, SqlKeyword.OR.getKeyword());
-        sqlHelper.merge(iTrees);
+        sqlHelper.append(iTrees);
     }
 
     /**
-     * 将一组 SQL 排序规则包装到 {@link BaseHelper} 中.
+     * 将一组 SQL 排序规则包装到 {@link ChainHelper} 中.
      *
      * @param sqlHelper                目标 SQL 助手
      * @param sorts                    待包装的 SQL 排序规则集合
      * @param propertyToColumnAliasMap 属性名到数据库列名的映射
      * @since 1.0.0
      */
-    public static void wrapSorts(BaseHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
+    public static void wrapSorts(ChainHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
         for (Sort sort : sorts) {
             Sort validateSort = validateSort(sort, propertyToColumnAliasMap);
             if (validateSort != null) {

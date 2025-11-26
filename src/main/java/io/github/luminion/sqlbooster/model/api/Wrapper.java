@@ -31,7 +31,7 @@ public class Wrapper<T> extends Tree {
     protected transient Map<String, Object> extra = new HashMap<>();
     
     @Override
-    protected Tree addChild(Tree tree) {
+    protected Tree mergeTree(Tree tree) {
         if (tree == null) {
             return this;
         }
@@ -39,6 +39,6 @@ public class Wrapper<T> extends Tree {
             Wrapper<?> wrapper = (Wrapper<?>) tree;
             this.sorts.addAll(wrapper.getSorts());
         }
-        return super.addChild(tree);
+        return super.mergeTree(tree);
     }
 }

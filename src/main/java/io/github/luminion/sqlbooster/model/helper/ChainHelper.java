@@ -1,19 +1,16 @@
 package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.Tree;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
-import lombok.Getter;
 
 import java.util.Map;
 
 /**
- * SQL 构建助手抽象基类.
+ * 链式助手.
  * <p>
  * 提供了 SQL 构建的基本功能, 包括条件添加、排序设置等, 并通过泛型支持链式调用.
  *
@@ -23,8 +20,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends AbstractHelper<T> {
-    
+public abstract class ChainHelper<T, S extends ChainHelper<T, S>>  extends AbstractHelper<T> {
 
     /**
      * 合并指定条件树的条件
@@ -33,9 +29,9 @@ public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends Abstrac
      * @return 当前实例
      * @since 1.0.0
      */
-    public S merge(Tree tree) {
+    public S append(Tree tree) {
         if (tree != null) {
-            super.addChild(tree);
+            super.mergeTree(tree);
         }
         return (S) this;
     }
@@ -47,7 +43,7 @@ public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends Abstrac
      * @return 当前实例
      * @since 1.0.0
      */
-    public S merge(Condition condition) {
+    public S append(Condition condition) {
         if (condition != null) {
             this.getConditions().add(condition);
         }
@@ -61,7 +57,7 @@ public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends Abstrac
      * @return 当前实例
      * @since 1.0.0
      */
-    public S merge(Sort sort) {
+    public S append(Sort sort) {
         if (sort != null) {
             this.getSorts().add(sort);
         }
@@ -77,7 +73,7 @@ public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends Abstrac
      * @return 当前实例
      * @since 1.0.0
      */
-    public <K, V> S merge(Map<K, V> map) {
+    public <K, V> S append(Map<K, V> map) {
         for (Map.Entry<K, V> entry : map.entrySet()) {
             K key = entry.getKey();
             V value = entry.getValue();
@@ -96,12 +92,12 @@ public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends Abstrac
      * @return 当前实例
      * @since 1.0.0
      */
-    public S merge(Object dto) {
+    public S append(Object dto) {
         if (dto == null) {
             return (S) this;
         }
         Map<?, ?> map = ReflectUtils.objectToMap(dto);
-        return merge(map);
+        return append(map);
     }
 
     /**
@@ -114,20 +110,6 @@ public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends Abstrac
     public <V> S entity(Booster<T, V> booster) {
         this.entityClass = BoostUtils.getEntityClass(booster);
         return (S) this;
-    }
-
-    /**
-     * 转换为 {@link SqlHelperBooster}.
-     *
-     * @param boosterCore {@link BoosterCore} 实例
-     * @param <V>       VO 类型
-     * @param <P>       分页对象类型
-     * @return {@link SqlHelperBooster} 实例
-     * @since 1.0.0
-     */
-    public <V, P> SqlHelperBooster<T, V> boost(BoosterCore<T, V> boosterCore) {
-        this.entityClass = BoostUtils.getEntityClass(boosterCore);
-        return new SqlHelperBooster<>(boosterCore,this);
     }
 
 }

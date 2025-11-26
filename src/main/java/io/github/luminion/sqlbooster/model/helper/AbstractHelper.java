@@ -1,7 +1,9 @@
 package io.github.luminion.sqlbooster.model.helper;
 
 
+import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.model.api.Wrapper;
+import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.Getter;
 
 import java.util.function.Function;
@@ -22,7 +24,6 @@ public abstract class AbstractHelper<T> extends Wrapper<T> {
      */
     protected transient Class<T> entityClass;
     
-    
     /**
      * 应用一个处理器对当前的 SQL 助手进行转换或处理.
      *
@@ -32,6 +33,20 @@ public abstract class AbstractHelper<T> extends Wrapper<T> {
      */
     public AbstractHelper<T> process(Function<AbstractHelper<T>, AbstractHelper<T>> processor){
         return processor.apply(this);
+    }
+
+    /**
+     * 转换为 {@link SqlHelperBooster}.
+     *
+     * @param boosterCore {@link BoosterCore} 实例
+     * @param <V>       VO 类型
+     * @param <P>       分页对象类型
+     * @return {@link SqlHelperBooster} 实例
+     * @since 1.0.0
+     */
+    public <V, P> SqlHelperBooster<T, V> boost(BoosterCore<T, V> boosterCore) {
+        this.entityClass = BoostUtils.getEntityClass(boosterCore);
+        return new SqlHelperBooster<>(boosterCore,this);
     }
     
 }

@@ -10,10 +10,7 @@ import lombok.*;
  * @author luminion
  * @since 1.0.0
  */
-
-@Getter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Sort {
@@ -27,16 +24,5 @@ public class Sort {
      * 是否为升序排列.
      */
     protected boolean asc;
-
-    /**
-     * 从 {@link Sort} 实例创建 {@link Sort} 实例.
-     *
-     * @param sort SQL 排序接口实例
-     * @return {@link Sort} SQL 排序实体实例
-     * @since 1.0.0
-     */
-    public static Sort of(Sort sort) {
-        return new Sort(sort.getField(), sort.isAsc());
-    }
 
 }

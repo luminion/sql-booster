@@ -2,10 +2,7 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.model.api.Wrapper;
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.util.BoostUtils;
-
-import java.util.function.Consumer;
 
 /**
  * SQL 构建助手实现类.
@@ -60,7 +57,7 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
             return (SqlHelper<T>) wrapper;
         }
         SqlHelper<T> sqlHelper = new SqlHelper<>();
-        return sqlHelper.merge(wrapper);
+        return sqlHelper.append(wrapper);
     }
 
     /**
@@ -74,22 +71,6 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
      */
     public static <T, R> SqlHelper<T> of(Booster<T, R> booster) {
         return SqlHelper.of(BoostUtils.getEntityClass(booster));
-    }
-
-    /**
-     * 添加一组 OR 连接的条件.
-     *
-     * @param sqlHelper 用于构建 OR 条件的 Consumer
-     * @return 当前 {@link SqlHelper} 实例
-     * @since 1.0.0
-     */
-    @Override
-    public SqlHelper<T> or(Consumer<SqlHelper<T>> sqlHelper) {
-        SqlHelper<T> child = new SqlHelper<>();
-        child.connector = SqlKeyword.OR.getKeyword();
-        sqlHelper.accept(child);
-        this.addChild(child);
-        return this;
     }
 
     /**
@@ -107,4 +88,8 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
     }
 
 
+    @Override
+    protected SqlHelper<T> newInstance() {
+        return new SqlHelper<>();
+    }
 }

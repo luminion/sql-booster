@@ -59,7 +59,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
             throw new IllegalStateException("can't find id property");
         }
         Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getKeyword(), id);
-        SqlHelper<T> sqlHelper = SqlHelper.of(this).merge(condition);
+        SqlHelper<T> sqlHelper = SqlHelper.of(this).append(condition);
         return voUnique(sqlHelper);
     }
 
@@ -87,7 +87,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
         Class<T> entityClass = BoostUtils.getEntityClass(this);
         String idPropertyName = BoostUtils.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
-        SqlHelper<T> sqlHelper = SqlHelper.of(this).merge(condition);
+        SqlHelper<T> sqlHelper = SqlHelper.of(this).append(condition);
         return voList(sqlHelper);
     }
 
@@ -159,7 +159,10 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     default List<V> voList(Wrapper<T> wrapper) {
         voPreProcess(wrapper);
 
-        AbstractHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
+        Class<T> entityClass = BoostUtils.getEntityClass(this);
+        SqlHelper<T> sqlHelper = SqlHelper.of(entityClass)
+                .append(wrapper)
+                .process(SuffixProcessor.of()::process);
         List<V> vs = selectByBooster(sqlHelper, null);
 
         voPostProcess(vs, sqlHelper, null);

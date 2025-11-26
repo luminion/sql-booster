@@ -305,7 +305,7 @@ public class SysUserController {
     @PostMapping("/lambda")
     public List<SysUserVO> getUsersBySql(@RequestBody Map<String, Object> params) {
         return SqlHelper.of(SysUser.class)
-                .merge(params) // 合并或添加条件, 支持实体类, DTO对象, map, SqlHelper等
+                .append(params) // 合并或添加条件, 支持实体类, DTO对象, map, SqlHelper等
                 .eq(SysUser::getState, 1) // state=1
                 .ge(SysUser::getAge, 18) // age>=18
                 .in(SysUser::getRoleId, Arrays.asList(1, 2))

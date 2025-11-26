@@ -422,7 +422,7 @@ public class PostgresqlSqlHelperTest {
         queryParams.put("ageLe", 35); // 应该转换为age <= 35
 
         List<SysUserVO> suffixList = SqlHelper.of(SysUser.class)
-                .merge(queryParams)
+                .append(queryParams)
                 .boost(baseService)
                 .list();
         assertNotNull(suffixList);
