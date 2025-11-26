@@ -3,7 +3,7 @@ spring:
     active: datasource
 ---
 mybatis-plus:
-  mapper-locations: classpath:com/example/test/**/*.xml
+  mapper-locations: classpath:/mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
 logging:

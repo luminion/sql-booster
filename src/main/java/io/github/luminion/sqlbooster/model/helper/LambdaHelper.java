@@ -30,9 +30,10 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Abst
      * @since 1.0.0
      */
     public S or(Consumer<S> consumer) {
-        S trees = newInstance();
-        trees.setConnector(SqlKeyword.OR.getKeyword());
-        this.appendTree(trees);
+        S tree = newInstance();
+        tree.setConnector(SqlKeyword.OR.getKeyword());
+        consumer.accept(tree);
+        this.appendTree(tree);
         return (S) this;
     }
 

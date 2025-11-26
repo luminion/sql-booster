@@ -287,7 +287,7 @@ public class PostgresqlSqlHelperTest {
      */
     @Test
     @Order(17)
-    public void testBitwiseWith() {
+    public void testBitAny() {
         // 测试具有指定位的用户 (state & 1 > 0)
         // 张三(state=1)和王五(state=3)应该匹配这个条件
         List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
@@ -308,13 +308,37 @@ public class PostgresqlSqlHelperTest {
         assertTrue(list2.size() >= 2); // 李四和王五
         assertTrue(list2.stream().allMatch(e -> (e.getState() & 2) > 0));
     }
+    
+    @Test
+    @Order(17)
+    public void testBitAll(){
+        // 测试具有指定位的用户 (state & 3 = 3)
+        // 王五(state=3)应该匹配这个条件
+        List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
+                .bitAll(SysUser::getState, 3)
+                .boost(baseService)
+                .list();
+        assertNotNull(list1);
+        assertTrue(list1.size() >= 1); // 王五
+        assertTrue(list1.stream().allMatch(e -> (e.getState() & 3) == 3));
+
+        // 测试具有指定位的用户 (state & 2 = 2)
+        // 李四(state=2)和王五(state=3)应该匹配这个条件
+        List<SysUserVO> list2 = SqlHelper.of(SysUser.class)
+                .bitAll(SysUser::getState, 2)
+                .boost(baseService)
+                .list();
+        assertNotNull(list2);
+        assertTrue(list2.size() >= 2); // 李四和王五
+        assertTrue(list2.stream().allMatch(e -> (e.getState() & 2) == 2));
+    }
 
     /**
      * 测试 bitwiseWithout 条件
      */
     @Test
     @Order(18)
-    public void testBitwiseWithout() {
+    public void testBitNone() {
         // 测试不具有指定位的用户 (state & 2 = 0)
         // 只有张三(state=1)应该匹配这个条件
         List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
