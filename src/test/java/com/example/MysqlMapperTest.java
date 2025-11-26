@@ -6,10 +6,10 @@ import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.sql.SqlCondition;
+import io.github.luminion.sqlbooster.model.sql.SqlSort;
+import io.github.luminion.sqlbooster.model.sql.SqlWrapper;
+import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -52,8 +52,8 @@ public class MysqlMapperTest {
     @Order(1)
     public void testBasicvoList() {
         // 创建简单的查询条件
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.EQ.getKeyword(), "张三"));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.EQ.getKeyword(), "张三"));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -71,8 +71,8 @@ public class MysqlMapperTest {
     @Order(2)
     public void testvoListWithPagination() {
         // 创建查询条件 todo 暂未处理分页
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GTE.getKeyword(), 25));
 
         // 创建分页对象
 //        IPage<SysUserVO> page = new BoosterPage<>(1, 2);
@@ -93,10 +93,10 @@ public class MysqlMapperTest {
     @Test
     @Order(3)
     public void testMultipleConditions() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.LTE.getKeyword(), 35));
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.GTE.getKeyword(), 25));
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.LTE.getKeyword(), 35));
+        sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -140,8 +140,8 @@ public class MysqlMapperTest {
     @Test
     @Order(5)
     public void testInQuery() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getKeyword(), Arrays.asList(25, 30)));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.IN.getKeyword(), Arrays.asList(25, 30)));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -156,9 +156,9 @@ public class MysqlMapperTest {
     @Test
     @Order(6)
     public void testSorting() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
-        sqlEntity.getSorts().add(new Sort("age", true)); // 年龄升序
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
+        sqlEntity.getSorts().add(new SqlSort("age", true)); // 年龄升序
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -177,9 +177,9 @@ public class MysqlMapperTest {
     @Test
     @Order(7)
     public void testDescendingSorting() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
-        sqlEntity.getSorts().add(new Sort("age", false)); // 年龄降序
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
+        sqlEntity.getSorts().add(new SqlSort("age", false)); // 年龄降序
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -198,7 +198,7 @@ public class MysqlMapperTest {
     @Test
     @Order(8)
     public void testEmptyConditions() {
-        Wrapper sqlEntity = new Wrapper();
+        SqlWrapper sqlEntity = new SqlWrapper();
         // 不添加任何条件
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -213,8 +213,8 @@ public class MysqlMapperTest {
     @Test
     @Order(9)
     public void testNullValueQuery() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("nameLike", SqlKeyword.IS_NULL.getKeyword(), true));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("nameLike", SqlKeyword.IS_NULL.getKeyword(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -229,8 +229,8 @@ public class MysqlMapperTest {
     @Test
     @Order(10)
     public void testNotNullQuery() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -245,8 +245,8 @@ public class MysqlMapperTest {
     @Test
     @Order(11)
     public void testNotInQuery() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.NOT_IN.getKeyword(), Arrays.asList(25, 30)));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.NOT_IN.getKeyword(), Arrays.asList(25, 30)));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -261,8 +261,8 @@ public class MysqlMapperTest {
     @Test
     @Order(12)
     public void testNotLikeQuery() {
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.NOT_LIKE.getKeyword(), "%张%"));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("name", SqlKeyword.NOT_LIKE.getKeyword(), "%张%"));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -313,7 +313,7 @@ public class MysqlMapperTest {
     public void testBoundaryConditions() {
         // 测试空的SqlWrapper
         assertDoesNotThrow(() -> {
-            List<SysUserVO> result = sysUserMapper.voList(new Wrapper());
+            List<SysUserVO> result = sysUserMapper.voList(new SqlWrapper());
             assertNotNull(result);
         });
         
@@ -324,8 +324,8 @@ public class MysqlMapperTest {
         });
         
         // 测试空集合IN查询
-        Wrapper sqlEntity = new Wrapper();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getKeyword(), Collections.emptyList()));
+        SqlWrapper sqlEntity = new SqlWrapper();
+        sqlEntity.getConditions().add(new SqlCondition("age", SqlKeyword.IN.getKeyword(), Collections.emptyList()));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         assertNotNull(result);

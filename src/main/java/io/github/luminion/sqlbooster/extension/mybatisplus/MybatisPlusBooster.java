@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
 import io.github.luminion.sqlbooster.core.BoosterEngine;
 import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.model.api.Wrapper;
-import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
-import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
+import io.github.luminion.sqlbooster.model.sql.helper.BaseHelper;
+import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.sql.helper.processor.SuffixProcessor;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public interface MybatisPlusBooster<T, V> extends BoosterEngine<T, V> {
     default BoosterPage<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize) {
         voPreProcess(wrapper);
 
-        AbstractHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
+        BaseHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
         PageDTO<V> pageInfo = new PageDTO<>(pageNum, pageSize);
         List<V> vs = selectByBooster(sqlHelper, pageInfo);
         pageInfo.setRecords(vs);

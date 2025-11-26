@@ -263,7 +263,7 @@ public interface SysUserMapper extends CustomBooster<SysUser, SysUserVO> {
 ## 使用示例
 
 ```java
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -389,7 +389,7 @@ public class SysUserController {
 自定义示例:
 
 ```java
-import processor.io.github.luminion.sqlbooster.model.helper.SuffixProcessor;
+import io.github.luminion.sqlbooster.model.sql.helper.processor.SuffixProcessor;
 
 @SpringBootApplication
 public class App {
@@ -420,7 +420,7 @@ public class App {
 - 支持复杂条件自由组合
 
 #### 入参格式
-支持动态sql的入参类为[SqlHelper](src/main/java/io/github/luminion/sqlbooster/model/helper/SqlHelper.java)类,
+支持动态sql的入参类为[SqlHelper](src/main/java/io/github/luminion/sqlbooster/model/sql/helper/SqlHelper.java)类,
 其格式如下:
 
 ```json

@@ -1,9 +1,9 @@
-package io.github.luminion.sqlbooster.model.helper;
+package io.github.luminion.sqlbooster.model.sql.helper;
 
 import io.github.luminion.sqlbooster.core.MethodReference;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.Sort;
+import io.github.luminion.sqlbooster.model.sql.SqlCondition;
+import io.github.luminion.sqlbooster.model.sql.SqlSort;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 
 import java.util.Collection;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @SuppressWarnings({"unchecked", "unused"})
-public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends BaseHelper<T, S> {
+public interface LambdaHelper<T, S extends LambdaHelper<T, S>> extends BaseHelper<T> {
 
     /**
      * 添加一组 OR 连接的条件.
@@ -29,7 +29,7 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public abstract S or(Consumer<S> consumer);
+    S or(Consumer<S> consumer);
 
     /**
      * 添加等于 (EQ) 条件.
@@ -40,11 +40,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S eq(MethodReference<T, R> getter, R value) {
+    default <R> S eq(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.EQ.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.EQ.getKeyword(), value));
         return (S) this;
     }
 
@@ -57,11 +57,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S ne(MethodReference<T, R> getter, R value) {
+    default <R> S ne(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NE.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NE.getKeyword(), value));
         return (S) this;
     }
 
@@ -74,11 +74,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S gt(MethodReference<T, R> getter, R value) {
+    default <R> S gt(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.GT.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.GT.getKeyword(), value));
         return (S) this;
     }
 
@@ -91,11 +91,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S ge(MethodReference<T, R> getter, R value) {
+    default <R> S ge(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.GTE.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.GTE.getKeyword(), value));
         return (S) this;
     }
 
@@ -108,11 +108,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S lt(MethodReference<T, R> getter, R value) {
+    default <R> S lt(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LT.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LT.getKeyword(), value));
         return (S) this;
     }
 
@@ -125,11 +125,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S le(MethodReference<T, R> getter, R value) {
+    default <R> S le(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LTE.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LTE.getKeyword(), value));
         return (S) this;
     }
 
@@ -142,11 +142,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S like(MethodReference<T, R> getter, R value) {
+    default <R> S like(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LIKE.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LIKE.getKeyword(), value));
         return (S) this;
     }
 
@@ -159,11 +159,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S notLike(MethodReference<T, R> getter, R value) {
+    default <R> S notLike(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NOT_LIKE.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NOT_LIKE.getKeyword(), value));
         return (S) this;
     }
 
@@ -176,11 +176,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S in(MethodReference<T, R> getter, Collection<? extends R> value) {
+    default <R> S in(MethodReference<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IN.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IN.getKeyword(), value));
         return (S) this;
     }
 
@@ -193,11 +193,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S notIn(MethodReference<T, R> getter, Collection<? extends R> value) {
+    default <R> S notIn(MethodReference<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NOT_IN.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NOT_IN.getKeyword(), value));
         return (S) this;
     }
 
@@ -208,8 +208,8 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public S isNull(MethodReference<T, ?> getter) {
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
+    default S isNull(MethodReference<T, ?> getter) {
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
         return (S) this;
     }
 
@@ -220,8 +220,8 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public S isNotNull(MethodReference<T, ?> getter) {
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+    default S isNotNull(MethodReference<T, ?> getter) {
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         return (S) this;
     }
 
@@ -232,8 +232,8 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public S orderByAsc(MethodReference<T, ?> getter) {
-        getSorts().add(new Sort(BoostUtils.getGetterPropertyName(getter), true));
+    default S orderByAsc(MethodReference<T, ?> getter) {
+        getSorts().add(new SqlSort(BoostUtils.getGetterPropertyName(getter), true));
         return (S) this;
     }
 
@@ -244,8 +244,8 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public S orderByDesc(MethodReference<T, ?> getter) {
-        getSorts().add(new Sort(BoostUtils.getGetterPropertyName(getter), false));
+    default S orderByDesc(MethodReference<T, ?> getter) {
+        getSorts().add(new SqlSort(BoostUtils.getGetterPropertyName(getter), false));
         return (S) this;
     }
 
@@ -258,14 +258,14 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitAny(MethodReference<T, R> getter, R value) {
+    default <R> S bitAny(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
         return (S) this;
     }
-
+    
     /**
      * 包含所有指定bit位
      *
@@ -275,11 +275,11 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitAll(MethodReference<T, R> getter, R value) {
+    default <R> S bitAll(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
         return (S) this;
     }
 
@@ -287,16 +287,16 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Base
      * 不包含指定bit位
      *
      * @param getter 字段的 getter 方法引用
-     * @param value  位码值`
+     * @param value  位码值
      * @param <R>    字段类型
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitNone(MethodReference<T, R> getter, R value) {
+    default <R> S bitNone(MethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
+        getConditions().add(new SqlCondition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
         return (S) this;
     }
 

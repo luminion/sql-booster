@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.helper;
+package io.github.luminion.sqlbooster.model.sql.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.model.api.Wrapper;
@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
+public class SqlHelper<T> extends AbstractHelper<T, SqlHelper<T>> {
 
     /**
      * 创建一个新的 {@link SqlHelper} 实例.

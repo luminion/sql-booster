@@ -1,11 +1,11 @@
-package io.github.luminion.sqlbooster.model.helper.processor;
+package io.github.luminion.sqlbooster.model.sql.helper.processor;
 
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Tree;
-import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.model.helper.BaseHelper;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.sql.SqlCondition;
+import io.github.luminion.sqlbooster.model.sql.helper.BaseHelper;
+import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,11 +117,11 @@ public class SuffixProcessor {
      *
      * @param rootHelper 根 SQL 助手
      * @param <T>        实体类型
-     * @return 处理后的实例
+     * @return 处理后的 {@link BaseHelper} 实例
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public <T> AbstractHelper<T> process(AbstractHelper<T> rootHelper) {
+    public <T> BaseHelper<T> process(BaseHelper<T> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
@@ -146,7 +146,7 @@ public class SuffixProcessor {
                             String sourceFiled = field.substring(0, field.length() - suffix.length());
                             String operator = suffixToOperatorMap.get(suffix);
                             log.debug("condition field [{}] Matched suffix operator [{}]", field, operator);
-                            Condition suffixCondition = new Condition(sourceFiled, operator, condition.getValue());
+                            SqlCondition suffixCondition = new SqlCondition(sourceFiled, operator, condition.getValue());
                             Condition validateSuffixCondition = BasicProcessor.validateCondition(suffixCondition, entityPropertyToColumnAliasMap, extraParams);
                             if (validateSuffixCondition == null) {
                                 continue;
