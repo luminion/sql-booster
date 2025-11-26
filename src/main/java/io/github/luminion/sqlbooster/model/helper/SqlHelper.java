@@ -89,7 +89,7 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
 
 
     @Override
-    protected SqlHelper<T> newInstance() {
+    public SqlHelper<T> newInstance() {
         return new SqlHelper<>();
     }
 }

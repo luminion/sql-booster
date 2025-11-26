@@ -24,8 +24,8 @@ public interface PageHelperBooster<T, V> extends BoosterEngine<T, V> {
     @Override
     default BoosterPage<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize) {
         voPreProcess(wrapper);
-        
-        AbstractHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
+
+        SqlHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
         PageInfo<V> pageInfo = PageHelper.startPage((int) pageNum, (int) pageSize)
                 .doSelectPageInfo(() -> selectByBooster(sqlHelper, null));
         PageHelperPage<V> page = new PageHelperPage<>(pageInfo);

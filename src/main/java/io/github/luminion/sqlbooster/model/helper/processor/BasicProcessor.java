@@ -5,8 +5,6 @@ import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.Tree;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.model.helper.ChainHelper;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,7 +55,7 @@ public abstract class BasicProcessor {
         }
         operator = SqlKeyword.replaceOperator(operator);
         if (!SqlKeyword.isNullOperator(operator) && value == null) {
-            log.info("condition field [{}] requires value but value is null, it will be removed and put into paramMap", field);
+            log.debug("condition field [{}] requires value but value is null, it will be removed and put into paramMap", field);
             extra.putIfAbsent(field, "null");
             return null;
         }
@@ -84,16 +82,15 @@ public abstract class BasicProcessor {
             }
         }
         if (SqlKeyword.isLikeOperator(operator)) {
-//            if(!(value instanceof String)){
-//                log.debug("condition field [{}] requires string but value is not string, it will be removed and put into paramMap", field);
-//                extra.putIfAbsent(field, value);
-//                return null;
-//            }
+            value = value.toString();
             if (!value.toString().contains("%")) {
                 value = "%" + value + "%";
             }
         }
-        return new Condition(jdbcColumn, operator, value);
+        condition.setField(jdbcColumn);
+        condition.setOperator(operator);
+        condition.setValue(value);
+        return condition;
     }
 
     /**
@@ -114,35 +111,29 @@ public abstract class BasicProcessor {
     }
 
     /**
-     * 将一组 SQL 条件包装到 {@link ChainHelper} 中.
+     * 将一组 SQL 条件包装到 {@link AbstractHelper} 中.
      *
      * @param sqlHelper  目标 SQL 助手
      * @param conditions 待包装的 SQL 条件集合
-     * @param symbol     连接这些条件的逻辑符号 (AND/OR)
+     * @param connector  连接这些条件的逻辑符号 (AND/OR)
      * @since 1.0.0
      */
-    public static void warpConditions(ChainHelper<?, ?> sqlHelper, Collection<Condition> conditions, String symbol) {
+    public static void warpConditions(AbstractHelper<?, ?> sqlHelper, Collection<Condition> conditions, String connector) {
         if (sqlHelper == null || conditions == null || conditions.isEmpty()) {
             return;
         }
-        symbol = SqlKeyword.replaceConnector(symbol);
-        if (SqlKeyword.AND.getKeyword().equals(symbol)) {
-            sqlHelper.getConditions().addAll(conditions);
-            return;
-        }
-        Tree iTrees = new Tree(conditions, SqlKeyword.OR.getKeyword());
-        sqlHelper.append(iTrees);
+        sqlHelper.appendConditions(conditions, connector);
     }
 
     /**
-     * 将一组 SQL 排序规则包装到 {@link ChainHelper} 中.
+     * 将一组 SQL 排序规则包装到 {@link AbstractHelper} 中.
      *
      * @param sqlHelper                目标 SQL 助手
      * @param sorts                    待包装的 SQL 排序规则集合
      * @param propertyToColumnAliasMap 属性名到数据库列名的映射
      * @since 1.0.0
      */
-    public static void wrapSorts(ChainHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
+    public static void wrapSorts(AbstractHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
         for (Sort sort : sorts) {
             Sort validateSort = validateSort(sort, propertyToColumnAliasMap);
             if (validateSort != null) {
@@ -152,20 +143,21 @@ public abstract class BasicProcessor {
     }
 
     /**
-     * 处理并转换根 SQL 助手, 生成一个经过验证和映射的 SQL 助手.
+     * 处理 SQL 助手, 将字段后缀转换为对应的 SQL 操作符.
      *
      * @param rootHelper 根 SQL 助手
      * @param <T>        实体类型
+     * @param <S>        helper类型
      * @return 处理后的实例
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public static <T> AbstractHelper<T> process(AbstractHelper<T> rootHelper) {
+    public <T, S extends AbstractHelper<T, S>> S process(AbstractHelper<T, S> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
         }
-        SqlHelper<T> resultHelper = SqlHelper.of(entityClass);
+        S resultHelper = rootHelper.newInstance();
         Map<String, String> propertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> extraParams = resultHelper.getExtra();
         for (Tree currentHelper : rootHelper) {
@@ -180,7 +172,7 @@ public abstract class BasicProcessor {
                 }
                 validatedConditions.add(validate);
             }
-            BasicProcessor.warpConditions(resultHelper, validatedConditions, currentHelper.getConnector());
+            resultHelper.appendConditions(validatedConditions, currentHelper.getConnector());
         }
         BasicProcessor.wrapSorts(resultHelper, rootHelper.getSorts(), propertyToColumnAliasMap);
         return resultHelper;

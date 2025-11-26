@@ -20,9 +20,7 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @SuppressWarnings({"unchecked", "unused"})
-public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends ChainHelper<T, S> {
-
-    protected abstract S newInstance();
+public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends AbstractHelper<T, S> {
 
     /**
      * 添加一组 OR 连接的条件.
@@ -34,7 +32,7 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Chai
     public S or(Consumer<S> consumer) {
         S trees = newInstance();
         trees.setConnector(SqlKeyword.OR.getKeyword());
-        this.mergeTree(trees);
+        this.appendTree(trees);
         return (S) this;
     }
 

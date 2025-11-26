@@ -1,10 +1,9 @@
 package io.github.luminion.sqlbooster.model.helper.processor;
 
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Tree;
+import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -116,16 +115,17 @@ public class SuffixProcessor {
      *
      * @param rootHelper 根 SQL 助手
      * @param <T>        实体类型
+     * @param <S>        helper类型
      * @return 处理后的实例
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public <T> AbstractHelper<T> process(AbstractHelper<T> rootHelper) {
+    public <T, S extends AbstractHelper<T, S>> S process(AbstractHelper<T, S> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
         }
-        SqlHelper<T> resultHelper = SqlHelper.of(entityClass);
+        S resultHelper = rootHelper.newInstance();
         Map<String, Object> extraParams = resultHelper.getExtra();
         Map<String, String> entityPropertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
         Set<String> suffixes = suffixToOperatorMap.keySet();
@@ -164,7 +164,7 @@ public class SuffixProcessor {
                 }
                 validatedConditions.add(validate);
             }
-            BasicProcessor.warpConditions(resultHelper, validatedConditions, currentHelper.getConnector());
+            resultHelper.appendConditions(validatedConditions, currentHelper.getConnector());
         }
         BasicProcessor.wrapSorts(resultHelper, rootHelper.getSorts(), entityPropertyToColumnAliasMap);
         return resultHelper;

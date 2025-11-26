@@ -35,7 +35,7 @@ public class Tree implements Iterable<Tree> {
         return new Itr(this);
     }
 
-    protected Tree appendConditions(Collection<Condition> conditions, String connector) {
+    public Tree appendConditions(Collection<Condition> conditions, String connector) {
         if (conditions == null || conditions.isEmpty()) {
             return this;
         }
@@ -57,7 +57,7 @@ public class Tree implements Iterable<Tree> {
         return this;
     }
 
-    protected Tree mergeTree(Tree tree) {
+    protected Tree appendTree(Tree tree) {
         if (tree == null) {
             return this;
         }
