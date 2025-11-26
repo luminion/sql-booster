@@ -1,6 +1,8 @@
-package io.github.luminion.sqlbooster.model.sql.helper;
+package io.github.luminion.sqlbooster.model.helper;
+
 
 import io.github.luminion.sqlbooster.model.api.Wrapper;
+import lombok.Getter;
 
 import java.util.function.Function;
 
@@ -13,24 +15,22 @@ import java.util.function.Function;
  * @author luminion
  * @since 1.0.0
  */
-public interface BaseHelper<T> extends Wrapper<T> {
-
+@Getter
+public abstract class AbstractHelper<T> extends Wrapper<T> {
     /**
-     * 获取与此 SQL 助手关联的实体类.
-     *
-     * @return 实体类
-     * @since 1.0.0
+     * 关联的实体类, 用于 SQL 校验和处理.
      */
-    Class<T> getEntityClass();
+    protected transient Class<T> entityClass;
+    
     
     /**
      * 应用一个处理器对当前的 SQL 助手进行转换或处理.
      *
      * @param processor 处理器函数
-     * @return 处理后的 {@link BaseHelper}
+     * @return 处理后的 {@link AbstractHelper}
      * @since 1.0.0
      */
-    default BaseHelper<T> process(Function<BaseHelper<T>, BaseHelper<T>> processor){
+    public AbstractHelper<T> process(Function<AbstractHelper<T>, AbstractHelper<T>> processor){
         return processor.apply(this);
     }
     

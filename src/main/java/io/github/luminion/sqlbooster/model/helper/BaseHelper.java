@@ -1,12 +1,11 @@
-package io.github.luminion.sqlbooster.model.sql.helper;
+package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.Tree;
-import io.github.luminion.sqlbooster.model.sql.SqlCondition;
-import io.github.luminion.sqlbooster.model.sql.SqlWrapper;
+import io.github.luminion.sqlbooster.model.api.Wrapper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.Getter;
@@ -23,15 +22,9 @@ import java.util.Map;
  * @author luminion
  * @since 1.0.0
  */
-@Getter
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>> extends SqlWrapper<T>
-        implements LambdaHelper<T, S> {
-
-    /**
-     * 关联的实体类, 用于 SQL 校验和处理.
-     */
-    protected transient Class<T> entityClass;
+public abstract class BaseHelper<T, S extends BaseHelper<T, S>>  extends AbstractHelper<T> {
+    
 
     /**
      * 合并指定条件树的条件
@@ -88,7 +81,7 @@ public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>> extends 
         for (Map.Entry<K, V> entry : map.entrySet()) {
             K key = entry.getKey();
             V value = entry.getValue();
-            SqlCondition condition = new SqlCondition(key.toString(), value);
+            Condition condition = new Condition(key.toString(), value);
             this.getConditions().add(condition);
         }
         return (S) this;

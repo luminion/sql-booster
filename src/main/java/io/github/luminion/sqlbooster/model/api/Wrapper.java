@@ -1,35 +1,44 @@
 package io.github.luminion.sqlbooster.model.api;
 
-import java.util.Collection;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * 查询包装器接口.
+ * 可排序的条件树实体类.
  * <p>
- * 扩展自 {@link Tree} 接口, 增加了排序和额外查询条件的功能.
+ * 扩展 {@link Tree} 类, 增加了排序功能, 用于表示包含排序信息的 SQL 条件树.
  *
  * @param <T> 实体类型
  * @author luminion
  * @since 1.0.0
  */
-public interface Wrapper<T> extends Tree {
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class Wrapper<T> extends Tree {
 
     /**
-     * 获取排序规则列表.
-     *
-     * @return 排序规则列表
-     * @since 1.0.0
+     * 排序字段列表.
      */
-    Collection<Sort> getSorts();
+    protected LinkedHashSet<Sort> sorts = new LinkedHashSet<>();
 
     /**
-     * 获取不属于实体本身的额外查询条件.
-     * <p>
-     * key 为条件名, value 为条件值.
-     *
-     * @return 额外查询条件 Map
-     * @since 1.0.0
+     * 非本表字段的额外条件.
      */
-    Map<String,Object> getExtra();
-
+    protected transient Map<String, Object> extra = new HashMap<>();
+    
+    @Override
+    protected Tree addChild(Tree tree) {
+        if (tree == null) {
+            return this;
+        }
+        if (tree instanceof Wrapper) {
+            Wrapper<?> wrapper = (Wrapper<?>) tree;
+            this.sorts.addAll(wrapper.getSorts());
+        }
+        return super.addChild(tree);
+    }
 }

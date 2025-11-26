@@ -2,11 +2,11 @@ package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Wrapper;
-import io.github.luminion.sqlbooster.model.sql.SqlCondition;
-import io.github.luminion.sqlbooster.model.sql.helper.SqlHelperBooster;
-import io.github.luminion.sqlbooster.model.sql.helper.BaseHelper;
-import io.github.luminion.sqlbooster.model.sql.helper.SqlHelper;
-import io.github.luminion.sqlbooster.model.sql.helper.processor.SuffixProcessor;
+import io.github.luminion.sqlbooster.model.api.Condition;
+import io.github.luminion.sqlbooster.model.helper.SqlHelperBooster;
+import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
+import io.github.luminion.sqlbooster.model.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
@@ -58,7 +58,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
         if (ObjectUtils.isEmpty(keyProperty)) {
             throw new IllegalStateException("can't find id property");
         }
-        SqlCondition condition = new SqlCondition(keyProperty, SqlKeyword.EQ.getKeyword(), id);
+        Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getKeyword(), id);
         SqlHelper<T> sqlHelper = SqlHelper.of(this).merge(condition);
         return voUnique(sqlHelper);
     }
@@ -86,8 +86,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     default List<V> voListByIds(Collection<? extends Serializable> ids) {
         Class<T> entityClass = BoostUtils.getEntityClass(this);
         String idPropertyName = BoostUtils.getIdPropertyName(entityClass);
-        SqlCondition sqlCondition = new SqlCondition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
-        SqlHelper<T> sqlHelper = SqlHelper.of(this).merge(sqlCondition);
+        Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
+        SqlHelper<T> sqlHelper = SqlHelper.of(this).merge(condition);
         return voList(sqlHelper);
     }
 
@@ -159,7 +159,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     default List<V> voList(Wrapper<T> wrapper) {
         voPreProcess(wrapper);
 
-        BaseHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
+        AbstractHelper<T> sqlHelper = SqlHelper.of(wrapper).entity(this).process(SuffixProcessor.of()::process);
         List<V> vs = selectByBooster(sqlHelper, null);
 
         voPostProcess(vs, sqlHelper, null);
