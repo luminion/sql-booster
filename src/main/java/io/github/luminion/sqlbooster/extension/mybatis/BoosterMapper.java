@@ -2,7 +2,7 @@
 //
 //import io.github.luminion.sqlbooster.core.BoosterEngine;
 //import io.github.luminion.sqlbooster.core.BoosterPage;
-//import io.github.luminion.sqlbooster.model.api.Wrapper;
+//import io.github.luminion.sqlbooster.model.api.QueryParams;
 //import org.apache.ibatis.annotations.Param;
 //
 //import java.util.List;
@@ -19,6 +19,6 @@
 //public interface BoosterMapper<T, V> extends BoosterEngine<T, V> {
 //
 //    @Override
-//    List<V> selectByBooster(@Param("wrapper") Wrapper<T> wrapper, @Param("page") Object page);
+//    List<V> selectByBooster(@Param("wrapper") QueryParams<T> wrapper, @Param("page") Object page);
 //
 //}

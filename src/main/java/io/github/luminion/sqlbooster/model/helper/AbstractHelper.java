@@ -3,9 +3,9 @@ package io.github.luminion.sqlbooster.model.helper;
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.model.api.Condition;
+import io.github.luminion.sqlbooster.model.api.QueryParams;
 import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.model.api.Tree;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
+import io.github.luminion.sqlbooster.model.api.QuerySegment;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.Getter;
@@ -24,7 +24,7 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends Wrapper<T> {
+public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends QueryParams<T> {
 
 
     /**
@@ -49,13 +49,13 @@ public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends
     /**
      * 合并指定条件树的条件
      *
-     * @param tree 条件树
+     * @param segment 条件树
      * @return 当前实例
      * @since 1.0.0
      */
-    public S append(Tree tree) {
-        if (tree != null) {
-            super.appendTree(tree);
+    public S append(QuerySegment segment) {
+        if (segment != null) {
+            super.appendTree(segment);
         }
         return (S) this;
     }

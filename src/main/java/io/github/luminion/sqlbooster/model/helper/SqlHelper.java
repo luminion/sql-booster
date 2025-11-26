@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
+import io.github.luminion.sqlbooster.model.api.QueryParams;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 
 /**
@@ -42,22 +42,22 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
     }
 
     /**
-     * 创建一个指定 {@link Wrapper}的实例
+     * 创建一个指定 {@link QueryParams}的实例
      *
-     * @param wrapper 源 {@link Wrapper} 实例
+     * @param queryParams 源 {@link QueryParams} 实例
      * @param <T>     实体类型
      * @return {@link SqlHelper} 实例
      * @since 1.0.0
      */
-    public static <T> SqlHelper<T> of(Wrapper<T> wrapper) {
-        if (wrapper == null) {
+    public static <T> SqlHelper<T> of(QueryParams<T> queryParams) {
+        if (queryParams == null) {
             return new SqlHelper<>();
         }
-        if (wrapper instanceof SqlHelper) {
-            return (SqlHelper<T>) wrapper;
+        if (queryParams instanceof SqlHelper) {
+            return (SqlHelper<T>) queryParams;
         }
         SqlHelper<T> sqlHelper = new SqlHelper<>();
-        return sqlHelper.append(wrapper);
+        return sqlHelper.append(queryParams);
     }
 
     /**

@@ -1,6 +1,6 @@
 target/
 */target/
-!.mvn/wrapper/maven-wrapper.jar
+!.mvn/queryParams/maven-queryParams.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 

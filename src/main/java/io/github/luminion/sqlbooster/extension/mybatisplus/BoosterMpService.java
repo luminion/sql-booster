@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
+import io.github.luminion.sqlbooster.model.api.QueryParams;
 
 import java.util.List;
 
@@ -19,8 +19,8 @@ import java.util.List;
 public interface BoosterMpService<T, V> extends IService<T>, MybatisPlusBooster<T, V> {
 
     @Override
-    default List<V> selectByBooster(Wrapper<T> wrapper, Object page) {
+    default List<V> selectByBooster(QueryParams<T> queryParams, Object page) {
         BoosterMpMapper<T, V> baseMapper = (BoosterMpMapper<T, V>) getBaseMapper();
-        return baseMapper.selectByBooster(wrapper, page);
+        return baseMapper.selectByBooster(queryParams, page);
     }
 }

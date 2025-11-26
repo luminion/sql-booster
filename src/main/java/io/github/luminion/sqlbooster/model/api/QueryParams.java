@@ -10,15 +10,14 @@ import java.util.Map;
 /**
  * 可排序的条件树实体类.
  * <p>
- * 扩展 {@link Tree} 类, 增加了排序功能, 用于表示包含排序信息的 SQL 条件树.
+ * 扩展 {@link QuerySegment} 类, 增加了排序功能, 用于表示包含排序信息的 SQL 条件树.
  *
  * @param <T> 实体类型
  * @author luminion
  * @since 1.0.0
- */
-@Data
+ */@Data
 @EqualsAndHashCode(callSuper = true)
-public class Wrapper<T> extends Tree {
+public class QueryParams<T> extends QuerySegment {
 
     /**
      * 排序字段列表.
@@ -31,14 +30,14 @@ public class Wrapper<T> extends Tree {
     protected transient Map<String, Object> extra = new HashMap<>();
     
     @Override
-    protected Tree appendTree(Tree tree) {
-        if (tree == null) {
+    protected QuerySegment appendTree(QuerySegment segment) {
+        if (segment == null) {
             return this;
         }
-        if (tree instanceof Wrapper) {
-            Wrapper<?> wrapper = (Wrapper<?>) tree;
-            this.sorts.addAll(wrapper.getSorts());
+        if (segment instanceof QueryParams) {
+            QueryParams<?> queryParams = (QueryParams<?>) segment;
+            this.sorts.addAll(queryParams.getSorts());
         }
-        return super.appendTree(tree);
+        return super.appendTree(segment);
     }
 }

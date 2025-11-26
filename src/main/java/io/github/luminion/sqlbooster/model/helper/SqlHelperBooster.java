@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
+import io.github.luminion.sqlbooster.model.api.QueryParams;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,18 +25,18 @@ public class SqlHelperBooster<T, V> {
     /**
      * 查询条件
      */
-    private final Wrapper<T> wrapper;
+    private final QueryParams<T> queryParams;
 
     /**
      * 构造一个新的 {@link SqlHelperBooster} 实例.
      *
      * @param boosterCore {@link BoosterCore} 实例
-     * @param wrapper     {@link Wrapper} 实例
+     * @param queryParams     {@link QueryParams} 实例
      * @since 1.0.0
      */
-    public SqlHelperBooster(BoosterCore<T, V> boosterCore, Wrapper<T> wrapper){
+    public SqlHelperBooster(BoosterCore<T, V> boosterCore, QueryParams<T> queryParams){
         this.boosterCore = boosterCore;
-        this.wrapper = wrapper;
+        this.queryParams = queryParams;
     }
     
     /**
@@ -46,7 +46,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public SqlHelperBooster(BoosterCore<T, V> boosterCore) {
-        this.wrapper = SqlHelper.of(boosterCore);
+        this.queryParams = SqlHelper.of(boosterCore);
         this.boosterCore = boosterCore;
     }
 
@@ -57,7 +57,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public V first() {
-        return boosterCore.voFirst(this.wrapper);
+        return boosterCore.voFirst(this.queryParams);
     }
 
     /**
@@ -68,7 +68,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public V first(Class<V> targetType) {
-        return boosterCore.voFirst(this.wrapper, targetType);
+        return boosterCore.voFirst(this.queryParams, targetType);
     }
 
     /**
@@ -78,7 +78,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public Optional<V> firstOpt() {
-        return boosterCore.voFirstOpt(this.wrapper);
+        return boosterCore.voFirstOpt(this.queryParams);
     }
 
     /**
@@ -88,7 +88,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public V unique() {
-        return boosterCore.voUnique(this.wrapper);
+        return boosterCore.voUnique(this.queryParams);
     }
 
     /**
@@ -99,7 +99,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public V unique(Class<V> targetType) {
-        return boosterCore.voUnique(this.wrapper, targetType);
+        return boosterCore.voUnique(this.queryParams, targetType);
     }
 
     /**
@@ -109,7 +109,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public Optional<V> uniqueOpt() {
-        return boosterCore.voUniqueOpt(this.wrapper);
+        return boosterCore.voUniqueOpt(this.queryParams);
     }
 
     /**
@@ -119,7 +119,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public List<V> list() {
-        return boosterCore.voList(this.wrapper);
+        return boosterCore.voList(this.queryParams);
     }
 
     /**
@@ -130,7 +130,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public <R> List<R> list(Class<R> targetType) {
-        return boosterCore.voList(this.wrapper, targetType);
+        return boosterCore.voList(this.queryParams, targetType);
     }
 
     /**
@@ -142,7 +142,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public BoosterPage<V> page(int pageNum, int pageSize) {
-        return boosterCore.voPage(this.wrapper, pageNum, pageSize);
+        return boosterCore.voPage(this.queryParams, pageNum, pageSize);
     }
 
     /**
@@ -154,7 +154,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public BoosterPage<V> page(long pageNum, long pageSize) {
-        return boosterCore.voPage(this.wrapper, pageNum, pageSize);
+        return boosterCore.voPage(this.queryParams, pageNum, pageSize);
     }
 
     /**
@@ -167,7 +167,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public <R> BoosterPage<R> page(int pageNum, int pageSize, Class<R> targetType) {
-        return boosterCore.voPage(this.wrapper, pageNum, pageSize, targetType);
+        return boosterCore.voPage(this.queryParams, pageNum, pageSize, targetType);
     }
 
     /**
@@ -180,7 +180,7 @@ public class SqlHelperBooster<T, V> {
      * @since 1.0.0
      */
     public <R> BoosterPage<R> page(long pageNum, long pageSize, Class<R> targetType) {
-        return boosterCore.voPage(this.wrapper, pageNum, pageSize, targetType);
+        return boosterCore.voPage(this.queryParams, pageNum, pageSize, targetType);
     }
 
 

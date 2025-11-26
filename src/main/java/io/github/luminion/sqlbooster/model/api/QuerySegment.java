@@ -9,14 +9,14 @@ import java.util.*;
 /**
  * SQL 条件树实体类.
  * <p>
- * 实现了 {@link Tree} 接口, 用于表示 SQL 查询条件的树形结构, 支持嵌套和复杂的查询逻辑.
+ * 实现了 {@link QuerySegment} 接口, 用于表示 SQL 查询条件的树形结构, 支持嵌套和复杂的查询逻辑.
  *
  * @author luminion
  * @since 1.0.0
  */
 @Data
 @NoArgsConstructor
-public class Tree implements Iterable<Tree> {
+public class QuerySegment implements Iterable<QuerySegment> {
     /**
      * 当前节点的条件列表.
      */
@@ -28,28 +28,28 @@ public class Tree implements Iterable<Tree> {
     /**
      * 子条件树.
      */
-    protected Tree child;
+    protected QuerySegment next;
 
     @Override
-    public Iterator<Tree> iterator() {
+    public Iterator<QuerySegment> iterator() {
         return new Itr(this);
     }
 
-    public Tree appendConditions(Collection<Condition> conditions, String connector) {
+    public QuerySegment appendConditions(Collection<Condition> conditions, String connector) {
         if (conditions == null || conditions.isEmpty()) {
             return this;
         }
         connector = SqlKeyword.replaceConnector(connector);
         if (SqlKeyword.OR.getKeyword().equals(connector)) {
             // append or conditions to last node
-            Tree node = new Tree();
+            QuerySegment node = new QuerySegment();
             node.conditions.addAll(conditions);
             node.connector = connector;
-            Tree current = this;
-            while (current.getChild() != null) {
-                current = current.getChild();
+            QuerySegment current = this;
+            while (current.getNext() != null) {
+                current = current.getNext();
             }
-            current.child = node;
+            current.next = node;
         } else {
             // put and conditions to current level
             this.getConditions().addAll(conditions);
@@ -57,11 +57,11 @@ public class Tree implements Iterable<Tree> {
         return this;
     }
 
-    protected Tree appendTree(Tree tree) {
-        if (tree == null) {
+    protected QuerySegment appendTree(QuerySegment segment) {
+        if (segment == null) {
             return this;
         }
-        for (Tree node : tree) {
+        for (QuerySegment node : segment) {
             if (node.getConditions().isEmpty()) {
                 continue;
             }
@@ -70,11 +70,11 @@ public class Tree implements Iterable<Tree> {
         return this;
     }
 
-    static class Itr implements Iterator<Tree> {
+    static class Itr implements Iterator<QuerySegment> {
 
-        private Tree current;
+        private QuerySegment current;
 
-        public Itr(Tree root) {
+        public Itr(QuerySegment root) {
             current = root;
         }
 
@@ -84,12 +84,12 @@ public class Tree implements Iterable<Tree> {
         }
 
         @Override
-        public Tree next() {
+        public QuerySegment next() {
             if (current == null) {
                 throw new NoSuchElementException();
             }
-            Tree result = current;
-            current = current.getChild();
+            QuerySegment result = current;
+            current = current.getNext();
             return result;
         }
     }

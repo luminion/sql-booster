@@ -1,10 +1,9 @@
 package io.github.luminion.sqlbooster.core;
 
+import io.github.luminion.sqlbooster.model.api.QueryParams;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.api.Wrapper;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.helper.SqlHelperBooster;
-import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
 import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
 import io.github.luminion.sqlbooster.util.BoostUtils;
@@ -39,12 +38,12 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default void voPreProcess(Wrapper<T> wrapper) {
+    default void voPreProcess(QueryParams<T> queryParams) {
         // do nothing here, only for override
     }
 
     @Override
-    default void voPostProcess(List<V> records, Wrapper<T> wrapper, BoosterPage<V> page) {
+    default void voPostProcess(List<V> records, QueryParams<T> queryParams, BoosterPage<V> page) {
         // do nothing here, only for override
     }
 
@@ -100,8 +99,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default V voFirst(Wrapper<T> wrapper) {
-        List<V> vs = voList(wrapper);
+    default V voFirst(QueryParams<T> queryParams) {
+        List<V> vs = voList(queryParams);
         if (vs.isEmpty()) {
             return null;
         }
@@ -109,23 +108,23 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default <R> R voFirst(Wrapper<T> wrapper, Class<R> targetType) {
-        return ReflectUtils.toTarget(voFirst(wrapper), targetType);
+    default <R> R voFirst(QueryParams<T> queryParams, Class<R> targetType) {
+        return ReflectUtils.toTarget(voFirst(queryParams), targetType);
     }
 
     @Override
-    default Optional<V> voFirstOpt(Wrapper<T> wrapper) {
-        return Optional.ofNullable(voFirst(wrapper));
+    default Optional<V> voFirstOpt(QueryParams<T> queryParams) {
+        return Optional.ofNullable(voFirst(queryParams));
     }
 
     @Override
-    default <R> Optional<R> voFirstOpt(Wrapper<T> wrapper, Class<R> targetType) {
-        return Optional.ofNullable(voFirst(wrapper, targetType));
+    default <R> Optional<R> voFirstOpt(QueryParams<T> queryParams, Class<R> targetType) {
+        return Optional.ofNullable(voFirst(queryParams, targetType));
     }
 
     @Override
-    default V voUnique(Wrapper<T> wrapper) {
-        List<V> vs = voList(wrapper);
+    default V voUnique(QueryParams<T> queryParams) {
+        List<V> vs = voList(queryParams);
         if (vs.isEmpty()) {
             return null;
         }
@@ -136,18 +135,18 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default <R> R voUnique(Wrapper<T> wrapper, Class<R> targetType) {
-        return ReflectUtils.toTarget(voUnique(wrapper), targetType);
+    default <R> R voUnique(QueryParams<T> queryParams, Class<R> targetType) {
+        return ReflectUtils.toTarget(voUnique(queryParams), targetType);
     }
 
     @Override
-    default Optional<V> voUniqueOpt(Wrapper<T> wrapper) {
-        return Optional.ofNullable(voUnique(wrapper));
+    default Optional<V> voUniqueOpt(QueryParams<T> queryParams) {
+        return Optional.ofNullable(voUnique(queryParams));
     }
 
     @Override
-    default <R> Optional<R> voUniqueOpt(Wrapper<T> wrapper, Class<R> targetType) {
-        return Optional.ofNullable(voUnique(wrapper, targetType));
+    default <R> Optional<R> voUniqueOpt(QueryParams<T> queryParams, Class<R> targetType) {
+        return Optional.ofNullable(voUnique(queryParams, targetType));
     }
 
     @Override
@@ -156,12 +155,12 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default List<V> voList(Wrapper<T> wrapper) {
-        voPreProcess(wrapper);
+    default List<V> voList(QueryParams<T> queryParams) {
+        voPreProcess(queryParams);
 
         Class<T> entityClass = BoostUtils.getEntityClass(this);
         SqlHelper<T> sqlHelper = SqlHelper.of(entityClass)
-                .append(wrapper)
+                .append(queryParams)
                 .process(SuffixProcessor.of()::process);
         List<V> vs = selectByBooster(sqlHelper, null);
 
@@ -170,31 +169,31 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default <R> List<R> voList(Wrapper<T> wrapper, Class<R> targetType) {
-        List<V> vs = voList(wrapper);
+    default <R> List<R> voList(QueryParams<T> queryParams, Class<R> targetType) {
+        List<V> vs = voList(queryParams);
         return vs.stream()
                 .map(v -> ReflectUtils.toTarget(v, targetType))
                 .collect(Collectors.toList());
     }
 
     @Override
-    default BoosterPage<V> voPage(Wrapper<T> wrapper, int pageNum, int pageSize) {
-        return voPage(wrapper, (long) pageNum, pageSize);
+    default BoosterPage<V> voPage(QueryParams<T> queryParams, int pageNum, int pageSize) {
+        return voPage(queryParams, (long) pageNum, pageSize);
     }
 
     @Override
-    default BoosterPage<V> voPage(Wrapper<T> wrapper, long pageNum, long pageSize) {
+    default BoosterPage<V> voPage(QueryParams<T> queryParams, long pageNum, long pageSize) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(Wrapper<T> wrapper, int pageNum, int pageSize, Class<R> targetType) {
-        return voPage(wrapper, (long) pageNum, pageSize, targetType);
+    default <R> BoosterPage<R> voPage(QueryParams<T> queryParams, int pageNum, int pageSize, Class<R> targetType) {
+        return voPage(queryParams, (long) pageNum, pageSize, targetType);
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(Wrapper<T> wrapper, long pageNum, long pageSize, Class<R> targetType) {
-        return voPage(wrapper, pageNum, pageSize).convertRecords(targetType);
+    default <R> BoosterPage<R> voPage(QueryParams<T> queryParams, long pageNum, long pageSize, Class<R> targetType) {
+        return voPage(queryParams, pageNum, pageSize).convertRecords(targetType);
     }
 
     /**
@@ -210,10 +209,10 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     /**
      * 最终执行查询的方法.
      *
-     * @param wrapper 查询条件
+     * @param queryParams 查询条件
      * @param page    分页对象
      * @return 查询结果列表
      * @since 1.0.0
      */
-    List<V> selectByBooster(Wrapper<T> wrapper, Object page);
+    List<V> selectByBooster(QueryParams<T> queryParams, Object page);
 }
