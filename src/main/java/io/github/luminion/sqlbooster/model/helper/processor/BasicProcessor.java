@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.model.helper.processor;
 
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.model.api.QuerySegment;
+import io.github.luminion.sqlbooster.model.api.ConditionNode;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
@@ -160,7 +160,7 @@ public abstract class BasicProcessor {
         S resultHelper = rootHelper.newInstance();
         Map<String, String> propertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> extraParams = resultHelper.getExtra();
-        for (QuerySegment currentHelper : rootHelper) {
+        for (ConditionNode currentHelper : rootHelper) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
             Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
             LinkedHashSet<Condition> validatedConditions = new LinkedHashSet<>(currentHelperConditions.size());

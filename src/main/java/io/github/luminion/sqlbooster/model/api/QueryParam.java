@@ -9,9 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * 可排序的条件树实体类.
- * <p>
- * 扩展 {@link QuerySegment} 类, 增加了排序功能, 用于表示包含排序信息的 SQL 条件树.
+ * 查询参数封装类
  *
  * @param <T> 实体类型
  * @author luminion
@@ -19,7 +17,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class QueryParam<T> extends QuerySegment implements BoosterParam<T> {
+public class QueryParam<T> extends ConditionNode implements BoosterParam<T> {
 
     /**
      * 排序字段列表.
@@ -32,7 +30,7 @@ public class QueryParam<T> extends QuerySegment implements BoosterParam<T> {
     protected transient Map<String, Object> extra = new HashMap<>();
     
     @Override
-    protected QuerySegment appendTree(QuerySegment segment) {
+    protected ConditionNode merge(ConditionNode segment) {
         if (segment == null) {
             return this;
         }
@@ -40,6 +38,6 @@ public class QueryParam<T> extends QuerySegment implements BoosterParam<T> {
             QueryParam<?> queryParams = (QueryParam<?>) segment;
             this.sorts.addAll(queryParams.getSorts());
         }
-        return super.appendTree(segment);
+        return super.merge(segment);
     }
 }

@@ -4,8 +4,6 @@ import lombok.*;
 
 /**
  * SQL 排序实体类.
- * <p>
- * 实现了 {@link Sort} 接口, 用于表示 SQL 查询中的排序规则.
  *
  * @author luminion
  * @since 1.0.0

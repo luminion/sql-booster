@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.model.helper.processor;
 
 import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.QuerySegment;
+import io.github.luminion.sqlbooster.model.api.ConditionNode;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
@@ -129,7 +129,7 @@ public class SuffixProcessor {
         Map<String, Object> extraParams = resultHelper.getExtra();
         Map<String, String> entityPropertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
         Set<String> suffixes = suffixToOperatorMap.keySet();
-        for (QuerySegment currentHelper : rootHelper) {
+        for (ConditionNode currentHelper : rootHelper) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
             Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
             LinkedHashSet<Condition> validatedConditions = new LinkedHashSet<>(currentHelperConditions.size());

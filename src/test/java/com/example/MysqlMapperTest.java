@@ -119,10 +119,7 @@ public class MysqlMapperTest {
     @Order(4)
     public void testLikeQuery() {
        
-//        SysUser sysUser = new SysUser();
-//        sysUser.setNameLike("测试");
         SqlHelper<SysUser> sqlEntity = SqlHelper.of(SysUser.class)
-//                .with(sysUser)
                 ;
         sqlEntity.like(SysUser::getDescription,"测试")
                 ;

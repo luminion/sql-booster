@@ -5,8 +5,6 @@ import lombok.*;
 
 /**
  * SQL 条件实体类.
- * <p>
- * 实现了 {@link Condition} 接口, 用于表示 SQL 查询中的单个条件, 包括字段名、操作符和值.
  *
  * @author luminion
  * @since 1.0.0

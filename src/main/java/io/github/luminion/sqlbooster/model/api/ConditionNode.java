@@ -7,16 +7,14 @@ import lombok.NoArgsConstructor;
 import java.util.*;
 
 /**
- * SQL 条件树实体类.
- * <p>
- * 实现了 {@link QuerySegment} 接口, 用于表示 SQL 查询条件的树形结构, 支持嵌套和复杂的查询逻辑.
+ * 条件组
  *
  * @author luminion
  * @since 1.0.0
  */
 @Data
 @NoArgsConstructor
-public class QuerySegment implements Iterable<QuerySegment> {
+public class ConditionNode implements Iterable<ConditionNode> {
     /**
      * 当前节点的条件列表.
      */
@@ -28,24 +26,31 @@ public class QuerySegment implements Iterable<QuerySegment> {
     /**
      * 子条件树.
      */
-    protected QuerySegment next;
+    protected ConditionNode next;
 
     @Override
-    public Iterator<QuerySegment> iterator() {
+    public Iterator<ConditionNode> iterator() {
         return new Itr(this);
     }
 
-    public QuerySegment appendConditions(Collection<Condition> conditions, String connector) {
+
+    /**
+     * 添加一组条件
+     * @param conditions 条件
+     * @param connector 条件间的连接符号
+     * @return this
+     */
+    public ConditionNode appendConditions(Collection<Condition> conditions, String connector) {
         if (conditions == null || conditions.isEmpty()) {
             return this;
         }
         connector = SqlKeyword.replaceConnector(connector);
         if (SqlKeyword.OR.getKeyword().equals(connector)) {
             // append or conditions to last node
-            QuerySegment node = new QuerySegment();
+            ConditionNode node = new ConditionNode();
             node.conditions.addAll(conditions);
             node.connector = connector;
-            QuerySegment current = this;
+            ConditionNode current = this;
             while (current.getNext() != null) {
                 current = current.getNext();
             }
@@ -57,11 +62,17 @@ public class QuerySegment implements Iterable<QuerySegment> {
         return this;
     }
 
-    protected QuerySegment appendTree(QuerySegment segment) {
+    /**
+     * 合并另一节点的条件
+     *
+     * @param segment 条件
+     * @return this
+     */
+    protected ConditionNode merge(ConditionNode segment) {
         if (segment == null) {
             return this;
         }
-        for (QuerySegment node : segment) {
+        for (ConditionNode node : segment) {
             if (node.getConditions().isEmpty()) {
                 continue;
             }
@@ -70,11 +81,11 @@ public class QuerySegment implements Iterable<QuerySegment> {
         return this;
     }
 
-    static class Itr implements Iterator<QuerySegment> {
+    static class Itr implements Iterator<ConditionNode> {
 
-        private QuerySegment current;
+        private ConditionNode current;
 
-        public Itr(QuerySegment root) {
+        public Itr(ConditionNode root) {
             current = root;
         }
 
@@ -84,11 +95,11 @@ public class QuerySegment implements Iterable<QuerySegment> {
         }
 
         @Override
-        public QuerySegment next() {
+        public ConditionNode next() {
             if (current == null) {
                 throw new NoSuchElementException();
             }
-            QuerySegment result = current;
+            ConditionNode result = current;
             current = current.getNext();
             return result;
         }

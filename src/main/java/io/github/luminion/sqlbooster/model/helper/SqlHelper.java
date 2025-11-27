@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.model.api.QuerySegment;
+import io.github.luminion.sqlbooster.model.api.ConditionNode;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 
 /**
@@ -57,10 +57,10 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
         if (boosterParam instanceof SqlHelper) {
             return (SqlHelper<T>) boosterParam;
         }
-        if (boosterParam instanceof QuerySegment){
-            QuerySegment querySegment = (QuerySegment) boosterParam;
+        if (boosterParam instanceof ConditionNode){
+            ConditionNode conditionNode = (ConditionNode) boosterParam;
             SqlHelper<T> sqlHelper = new SqlHelper<>();
-            sqlHelper.append(querySegment);
+            sqlHelper.append(conditionNode);
         }
         SqlHelper<T> sqlHelper = new SqlHelper<>();
         return sqlHelper.append(boosterParam);

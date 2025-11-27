@@ -33,7 +33,7 @@ public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends Abst
         S tree = newInstance();
         tree.setConnector(SqlKeyword.OR.getKeyword());
         consumer.accept(tree);
-        this.appendTree(tree);
+        this.merge(tree);
         return (S) this;
     }
 
