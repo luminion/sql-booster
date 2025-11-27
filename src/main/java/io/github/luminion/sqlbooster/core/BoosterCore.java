@@ -1,7 +1,5 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.model.api.QueryParams;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -50,20 +48,20 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
     /**
      * 执行查询前的预处理操作.
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @since 1.0.0
      */
-    void voPreProcess(QueryParams<T> queryParams);
+    void voPreProcess(BoosterParam<T> boosterParam);
 
     /**
      * 执行查询后的后处理操作.
      *
      * @param records   查询结果
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @param page      分页对象
      * @since 1.0.0
      */
-    void voPostProcess(List<V> records, QueryParams<T> queryParams, BoosterPage<V> page);
+    void voPostProcess(List<V> records, BoosterParam<T> boosterParam, BoosterPage<V> page);
 
     // ==================== 根据ID查询 ====================
 
@@ -136,42 +134,42 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * <p>如果查询结果有多条，返回第一条.</p>
      * <p>如果无结果，返回null.</p>
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @return VO对象，不存在返回null
      * @since 1.0.0
      */
-    V voFirst(QueryParams<T> queryParams);
+    V voFirst(BoosterParam<T> boosterParam);
 
     /**
      * 根据条件查询第一个VO对象并转换类型.
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param targetType 目标VO类型
      * @param <R>        目标VO类型
      * @return VO对象，不存在返回null
      * @since 1.0.0
      */
-    <R> R voFirst(QueryParams<T> queryParams, Class<R> targetType);
+    <R> R voFirst(BoosterParam<T> boosterParam, Class<R> targetType);
 
     /**
      * 根据条件查询第一个VO对象（返回Optional）.
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @return Optional包装的VO对象
      * @since 1.0.0
      */
-    Optional<V> voFirstOpt(QueryParams<T> queryParams);
+    Optional<V> voFirstOpt(BoosterParam<T> boosterParam);
 
     /**
      * 根据条件查询第一个VO对象并转换类型（返回Optional）.
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param targetType 目标VO类型
      * @param <R>        目标VO类型
      * @return Optional包装的VO对象
      * @since 1.0.0
      */
-    <R> Optional<R> voFirstOpt(QueryParams<T> queryParams, Class<R> targetType);
+    <R> Optional<R> voFirstOpt(BoosterParam<T> boosterParam, Class<R> targetType);
 
     // ==================== 查询唯一记录（voUnique） ====================
 
@@ -180,43 +178,43 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * <p><b>注意：如果查询结果超过1条，将抛出异常</b></p>
      * <p>如果无结果，返回null.</p>
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @return VO对象，不存在返回null
      * @since 1.0.0
      */
-    V voUnique(QueryParams<T> queryParams);
+    V voUnique(BoosterParam<T> boosterParam);
 
     /**
      * 根据条件查询唯一VO对象并转换类型.
      * <p><b>注意：如果查询结果超过1条，将抛出异常</b></p>
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param targetType 目标VO类型
      * @param <R>        目标VO类型
      * @return VO对象，不存在返回null
      * @since 1.0.0
      */
-    <R> R voUnique(QueryParams<T> queryParams, Class<R> targetType);
+    <R> R voUnique(BoosterParam<T> boosterParam, Class<R> targetType);
 
     /**
      * 根据条件查询唯一VO对象（返回Optional）.
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @return Optional包装的VO对象
      * @since 1.0.0
      */
-    Optional<V> voUniqueOpt(QueryParams<T> queryParams);
+    Optional<V> voUniqueOpt(BoosterParam<T> boosterParam);
 
     /**
      * 根据条件查询唯一VO对象并转换类型（返回Optional）.
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param targetType 目标VO类型
      * @param <R>        目标VO类型
      * @return Optional包装的VO对象
      * @since 1.0.0
      */
-    <R> Optional<R> voUniqueOpt(QueryParams<T> queryParams, Class<R> targetType);
+    <R> Optional<R> voUniqueOpt(BoosterParam<T> boosterParam, Class<R> targetType);
 
     // ==================== 查询列表 ====================
 
@@ -231,50 +229,50 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询VO对象列表.
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @return VO对象列表，无结果返回空列表
      * @since 1.0.0
      */
-    List<V> voList(QueryParams<T> queryParams);
+    List<V> voList(BoosterParam<T> boosterParam);
 
     /**
      * 根据条件查询VO对象列表并转换类型.
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param targetType 目标VO类型
      * @param <R>        目标VO类型
      * @return 转换后的VO对象列表
      * @since 1.0.0
      */
-    <R> List<R> voList(QueryParams<T> queryParams, Class<R> targetType);
+    <R> List<R> voList(BoosterParam<T> boosterParam, Class<R> targetType);
 
     /**
      * 根据条件查询VO对象列表（分页）.
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @param pageNum   页码
      * @param pageSize  每页数量
      * @return 分页结果对象
      * @since 1.0.0
      */
-    BoosterPage<V> voPage(QueryParams<T> queryParams, int pageNum, int pageSize);
+    BoosterPage<V> voPage(BoosterParam<T> boosterParam, int pageNum, int pageSize);
 
 
     /**
      * 根据条件查询VO对象列表（分页）.
      *
-     * @param queryParams 查询条件
+     * @param boosterParam 查询条件
      * @param pageNum   页码
      * @param pageSize  每页数量
      * @return 分页结果对象
      * @since 1.0.0
      */
-    BoosterPage<V> voPage(QueryParams<T> queryParams, long pageNum, long pageSize);
+    BoosterPage<V> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize);
 
     /**
      * 根据条件查询VO对象列表并转换类型（分页）.
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param pageNum    页码
      * @param pageSize   每页数量
      * @param targetType 目标VO类型
@@ -282,12 +280,12 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    <R> BoosterPage<R> voPage(QueryParams<T> queryParams, int pageNum, int pageSize, Class<R> targetType);
+    <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, int pageNum, int pageSize, Class<R> targetType);
 
     /**
      * 根据条件查询VO对象列表（分页）.
      *
-     * @param queryParams  查询条件
+     * @param boosterParam  查询条件
      * @param pageNum    页码
      * @param pageSize   每页数量
      * @param targetType 目标VO类型
@@ -295,5 +293,5 @@ public interface BoosterCore<T, V> extends Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    <R> BoosterPage<R> voPage(QueryParams<T> queryParams, long pageNum, long pageSize, Class<R> targetType);
+    <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize, Class<R> targetType);
 }

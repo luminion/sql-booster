@@ -2,8 +2,9 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.BoosterCore;
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.QueryParams;
+import io.github.luminion.sqlbooster.model.api.QueryParam;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.QuerySegment;
 import io.github.luminion.sqlbooster.util.BoostUtils;
@@ -24,7 +25,7 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends QueryParams<T> {
+public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends QueryParam<T> {
 
 
     /**

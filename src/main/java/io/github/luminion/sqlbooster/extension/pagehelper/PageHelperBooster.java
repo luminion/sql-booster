@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.github.luminion.sqlbooster.core.BoosterEngine;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.model.api.QueryParams;
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
 
@@ -21,10 +21,10 @@ import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
 public interface PageHelperBooster<T, V> extends BoosterEngine<T, V> {
 
     @Override
-    default BoosterPage<V> voPage(QueryParams<T> queryParams, long pageNum, long pageSize) {
-        voPreProcess(queryParams);
+    default BoosterPage<V> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize) {
+        voPreProcess(boosterParam);
 
-        SqlHelper<T> sqlHelper = SqlHelper.of(queryParams).entity(this).process(SuffixProcessor.of()::process);
+        SqlHelper<T> sqlHelper = SqlHelper.of(boosterParam).entity(this).process(SuffixProcessor.of()::process);
         PageInfo<V> pageInfo = PageHelper.startPage((int) pageNum, (int) pageSize)
                 .doSelectPageInfo(() -> selectByBooster(sqlHelper, null));
         PageHelperPage<V> page = new PageHelperPage<>(pageInfo);

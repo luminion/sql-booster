@@ -1,7 +1,8 @@
 package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.model.api.QueryParams;
+import io.github.luminion.sqlbooster.core.BoosterParam;
+import io.github.luminion.sqlbooster.model.api.QuerySegment;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 
 /**
@@ -42,22 +43,27 @@ public class SqlHelper<T> extends LambdaHelper<T, SqlHelper<T>> {
     }
 
     /**
-     * 创建一个指定 {@link QueryParams}的实例
+     * 创建一个指定 {@link BoosterParam}的实例
      *
-     * @param queryParams 源 {@link QueryParams} 实例
+     * @param boosterParam 源 {@link BoosterParam} 实例
      * @param <T>     实体类型
      * @return {@link SqlHelper} 实例
      * @since 1.0.0
      */
-    public static <T> SqlHelper<T> of(QueryParams<T> queryParams) {
-        if (queryParams == null) {
+    public static <T> SqlHelper<T> of(BoosterParam<T> boosterParam) {
+        if (boosterParam == null) {
             return new SqlHelper<>();
         }
-        if (queryParams instanceof SqlHelper) {
-            return (SqlHelper<T>) queryParams;
+        if (boosterParam instanceof SqlHelper) {
+            return (SqlHelper<T>) boosterParam;
+        }
+        if (boosterParam instanceof QuerySegment){
+            QuerySegment querySegment = (QuerySegment) boosterParam;
+            SqlHelper<T> sqlHelper = new SqlHelper<>();
+            sqlHelper.append(querySegment);
         }
         SqlHelper<T> sqlHelper = new SqlHelper<>();
-        return sqlHelper.append(queryParams);
+        return sqlHelper.append(boosterParam);
     }
 
     /**

@@ -4,8 +4,8 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBooster;
-import io.github.luminion.sqlbooster.model.api.QueryParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class PostgresService implements PageHelperBooster<SysUser,SysUserVO> {
 
 
     @Override
-    public List<SysUserVO> selectByBooster(QueryParams<SysUser> queryParams, Object page) {
-        return sysUserMapper.selectByBooster(queryParams,null);
+    public List<SysUserVO> selectByBooster(BoosterParam<SysUser> boosterParam, Object page) {
+        return sysUserMapper.selectByBooster(boosterParam,null);
     }
 }

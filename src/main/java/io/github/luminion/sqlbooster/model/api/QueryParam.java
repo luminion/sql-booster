@@ -1,5 +1,6 @@
 package io.github.luminion.sqlbooster.model.api;
 
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,9 +16,10 @@ import java.util.Map;
  * @param <T> 实体类型
  * @author luminion
  * @since 1.0.0
- */@Data
+ */
+@Data
 @EqualsAndHashCode(callSuper = true)
-public class QueryParams<T> extends QuerySegment {
+public class QueryParam<T> extends QuerySegment implements BoosterParam<T> {
 
     /**
      * 排序字段列表.
@@ -34,8 +36,8 @@ public class QueryParams<T> extends QuerySegment {
         if (segment == null) {
             return this;
         }
-        if (segment instanceof QueryParams) {
-            QueryParams<?> queryParams = (QueryParams<?>) segment;
+        if (segment instanceof QueryParam) {
+            QueryParam<?> queryParams = (QueryParam<?>) segment;
             this.sorts.addAll(queryParams.getSorts());
         }
         return super.appendTree(segment);

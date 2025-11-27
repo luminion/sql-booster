@@ -1,6 +1,5 @@
 target/
 */target/
-!.mvn/queryParams/maven-queryParams.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
