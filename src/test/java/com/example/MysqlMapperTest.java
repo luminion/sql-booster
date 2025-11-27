@@ -50,7 +50,7 @@ public class MysqlMapperTest {
      */
     @Test
     @Order(1)
-    public void testBasicvoList() {
+    public void testList() {
         // 创建简单的查询条件
         BoosterSqlParam sqlEntity = new BoosterSqlParam();
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.EQ.getKeyword(), "张三"));
@@ -69,21 +69,23 @@ public class MysqlMapperTest {
      */
     @Test
     @Order(2)
-    public void testvoListWithPagination() {
+    public void testPage() {
         // 创建查询条件 todo 暂未处理分页
         BoosterSqlParam sqlEntity = new BoosterSqlParam();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
 
         // 创建分页对象
 //        IPage<SysUserVO> page = new BoosterPage<>(1, 2);
+        int pageNum = 1;
+        int pageSize = 2;
 
 //        List<SysUserVO> result = sysUserMapper.voPage(sqlEntity, 1,2);
-        BoosterPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
+        BoosterPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, pageNum,pageSize);
 
         assertNotNull(page);
         assertTrue(page.getPages() <= 2);
-        assertEquals(1, page.getCurrent());
-        assertEquals(2, page.getSize());
+        assertEquals(pageNum, page.getCurrent());
+        assertEquals(pageSize, page.getSize());
         assertTrue(page.getTotal() >= 3); // 至少有3个用户年龄>=25（包括可能已存在的数据）
     }
 

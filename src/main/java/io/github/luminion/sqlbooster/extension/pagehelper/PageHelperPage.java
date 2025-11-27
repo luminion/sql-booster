@@ -39,7 +39,7 @@ public class PageHelperPage<T> implements BoosterPage<T> {
 
     @Override
     public long getSize() {
-        return pageInfo.getSize();
+        return pageInfo.getPageSize();
     }
 
     @Override

@@ -67,9 +67,9 @@ public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends
         }
         else{
             Map<?, ?> map = ReflectUtils.objectToMap(object);
-            for (Map.Entry<K, V> entry : map.entrySet()) {
-                K key = entry.getKey();
-                V value = entry.getValue();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                Object key = entry.getKey();
+                Object value = entry.getValue();
                 Condition condition = new Condition(key.toString(), value);
                 this.getConditions().add(condition);
             }
