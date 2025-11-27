@@ -7,13 +7,7 @@ import java.util.List;
 
 /**
  * 针对 Mybatis-Plus 的 ServiceImpl的扩展.
- * <p>
- * 集成了 {@link MybatisPlusBooster} 的能力,
- * 提供增强的数据库操作能力, 包括链式查询构建、Lambda 表达式支持等.
  *
- * @param <M> Mapper 类型
- * @param <T> 实体类型
- * @param <V> VO 类型
  * @author luminion
  * @since 1.0.0
  */
@@ -22,6 +16,6 @@ public abstract class BoosterMpServiceImpl<M extends BoosterMpMapper<T, V>, T, V
     @Override
     public List<V> selectByBooster(BoosterParam<T> boosterParam, Object page) {
         return getBaseMapper().selectByBooster(boosterParam, page);
-    }
+    }   
 
 }

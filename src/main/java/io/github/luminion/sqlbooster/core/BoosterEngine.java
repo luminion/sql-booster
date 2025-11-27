@@ -186,16 +186,6 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     /**
-     * 获取 Lambda SQL 助手.
-     *
-     * @return SQL 助手
-     * @since 1.0.0
-     */
-    default SqlHelperBooster<T, V> lambdaHelper() {
-        return new SqlHelperBooster<>(this);
-    }
-
-    /**
      * 最终执行查询的方法.
      *
      * @param boosterParam 查询条件
