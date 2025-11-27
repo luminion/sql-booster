@@ -2,7 +2,6 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.BoosterCore;
-import io.github.luminion.sqlbooster.core.BoosterParam;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.QueryParam;
 import io.github.luminion.sqlbooster.model.api.Sort;

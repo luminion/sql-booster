@@ -1,10 +1,9 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
+import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.SqlHelperBooster;
 import io.github.luminion.sqlbooster.model.helper.SqlHelper;
-import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
@@ -26,25 +25,25 @@ import java.util.stream.Collectors;
  */
 public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
 
-    @Override
-    default T toEntity(Object source) {
-        return ReflectUtils.toTarget(source, BoostUtils.getEntityClass(this));
-    }
-
-    @Override
-    default V toVo(Object source) {
-        return ReflectUtils.toTarget(source, BoostUtils.getViewObjectClass(this));
-    }
-
-    @Override
-    default void voPreProcess(BoosterParam<T> boosterParam) {
-        // do nothing here, only for override
-    }
-
-    @Override
-    default void voPostProcess(List<V> records, BoosterParam<T> boosterParam, BoosterPage<V> page) {
-        // do nothing here, only for override
-    }
+    //@Override
+    //default T toEntity(Object source) {
+    //    return ReflectUtils.toTarget(source, BoostUtils.getEntityClass(this));
+    //}
+    //
+    //@Override
+    //default V toVo(Object source) {
+    //    return ReflectUtils.toTarget(source, BoostUtils.getViewObjectClass(this));
+    //}
+    //
+    //@Override
+    //default void voPreProcess(BoosterParam<T> boosterParam) {
+    //    // do nothing here, only for override
+    //}
+    //
+    //@Override
+    //default void voPostProcess(List<V> records, BoosterParam<T> boosterParam, BoosterPage<V> page) {
+    //    // do nothing here, only for override
+    //}
 
     @Override
     default V voById(Serializable id) {
@@ -128,7 +127,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
             return null;
         }
         if (vs.size() > 1) {
-            throw new TooManyResultsException("error query => expected one but found " + vs.size());
+            throw new TooManyResultsException("error query => expected one but found 0" + vs.size());
         }
         return vs.get(0);
     }
@@ -155,16 +154,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
 
     @Override
     default List<V> voList(BoosterParam<T> boosterParam) {
-        voPreProcess(boosterParam);
-
-        Class<T> entityClass = BoostUtils.getEntityClass(this);
-        SqlHelper<T> sqlHelper = SqlHelper.of(entityClass)
-                .append(boosterParam)
-                .process(SuffixProcessor.of()::process);
-        List<V> vs = selectByBooster(sqlHelper, null);
-
-        voPostProcess(vs, sqlHelper, null);
-        return vs;
+        return selectByBooster(boosterParam, null);
     }
 
     @Override
@@ -209,7 +199,7 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
      * 最终执行查询的方法.
      *
      * @param boosterParam 查询条件
-     * @param page    分页对象
+     * @param page         分页对象
      * @return 查询结果列表
      * @since 1.0.0
      */

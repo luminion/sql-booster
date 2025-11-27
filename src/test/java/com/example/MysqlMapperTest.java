@@ -6,6 +6,7 @@ import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.core.BoosterParam;
+import io.github.luminion.sqlbooster.model.api.QuerySegment;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
@@ -286,24 +287,24 @@ public class MysqlMapperTest {
 //        assertEquals(SysUserVO.class, voClass);
     }
 
-    /**
-     * 测试toVO方法
-     */
-    @Test
-    @Order(14)
-    public void testToVO() {
-        SysUser user = new SysUser();
-        user.setId(1L);
-        user.setName("测试用户");
-        user.setAge(25);
-        
-        SysUserVO vo = sysUserMapper.toVo(user);
-        
-        assertNotNull(vo);
-        assertEquals(user.getId(), vo.getId());
-        assertEquals(user.getName(), vo.getName());
-        assertEquals(user.getAge(), vo.getAge());
-    }
+    ///**
+    // * 测试toVO方法
+    // */
+    //@Test
+    //@Order(14)
+    //public void testToVO() {
+    //    SysUser user = new SysUser();
+    //    user.setId(1L);
+    //    user.setName("测试用户");
+    //    user.setAge(25);
+    //    
+    //    SysUserVO vo = sysUserMapper.toVo(user);
+    //    
+    //    assertNotNull(vo);
+    //    assertEquals(user.getId(), vo.getId());
+    //    assertEquals(user.getName(), vo.getName());
+    //    assertEquals(user.getAge(), vo.getAge());
+    //}
 
     /**
      * 测试边界条件和异常情况
@@ -313,7 +314,7 @@ public class MysqlMapperTest {
     public void testBoundaryConditions() {
         // 测试空的SqlWrapper
         assertDoesNotThrow(() -> {
-            List<SysUserVO> result = sysUserMapper.voList(new BoosterParam());
+            List<SysUserVO> result = sysUserMapper.voList(new QuerySegment());
             assertNotNull(result);
         });
         

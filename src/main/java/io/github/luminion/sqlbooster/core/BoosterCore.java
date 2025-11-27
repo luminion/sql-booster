@@ -26,43 +26,6 @@ import java.util.Optional;
  */
 public interface BoosterCore<T, V> extends Booster<T, V> {
 
-    /**
-     * 将源对象转化为实体对象.
-     *
-     * @param source 源对象
-     * @return 实体对象
-     * @since 1.0.0
-     */
-    T toEntity(Object source);
-
-    /**
-     * 转换为VO对象.
-     *
-     * @param source 源对象
-     * @return VO对象
-     * @since 1.0.0
-     */
-    V toVo(Object source);
-
-
-    /**
-     * 执行查询前的预处理操作.
-     *
-     * @param boosterParam 查询条件
-     * @since 1.0.0
-     */
-    void voPreProcess(BoosterParam<T> boosterParam);
-
-    /**
-     * 执行查询后的后处理操作.
-     *
-     * @param records   查询结果
-     * @param boosterParam 查询条件
-     * @param page      分页对象
-     * @since 1.0.0
-     */
-    void voPostProcess(List<V> records, BoosterParam<T> boosterParam, BoosterPage<V> page);
-
     // ==================== 根据ID查询 ====================
 
     /**
