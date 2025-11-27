@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.provider.support;
 
 import io.github.luminion.sqlbooster.core.MethodReference;
-import io.github.luminion.sqlbooster.provider.BoostProvider;
+import io.github.luminion.sqlbooster.provider.TableInfoProvider;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.EqualsAndHashCode;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class BasicProvider implements BoostProvider {
+public class BasicTableInfoProvider implements TableInfoProvider {
 
     /**
      * 是否将驼峰命名转换为下划线命名

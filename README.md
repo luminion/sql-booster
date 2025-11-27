@@ -222,13 +222,13 @@ import io.github.luminion.sqlbooster.core.BoosterEngine;
 public interface CustomBooster<T> extends BoosterEngine<SysUser, SysUserVO> {
 
     @Override
-    default Page<SysUserVO> voPage(Wrapper<SysUser> boosterParam, long pageNum, long pageSize) {
+    default Page<SysUserVO> voPage(Wrapper<SysUser> queryParam, long pageNum, long pageSize) {
         // 查询预处理 - 提供给子类重写的方法, 可用于对wrapper进行预处理, 可以不调用, 但建议调用以规范行为
-        voPreProcess(boosterParam);
+        voPreProcess(queryParam);
 
         // !!!重要!!!, 记得调用SqlHelper.process()方法
         // SqlHelper.process()方法用于处理动态映射和后缀映射, 同时检查条件合法性, 防止sql注入
-        BaseHelper<T> sqlHelper = SqlHelper.of(boosterParam).entity(this)
+        BaseHelper<T> sqlHelper = SqlHelper.of(queryParam).entity(this)
                 .process(SuffixProcessor.of()::process);
 
         // 分页逻辑, 以下为Mybatis-plus的分页示例, 实际实现时替换为自己的即可

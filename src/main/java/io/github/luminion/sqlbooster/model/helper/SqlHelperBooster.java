@@ -2,7 +2,6 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.core.BoosterParam;
 
 import java.util.List;
 import java.util.Optional;

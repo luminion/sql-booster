@@ -1,21 +1,18 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
+import io.github.luminion.sqlbooster.core.QueryParam;
 import io.github.luminion.sqlbooster.core.MethodReference;
-import io.github.luminion.sqlbooster.provider.BoostProvider;
+import io.github.luminion.sqlbooster.provider.TableInfoProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.GenericTypeResolver;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Booster运行时核心工具类.
  * <p>
- * 提供可扩展的、针对实体和VO的功能。通过注册 {@link BoostProvider}，可以插入自定义逻辑.
+ * 提供可扩展的、针对实体和VO的功能。通过注册 {@link TableInfoProvider}，可以插入自定义逻辑.
  *
  * @author luminion
  * @since 1.0.0
@@ -23,9 +20,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Slf4j
 public abstract class BoostUtils {
     /**
-     * 已注册的 BoostProvider 实例.
+     * 已注册的 TableInfoProvider 实例.
      */
-    private static final ConcurrentSkipListSet<BoostProvider> PROVIDERS = new ConcurrentSkipListSet<>();
+    private static final Queue<TableInfoProvider> PROVIDERS = new ConcurrentSkipListSet<>();
 
     /**
      * 获取所有已注册的 Provider.
@@ -33,7 +30,7 @@ public abstract class BoostUtils {
      * @return Provider 列表
      * @since 1.0.0
      */
-    public static List<BoostProvider> checkoutProviders() {
+    public static List<TableInfoProvider> checkoutProviders() {
         return new ArrayList<>(PROVIDERS);
     }
 
@@ -44,7 +41,7 @@ public abstract class BoostUtils {
      * @return 如果注册成功返回 true, 否则返回 false
      * @since 1.0.0
      */
-    public static boolean registerProvider(BoostProvider provider) {
+    public static boolean registerProvider(TableInfoProvider provider) {
         return PROVIDERS.add(provider);
     }
 
@@ -55,7 +52,7 @@ public abstract class BoostUtils {
      * @return 如果移除成功返回 true, 否则返回 false
      * @since 1.0.0
      */
-    public static boolean removeProvider(BoostProvider provider) {
+    public static boolean removeProvider(TableInfoProvider provider) {
         return PROVIDERS.remove(provider);
     }
 
@@ -66,9 +63,9 @@ public abstract class BoostUtils {
      * @return 移除的 Provider 的数量
      * @since 1.0.0
      */
-    public static int removeProvider(Class<? extends BoostProvider> providerType) {
+    public static int removeProvider(Class<? extends TableInfoProvider> providerType) {
         int count = 0;
-        for (BoostProvider provider : PROVIDERS) {
+        for (TableInfoProvider provider : PROVIDERS) {
             if (provider.getClass().equals(providerType)) {
                 boolean remove = PROVIDERS.remove(provider);
                 if (remove) {
@@ -124,9 +121,21 @@ public abstract class BoostUtils {
         return sb.toString();
     }
 
-
     /**
-     * 从 Booster 实现类中获取实体类的 Class 对象.
+     * 获取对应的实体类的 Class 对象.
+     *
+     * @param booster Booster 实例
+     * @param <T>     实体类型
+     * @return 实体类的 Class 对象
+     * @since 1.0.0
+     */
+    @SuppressWarnings({"unchecked"})
+    public static <T, V> Class<T> getEntityClass(QueryParam<T> queryParam) {
+        return (Class<T>) ReflectUtils.resolveTypeArguments(queryParam.getClass(), QueryParam.class)[0];
+    }
+    
+    /**
+     * 获取对应的实体类的 Class 对象.
      *
      * @param booster Booster 实例
      * @param <T>     实体类型
@@ -134,9 +143,9 @@ public abstract class BoostUtils {
      * @return 实体类的 Class 对象
      * @since 1.0.0
      */
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings({"unchecked"})
     public static <T, V> Class<T> getEntityClass(Booster<T, V> booster) {
-        return (Class<T>) GenericTypeResolver.resolveTypeArguments(booster.getClass(), Booster.class)[0];
+        return (Class<T>) ReflectUtils.resolveTypeArguments(booster.getClass(), Booster.class)[0];
     }
 
     /**
@@ -148,9 +157,9 @@ public abstract class BoostUtils {
      * @return VO 类的 Class 对象
      * @since 1.0.0
      */
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings({"unchecked"})
     public static <T, V> Class<V> getViewObjectClass(Booster<T, V> booster) {
-        return (Class<V>) GenericTypeResolver.resolveTypeArguments(booster.getClass(), Booster.class)[1];
+        return (Class<V>) ReflectUtils.resolveTypeArguments(booster.getClass(), Booster.class)[1];
     }
 
     /**
@@ -162,7 +171,7 @@ public abstract class BoostUtils {
      * @since 1.0.0
      */
     public static String getTableName(Class<?> entityClass) {
-        for (BoostProvider provider : PROVIDERS) {
+        for (TableInfoProvider provider : PROVIDERS) {
             String tableName = provider.getTableName(entityClass);
             if (tableName != null) {
                 return tableName;
@@ -180,7 +189,7 @@ public abstract class BoostUtils {
      * @since 1.0.0
      */
     public static String getIdPropertyName(Class<?> entityClass) {
-        for (BoostProvider provider : PROVIDERS) {
+        for (TableInfoProvider provider : PROVIDERS) {
             String idPropertyName = provider.getIdPropertyName(entityClass);
             if (idPropertyName != null) {
                 return idPropertyName;
@@ -200,7 +209,7 @@ public abstract class BoostUtils {
      * @since 1.0.0
      */
     public static <T, R> String getGetterPropertyName(MethodReference<T, R> getter) {
-        for (BoostProvider provider : PROVIDERS) {
+        for (TableInfoProvider provider : PROVIDERS) {
             String propertyName = provider.getGetterPropertyName(getter);
             if (propertyName != null) {
                 return propertyName;
@@ -217,7 +226,7 @@ public abstract class BoostUtils {
      * @since 1.0.0
      */
     public static Map<String, String> getPropertyToColumnAliasMap(Class<?> entityClass) {
-        for (BoostProvider provider : PROVIDERS) {
+        for (TableInfoProvider provider : PROVIDERS) {
             Map<String, String> contributedMap = provider.getPropertyToColumnAliasMap(entityClass);
             if (contributedMap != null && !contributedMap.isEmpty()) {
                 log.debug("found alias map provider: [{}], class: [{}]", provider.getClass().getName(), entityClass.getName());

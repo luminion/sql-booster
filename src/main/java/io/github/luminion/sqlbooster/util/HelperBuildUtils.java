@@ -1,17 +1,13 @@
-package io.github.luminion.sqlbooster.model.helper.processor;
+package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.ConditionNode;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
-import io.github.luminion.sqlbooster.util.BoostUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 默认 SQL 处理器.
@@ -22,7 +18,52 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Slf4j
-public abstract class BasicProcessor {
+public abstract class HelperBuildUtils {
+    /**
+     * 当前处理器实例使用的后缀到操作符的映射.
+     */
+    private final static Map<String, String> DEFAULT_SUFFIX_MAP = new HashMap<>();
+
+    static {
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Ne", SqlKeyword.NE.getKeyword());
+
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Lt", SqlKeyword.LT.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Lte", SqlKeyword.LTE.getKeyword());
+
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Gt", SqlKeyword.GT.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Gte", SqlKeyword.GTE.getKeyword());
+
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Like", SqlKeyword.LIKE.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "NotLike", SqlKeyword.NOT_LIKE.getKeyword());
+
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "In", SqlKeyword.IN.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "NotIn", SqlKeyword.NOT_IN.getKeyword());
+
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "IsNull", SqlKeyword.IS_NULL.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "IsNotNull", SqlKeyword.IS_NOT_NULL.getKeyword());
+
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "BitAny", SqlKeyword.BIT_ANY.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "BitAll", SqlKeyword.BIT_ALL.getKeyword());
+        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "BitNone", SqlKeyword.BIT_NONE.getKeyword());
+    }
+
+
+    /**
+     * 向map中同时添加驼峰式和下划线式后缀的映射
+     *
+     * @param map      映射关系表
+     * @param suffix   后缀
+     * @param operator 操作符
+     * @since 1.0.0
+     */
+    private static void addBothCamelCaseAndUnderscore(Map<String, String> map, String suffix, String operator) {
+        map.putIfAbsent(suffix, operator);
+        String camelCase = BoostUtils.underscoreToCamelCase(suffix);
+        map.putIfAbsent(camelCase, operator);
+        String underscore = BoostUtils.camelCaseToUnderscore(suffix);
+        map.putIfAbsent(underscore, operator);
+    }
+
 
     /**
      * 验证并处理单个 SQL 条件.
@@ -109,22 +150,9 @@ public abstract class BasicProcessor {
         }
         return sort;
     }
-    
 
     /**
-     * 将一组 SQL 排序规则包装到 {@link AbstractHelper} 中.
-     *
-     * @param resultHelper                目标 SQL 助手
-     * @param sorts                    待包装的 SQL 排序规则集合
-     * @param propertyToColumnAliasMap 属性名到数据库列名的映射
-     * @since 1.0.0
-     */
-    public static void replaceSorts(AbstractHelper<?, ?> resultHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
-       
-    }
-
-    /**
-     * 处理 SQL 助手, 将字段后缀转换为对应的 SQL 操作符.
+     * 构建供xml使用的Helper
      *
      * @param rootHelper 根 SQL 助手
      * @param <T>        实体类型
@@ -133,7 +161,7 @@ public abstract class BasicProcessor {
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public <T, S extends AbstractHelper<T, S>> S process(AbstractHelper<T, S> rootHelper) {
+    public <T, S extends AbstractHelper<T, S>> S build(AbstractHelper<T, S> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
@@ -147,7 +175,7 @@ public abstract class BasicProcessor {
             LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
             while (conditionIterator.hasNext()) {
                 Condition condition = conditionIterator.next();
-                Condition replaceCondition = BasicProcessor.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                Condition replaceCondition = HelperBuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
                 if (replaceCondition == null) {
                     continue;
                 }
@@ -163,5 +191,65 @@ public abstract class BasicProcessor {
         }
         return resultHelper;
     }
+
+
+    public static <T, S extends AbstractHelper<T, S>> S buildWithSuffix(AbstractHelper<T, S> rootHelper, Map<String, String> suffixToOperatorMap) {
+        Class<T> entityClass = rootHelper.getEntityClass();
+        if (entityClass == null) {
+            throw new IllegalArgumentException("can't get entity class from sql helper");
+        }
+        S resultHelper = rootHelper.newInstance();
+        Map<String, Object> extraParams = resultHelper.getExtra();
+        Map<String, String> propertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
+        Set<String> suffixes = suffixToOperatorMap.keySet();
+        for (ConditionNode currentHelper : rootHelper) {
+            Collection<Condition> currentHelperConditions = currentHelper.getConditions();
+            Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
+            LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
+            while (conditionIterator.hasNext()) {
+                Condition condition = conditionIterator.next();
+                String field = condition.getField();
+                String jdbcColumn = propertyToColumnAliasMap.get(field);
+                if (jdbcColumn == null) {
+                    boolean isSuffixMatched = false;
+                    for (String suffix : suffixes) {
+                        if (field.endsWith(suffix) && field.length() > suffix.length()) {
+                            isSuffixMatched = true;
+                            String sourceFiled = field.substring(0, field.length() - suffix.length());
+                            String operator = suffixToOperatorMap.get(suffix);
+                            log.debug("condition field [{}] Matched suffix operator [{}]", field, operator);
+                            Condition suffixCondition = new Condition(sourceFiled, operator, condition.getValue());
+                            Condition validateSuffixCondition = HelperBuildUtils.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
+                            if (validateSuffixCondition == null) {
+                                continue;
+                            }
+                            replacedConditions.add(validateSuffixCondition);
+                            break;
+                        }
+                    }
+                    if (isSuffixMatched) {
+                        continue;
+                    }
+                }
+                Condition replaceCondition = HelperBuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                if (replaceCondition == null) {
+                    continue;
+                }
+                replacedConditions.add(replaceCondition);
+            }
+            resultHelper.appendConditions(replacedConditions, currentHelper.getConnector());
+        }
+        for (Sort sort : rootHelper.getSorts()) {
+            Sort validateSort = HelperBuildUtils.replaceSort(sort, propertyToColumnAliasMap);
+            if (validateSort != null) {
+                resultHelper.getSorts().add(validateSort);
+            }
+        }
+        return resultHelper;
+    }
+
+    public static <T, S extends AbstractHelper<T, S>> S buildWithSuffix(AbstractHelper<T, S> rootHelper) {
+        return buildWithSuffix(rootHelper, DEFAULT_SUFFIX_MAP);
+    } 
 
 }

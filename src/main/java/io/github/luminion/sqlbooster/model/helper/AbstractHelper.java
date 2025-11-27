@@ -32,19 +32,35 @@ public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends
     protected transient Class<T> entityClass;
 
     /**
+     * 创建一个新的自身实例.
+     *
+     * @return 新实例
+     * @since 1.0.0
+     */
+    public abstract S newInstance();
+    
+    /**
      * 应用一个处理器对当前的 SQL 助手进行转换或处理.
      *
      * @param processor 处理器函数
      * @return this
      * @since 1.0.0
      */
-    public S process(Function<S, S> processor){
+    public S build(Function<S, S> processor){
         return processor.apply((S) this);
     }
-
-    public abstract S newInstance();
-
-
+    
+    /**
+     * 设置关联的实体类.
+     *
+     * @param entityClass 实体类
+     * @return 当前实例
+     * @since 1.0.0
+     */
+    public S entity(Class<T> entityClass){
+        this.entityClass = entityClass;
+        return (S) this;
+    }
 
     /**
      * 从目标对象加载查询条件.
@@ -76,8 +92,6 @@ public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends
         }
         return (S) this;
     }
-
-
 
     /**
      * 转换为 {@link SqlHelperBooster}.

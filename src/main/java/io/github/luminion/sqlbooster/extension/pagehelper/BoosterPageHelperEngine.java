@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.github.luminion.sqlbooster.core.BoosterEngine;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.core.BoosterParam;
+import io.github.luminion.sqlbooster.core.QueryParam;
 
 /**
  * 针对 PageHelper 的 BoosterEngine 扩展接口.
@@ -19,9 +19,9 @@ import io.github.luminion.sqlbooster.core.BoosterParam;
 public interface BoosterPageHelperEngine<T, V> extends BoosterEngine<T, V> {
 
     @Override
-    default BoosterPage<V> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize) {
+    default BoosterPage<V> voPage(QueryParam<T> queryParam, long pageNum, long pageSize) {
         PageInfo<V> pageInfo = PageHelper.startPage((int) pageNum, (int) pageSize)
-                .doSelectPageInfo(() -> selectByBooster(boosterParam, null));
+                .doSelectPageInfo(() -> selectByBooster(queryParam, null));
         return new PageHelperPage<>(pageInfo);
     }
 }

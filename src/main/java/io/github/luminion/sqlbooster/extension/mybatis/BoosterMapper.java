@@ -1,11 +1,10 @@
 package io.github.luminion.sqlbooster.extension.mybatis;
 
 import io.github.luminion.sqlbooster.core.BoosterEngine;
-import io.github.luminion.sqlbooster.core.BoosterParam;
+import io.github.luminion.sqlbooster.core.QueryParam;
 import io.github.luminion.sqlbooster.model.api.SqlContext;
 import io.github.luminion.sqlbooster.model.helper.SqlHelper;
-import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.util.HelperBuildUtils;
 
 import java.util.List;
 
@@ -18,11 +17,10 @@ import java.util.List;
 public interface BoosterMapper<T, V> extends BoosterEngine<T, V> {
 
     @Override
-    default List<V> selectByBooster(BoosterParam<T> boosterParam, Object page) {
-        Class<T> entityClass = BoostUtils.getEntityClass(this);
-        SqlHelper<T> sqlHelper = SqlHelper.of(entityClass)
-                .append(boosterParam)
-                .process(SuffixProcessor.of()::process);
+    default List<V> selectByBooster(QueryParam<T> queryParam, Object page) {
+        SqlHelper<T> sqlHelper = SqlHelper.of(this)
+                .append(queryParam)
+                .build(HelperBuildUtils::buildWithSuffix);
         return selectByXml(sqlHelper, page);
     }
 
