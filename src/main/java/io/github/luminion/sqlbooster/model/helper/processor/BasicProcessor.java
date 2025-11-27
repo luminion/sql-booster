@@ -40,7 +40,7 @@ public abstract class BasicProcessor {
      * @return 验证并处理后的 {@link Condition}, 如果条件无效则返回 null
      * @since 1.0.0
      */
-    public static Condition validateCondition(Condition condition, Map<String, String> propertyToColumnAliasMap, Map<String, Object> extra) {
+    public static Condition replaceCondition(Condition condition, Map<String, String> propertyToColumnAliasMap, Map<String, Object> extra) {
         String field = condition.getField();
         String operator = condition.getOperator();
         Object value = condition.getValue();
@@ -101,45 +101,26 @@ public abstract class BasicProcessor {
      * @return 验证并处理后的 {@link Sort}, 如果排序字段无效则返回 null
      * @since 1.0.0
      */
-    public static Sort validateSort(Sort sort, Map<String, String> propertyToColumnAliasMap) {
+    public static Sort replaceSort(Sort sort, Map<String, String> propertyToColumnAliasMap) {
         String jdbcColumn = propertyToColumnAliasMap.get(sort.getField());
         if (jdbcColumn == null) {
             log.warn("sort field [{}] not exist in fieldMap , it will be removed", sort.getField());
             return null;
         }
-        return new Sort(jdbcColumn, sort.isAsc());
+        return sort;
     }
-
-    /**
-     * 将一组 SQL 条件包装到 {@link AbstractHelper} 中.
-     *
-     * @param sqlHelper  目标 SQL 助手
-     * @param conditions 待包装的 SQL 条件集合
-     * @param connector  连接这些条件的逻辑符号 (AND/OR)
-     * @since 1.0.0
-     */
-    public static void warpConditions(AbstractHelper<?, ?> sqlHelper, Collection<Condition> conditions, String connector) {
-        if (sqlHelper == null || conditions == null || conditions.isEmpty()) {
-            return;
-        }
-        sqlHelper.appendConditions(conditions, connector);
-    }
+    
 
     /**
      * 将一组 SQL 排序规则包装到 {@link AbstractHelper} 中.
      *
-     * @param sqlHelper                目标 SQL 助手
+     * @param resultHelper                目标 SQL 助手
      * @param sorts                    待包装的 SQL 排序规则集合
      * @param propertyToColumnAliasMap 属性名到数据库列名的映射
      * @since 1.0.0
      */
-    public static void wrapSorts(AbstractHelper<?, ?> sqlHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
-        for (Sort sort : sorts) {
-            Sort validateSort = validateSort(sort, propertyToColumnAliasMap);
-            if (validateSort != null) {
-                sqlHelper.getSorts().add(validateSort);
-            }
-        }
+    public static void replaceSorts(AbstractHelper<?, ?> resultHelper, Collection<Sort> sorts, Map<String, String> propertyToColumnAliasMap) {
+       
     }
 
     /**
@@ -163,18 +144,23 @@ public abstract class BasicProcessor {
         for (ConditionNode currentHelper : rootHelper) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
             Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
-            LinkedHashSet<Condition> validatedConditions = new LinkedHashSet<>(currentHelperConditions.size());
+            LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
             while (conditionIterator.hasNext()) {
                 Condition condition = conditionIterator.next();
-                Condition validate = BasicProcessor.validateCondition(condition, propertyToColumnAliasMap, extraParams);
-                if (validate == null) {
+                Condition replaceCondition = BasicProcessor.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                if (replaceCondition == null) {
                     continue;
                 }
-                validatedConditions.add(validate);
+                replacedConditions.add(replaceCondition);
             }
-            resultHelper.appendConditions(validatedConditions, currentHelper.getConnector());
+            resultHelper.appendConditions(replacedConditions, currentHelper.getConnector());
         }
-        BasicProcessor.wrapSorts(resultHelper, rootHelper.getSorts(), propertyToColumnAliasMap);
+        for (Sort sort : rootHelper.getSorts()) {
+            Sort validateSort = replaceSort(sort, propertyToColumnAliasMap);
+            if (validateSort != null) {
+                resultHelper.getSorts().add(validateSort);
+            }
+        }
         return resultHelper;
     }
 

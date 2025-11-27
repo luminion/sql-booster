@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BoosterSqlParam<T> extends ConditionNode implements BoosterParam<T> {
+public class SqlContext<T> extends ConditionNode implements BoosterParam<T> {
 
     /**
      * 排序字段列表.
@@ -34,9 +34,9 @@ public class BoosterSqlParam<T> extends ConditionNode implements BoosterParam<T>
         if (conditionNode == null) {
             return this;
         }
-        if (conditionNode instanceof BoosterSqlParam) {
-            BoosterSqlParam<?> boosterSqlParam = (BoosterSqlParam<?>) conditionNode;
-            this.sorts.addAll(boosterSqlParam.getSorts());
+        if (conditionNode instanceof SqlContext) {
+            SqlContext<?> sqlContext = (SqlContext<?>) conditionNode;
+            this.sorts.addAll(sqlContext.getSorts());
         }
         return super.merge(conditionNode);
     }

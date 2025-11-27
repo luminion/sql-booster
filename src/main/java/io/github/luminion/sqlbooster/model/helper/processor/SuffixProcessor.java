@@ -2,6 +2,7 @@ package io.github.luminion.sqlbooster.model.helper.processor;
 
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.ConditionNode;
+import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
@@ -127,16 +128,16 @@ public class SuffixProcessor {
         }
         S resultHelper = rootHelper.newInstance();
         Map<String, Object> extraParams = resultHelper.getExtra();
-        Map<String, String> entityPropertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
+        Map<String, String> propertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
         Set<String> suffixes = suffixToOperatorMap.keySet();
         for (ConditionNode currentHelper : rootHelper) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
             Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
-            LinkedHashSet<Condition> validatedConditions = new LinkedHashSet<>(currentHelperConditions.size());
+            LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
             while (conditionIterator.hasNext()) {
                 Condition condition = conditionIterator.next();
                 String field = condition.getField();
-                String jdbcColumn = entityPropertyToColumnAliasMap.get(field);
+                String jdbcColumn = propertyToColumnAliasMap.get(field);
                 if (jdbcColumn == null) {
                     boolean isSuffixMatched = false;
                     for (String suffix : suffixes) {
@@ -146,11 +147,11 @@ public class SuffixProcessor {
                             String operator = suffixToOperatorMap.get(suffix);
                             log.debug("condition field [{}] Matched suffix operator [{}]", field, operator);
                             Condition suffixCondition = new Condition(sourceFiled, operator, condition.getValue());
-                            Condition validateSuffixCondition = BasicProcessor.validateCondition(suffixCondition, entityPropertyToColumnAliasMap, extraParams);
+                            Condition validateSuffixCondition = BasicProcessor.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
                             if (validateSuffixCondition == null) {
                                 continue;
                             }
-                            validatedConditions.add(validateSuffixCondition);
+                            replacedConditions.add(validateSuffixCondition);
                             break;
                         }
                     }
@@ -158,15 +159,20 @@ public class SuffixProcessor {
                         continue;
                     }
                 }
-                Condition validate = BasicProcessor.validateCondition(condition, entityPropertyToColumnAliasMap, extraParams);
-                if (validate == null) {
+                Condition replaceCondition = BasicProcessor.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                if (replaceCondition == null) {
                     continue;
                 }
-                validatedConditions.add(validate);
+                replacedConditions.add(replaceCondition);
             }
-            resultHelper.appendConditions(validatedConditions, currentHelper.getConnector());
+            resultHelper.appendConditions(replacedConditions, currentHelper.getConnector());
         }
-        BasicProcessor.wrapSorts(resultHelper, rootHelper.getSorts(), entityPropertyToColumnAliasMap);
+        for (Sort sort : rootHelper.getSorts()) {
+            Sort validateSort = BasicProcessor.replaceSort(sort, propertyToColumnAliasMap);
+            if (validateSort != null) {
+                resultHelper.getSorts().add(validateSort);
+            }
+        }
         return resultHelper;
     }
 
