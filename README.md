@@ -132,10 +132,10 @@ public static void main(String[] args) {
 #### Mybatis环境, 使用`PageHelperBooster`
 
 ```java
-import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBooster;
+import io.github.luminion.sqlbooster.extension.pagehelper.BoosterPageHelperEngine;
 
 // 继承PageHelperBooster
-public interface SysUserMapper extends PageHelperBooster<SysUser, SysUserVO> {
+public interface SysUserMapper extends BoosterPageHelperEngine<SysUser, SysUserVO> {
 
 }
 

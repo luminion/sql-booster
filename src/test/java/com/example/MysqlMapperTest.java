@@ -5,8 +5,7 @@ import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.model.api.QuerySegment;
+import io.github.luminion.sqlbooster.model.api.QueryParam;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
@@ -53,7 +52,7 @@ public class MysqlMapperTest {
     @Order(1)
     public void testBasicvoList() {
         // 创建简单的查询条件
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.EQ.getKeyword(), "张三"));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -72,7 +71,7 @@ public class MysqlMapperTest {
     @Order(2)
     public void testvoListWithPagination() {
         // 创建查询条件 todo 暂未处理分页
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
 
         // 创建分页对象
@@ -94,7 +93,7 @@ public class MysqlMapperTest {
     @Test
     @Order(3)
     public void testMultipleConditions() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.LTE.getKeyword(), 35));
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
@@ -141,7 +140,7 @@ public class MysqlMapperTest {
     @Test
     @Order(5)
     public void testInQuery() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getKeyword(), Arrays.asList(25, 30)));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -157,7 +156,7 @@ public class MysqlMapperTest {
     @Test
     @Order(6)
     public void testSorting() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
         sqlEntity.getSorts().add(new Sort("age", true)); // 年龄升序
         
@@ -178,7 +177,7 @@ public class MysqlMapperTest {
     @Test
     @Order(7)
     public void testDescendingSorting() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
         sqlEntity.getSorts().add(new Sort("age", false)); // 年龄降序
         
@@ -199,7 +198,7 @@ public class MysqlMapperTest {
     @Test
     @Order(8)
     public void testEmptyConditions() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         // 不添加任何条件
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -214,7 +213,7 @@ public class MysqlMapperTest {
     @Test
     @Order(9)
     public void testNullValueQuery() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("nameLike", SqlKeyword.IS_NULL.getKeyword(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -230,7 +229,7 @@ public class MysqlMapperTest {
     @Test
     @Order(10)
     public void testNotNullQuery() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -246,7 +245,7 @@ public class MysqlMapperTest {
     @Test
     @Order(11)
     public void testNotInQuery() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.NOT_IN.getKeyword(), Arrays.asList(25, 30)));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -262,7 +261,7 @@ public class MysqlMapperTest {
     @Test
     @Order(12)
     public void testNotLikeQuery() {
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("name", SqlKeyword.NOT_LIKE.getKeyword(), "%张%"));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -314,7 +313,7 @@ public class MysqlMapperTest {
     public void testBoundaryConditions() {
         // 测试空的SqlWrapper
         assertDoesNotThrow(() -> {
-            List<SysUserVO> result = sysUserMapper.voList(new QuerySegment());
+            List<SysUserVO> result = sysUserMapper.voList(new QueryParam<>());
             assertNotNull(result);
         });
         
@@ -325,7 +324,7 @@ public class MysqlMapperTest {
         });
         
         // 测试空集合IN查询
-        BoosterParam sqlEntity = new BoosterParam();
+        QueryParam sqlEntity = new QueryParam();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getKeyword(), Collections.emptyList()));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);

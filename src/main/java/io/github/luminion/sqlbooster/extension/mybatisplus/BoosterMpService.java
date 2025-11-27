@@ -12,7 +12,7 @@ import java.util.List;
  * @author luminion
  * @since 1.0.0
  */
-public interface BoosterMpService<T, V> extends IService<T>, BoosterEngine<T, V> {
+public interface BoosterMpService<T, V> extends IService<T>, BoosterMpEngine<T, V> {
 
     //@Override
     //default List<V> selectByBooster(BoosterParam<T> boosterParam, Object page) {

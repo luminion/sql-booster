@@ -5,7 +5,7 @@ import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBooster;
+import io.github.luminion.sqlbooster.extension.pagehelper.BoosterPageHelperEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Service
 @DS("postgresql")
-public class PostgresService implements PageHelperBooster<SysUser,SysUserVO> {
+public class PostgresService implements BoosterPageHelperEngine<SysUser,SysUserVO> {
     @Autowired
     private SysUserMapper sysUserMapper;
 
