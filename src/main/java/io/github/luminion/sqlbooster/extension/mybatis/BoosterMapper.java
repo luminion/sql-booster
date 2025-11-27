@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.extension.mybatis;
 
 import io.github.luminion.sqlbooster.core.BoosterEngine;
-import io.github.luminion.sqlbooster.core.QueryParam;
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import io.github.luminion.sqlbooster.model.api.SqlContext;
 import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.util.BuildUtils;
@@ -17,9 +17,9 @@ import java.util.List;
 public interface BoosterMapper<T, V> extends BoosterEngine<T, V> {
 
     @Override
-    default List<V> selectByBooster(QueryParam<T> queryParam, Object page) {
+    default List<V> selectByBooster(BoosterParam<T> boosterParam, Object page) {
         SqlBuilder<T> sqlBuilder = SqlBuilder.of(this)
-                .append(queryParam)
+                .append(boosterParam)
                 .build(BuildUtils::buildWithSuffix);
         return selectByXml(sqlBuilder, page);
     }

@@ -132,10 +132,10 @@ public static void main(String[] args) {
 #### Mybatis环境, 使用`PageHelperBooster`
 
 ```java
-import io.github.luminion.sqlbooster.extension.pagehelper.BoosterPageHelperEngine;
+import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterEngine;
 
 // 继承PageHelperBooster
-public interface SysUserMapper extends BoosterPageHelperEngine<SysUser, SysUserVO> {
+public interface SysUserMapper extends PageHelperBoosterEngine<SysUser, SysUserVO> {
 
 }
 
@@ -154,31 +154,31 @@ public interface SysUserMapper extends BoosterPageHelperEngine<SysUser, SysUserV
 - `BoosterMpService`继承了`IService`和`MybatisPlusBooster`
 
 ```java
-import io.github.luminion.sqlbooster.extension.mybatisplus.BoosterMpMapper;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MyBatisPlusBoosterMapper;
 
 // 继承BoosterBaseMapper
 // eg: BoosterBaseMapper已继承BaseMapper, SysUserMapper无需继承原BaseMapper
-public interface SysUserMapper extends BoosterMpMapper<SysUser, SysUserVO> {
+public interface SysUserMapper extends MyBatisPlusBoosterMapper<SysUser, SysUserVO> {
 
 }
 ```
 
 ```java
-import io.github.luminion.sqlbooster.extension.mybatisplus.BoosterMpServiceImpl;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MyBatisPlusBoosterServiceImpl;
 
 // 继承BoosterMpServiceImpl
 // eg: BoosterMpServiceImpl已继承ServicImpl, SysUserServiceImpl无需继承原ServiceImpl
-public class SysUserServiceImpl extends BoosterMpServiceImpl<SysUser, SysUserVO> {
+public class SysUserServiceImpl extends MyBatisPlusBoosterServiceImpl<SysUser, SysUserVO> {
 
 }
 ```
 
 ```java
-import io.github.luminion.sqlbooster.extension.mybatisplus.BoosterMpService;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MyBatisPlusBoosterService;
 
-// BoosterMpService
+// MyBatisPlusBoosterService
 // eg: BoosterMpService已继承IService, SysUserService无需继承原IService
-public class SysUserService extends BoosterMpService<SysUser, SysUserVO> {
+public class SysUserService extends MyBatisPlusBoosterService<SysUser, SysUserVO> {
 
 }
 ```
@@ -222,13 +222,13 @@ import io.github.luminion.sqlbooster.core.BoosterEngine;
 public interface CustomBooster<T> extends BoosterEngine<SysUser, SysUserVO> {
 
     @Override
-    default Page<SysUserVO> voPage(Wrapper<SysUser> queryParam, long pageNum, long pageSize) {
+    default Page<SysUserVO> voPage(Wrapper<SysUser> boosterParam, long pageNum, long pageSize) {
         // 查询预处理 - 提供给子类重写的方法, 可用于对wrapper进行预处理, 可以不调用, 但建议调用以规范行为
-        voPreProcess(queryParam);
+        voPreProcess(boosterParam);
 
         // !!!重要!!!, 记得调用SqlHelper.process()方法
         // SqlBuilder.process()方法用于处理动态映射和后缀映射, 同时检查条件合法性, 防止sql注入
-        BaseHelper<T> sqlBuilder = SqlHelper.of(queryParam).entity(this)
+        BaseHelper<T> sqlBuilder = SqlHelper.of(boosterParam).entity(this)
                 .process(SuffixProcessor.of()::process);
 
         // 分页逻辑, 以下为Mybatis-plus的分页示例, 实际实现时替换为自己的即可

@@ -1,8 +1,8 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.QueryParam;
-import io.github.luminion.sqlbooster.core.MethodReference;
+import io.github.luminion.sqlbooster.core.BoosterParam;
+import io.github.luminion.sqlbooster.core.Getter;
 import io.github.luminion.sqlbooster.provider.TableInfoProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -130,8 +130,8 @@ public abstract class BoostUtils {
      * @since 1.0.0
      */
     @SuppressWarnings({"unchecked"})
-    public static <T, V> Class<T> getEntityClass(QueryParam<T> queryParam) {
-        return (Class<T>) ReflectUtils.resolveTypeArguments(queryParam.getClass(), QueryParam.class)[0];
+    public static <T, V> Class<T> getEntityClass(BoosterParam<T> boosterParam) {
+        return (Class<T>) ReflectUtils.resolveTypeArguments(boosterParam.getClass(), BoosterParam.class)[0];
     }
     
     /**
@@ -208,7 +208,7 @@ public abstract class BoostUtils {
      * @throws IllegalStateException 如果没有找到对应的属性名
      * @since 1.0.0
      */
-    public static <T, R> String getGetterPropertyName(MethodReference<T, R> getter) {
+    public static <T, R> String getGetterPropertyName(Getter<T, R> getter) {
         for (TableInfoProvider provider : PROVIDERS) {
             String propertyName = provider.getGetterPropertyName(getter);
             if (propertyName != null) {

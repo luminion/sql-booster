@@ -1,6 +1,6 @@
-package io.github.luminion.sqlbooster.extension.mybatisplus;
+package io.github.luminion.sqlbooster.extension.pagehelper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.github.pagehelper.PageInfo;
 import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.RequiredArgsConstructor;
@@ -8,23 +8,23 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /**
- * Mybatis-Plus 分页适配对象
+ * PageHelper 分页适配对象
  *
  * @param <T> 记录的类型
  * @author luminion
  * @since 1.0.0
  */
 @RequiredArgsConstructor
-public class MybatisPlusPage<T> implements BoosterPage<T> {
+public class PageHelperBoosterPage<T> implements BoosterPage<T> {
 
     /**
-     * Mybatis-Plus 的分页对象
+     * PageHelper 的分页对象
      */
-    private final IPage<T> pageInfo;
+    private final PageInfo<T> pageInfo;
 
     @Override
     public List<T> getRecords() {
-        return pageInfo.getRecords();
+        return pageInfo.getList();
     }
 
     @Override
@@ -34,18 +34,17 @@ public class MybatisPlusPage<T> implements BoosterPage<T> {
 
     @Override
     public long getCurrent() {
-        return pageInfo.getCurrent();
+        return pageInfo.getPageNum();
     }
 
     @Override
     public long getSize() {
-        return pageInfo.getSize();
+        return pageInfo.getPageSize();
     }
 
     @Override
     public <R> BoosterPage<R> convertRecords(Class<R> targetType) {
-        IPage<R> convert = pageInfo.convert(e -> ReflectUtils.toTarget(e, targetType));
-        return new MybatisPlusPage<>(convert);
+        PageInfo<R> convert = pageInfo.convert(e -> ReflectUtils.toTarget(e, targetType));
+        return new PageHelperBoosterPage<>(convert);
     }
-
 }

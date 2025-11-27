@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.model.builder;
 
-import io.github.luminion.sqlbooster.core.MethodReference;
+import io.github.luminion.sqlbooster.core.Getter;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
@@ -47,7 +47,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S eq(MethodReference<T, R> getter, R value) {
+    public <R> S eq(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -64,7 +64,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S ne(MethodReference<T, R> getter, R value) {
+    public <R> S ne(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -81,7 +81,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S gt(MethodReference<T, R> getter, R value) {
+    public <R> S gt(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -98,7 +98,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S ge(MethodReference<T, R> getter, R value) {
+    public <R> S ge(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -115,7 +115,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S lt(MethodReference<T, R> getter, R value) {
+    public <R> S lt(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -132,7 +132,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S le(MethodReference<T, R> getter, R value) {
+    public <R> S le(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -149,7 +149,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S like(MethodReference<T, R> getter, R value) {
+    public <R> S like(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -166,7 +166,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S notLike(MethodReference<T, R> getter, R value) {
+    public <R> S notLike(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -183,7 +183,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S in(MethodReference<T, R> getter, Collection<? extends R> value) {
+    public <R> S in(Getter<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
@@ -200,7 +200,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S notIn(MethodReference<T, R> getter, Collection<? extends R> value) {
+    public <R> S notIn(Getter<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
@@ -215,7 +215,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S isNull(MethodReference<T, ?> getter) {
+    public S isNull(Getter<T, ?> getter) {
         getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
         return (S) this;
     }
@@ -227,7 +227,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S isNotNull(MethodReference<T, ?> getter) {
+    public S isNotNull(Getter<T, ?> getter) {
         getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         return (S) this;
     }
@@ -239,7 +239,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S orderByAsc(MethodReference<T, ?> getter) {
+    public S orderByAsc(Getter<T, ?> getter) {
         getSorts().add(new Sort(BoostUtils.getGetterPropertyName(getter), true));
         return (S) this;
     }
@@ -251,7 +251,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S orderByDesc(MethodReference<T, ?> getter) {
+    public S orderByDesc(Getter<T, ?> getter) {
         getSorts().add(new Sort(BoostUtils.getGetterPropertyName(getter), false));
         return (S) this;
     }
@@ -265,7 +265,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitAny(MethodReference<T, R> getter, R value) {
+    public <R> S bitAny(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -282,7 +282,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitAll(MethodReference<T, R> getter, R value) {
+    public <R> S bitAll(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -299,7 +299,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitNone(MethodReference<T, R> getter, R value) {
+    public <R> S bitNone(Getter<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }

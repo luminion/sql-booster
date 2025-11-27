@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.model.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.QueryParam;
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 
 /**
@@ -32,9 +32,9 @@ public class SqlBuilder<T> extends LambdaBuilder<T, SqlBuilder<T>> {
         return sqlBuilder;
     }
 
-    public static <T> SqlBuilder<T> of(QueryParam<T> queryParam) {
+    public static <T> SqlBuilder<T> of(BoosterParam<T> boosterParam) {
         SqlBuilder<T> sqlBuilder = new SqlBuilder<>();
-        sqlBuilder.entityClass = BoostUtils.getEntityClass(queryParam);
+        sqlBuilder.entityClass = BoostUtils.getEntityClass(boosterParam);
         return sqlBuilder;
     }
 

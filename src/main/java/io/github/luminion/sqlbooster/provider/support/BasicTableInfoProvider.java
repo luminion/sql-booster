@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.provider.support;
 
-import io.github.luminion.sqlbooster.core.MethodReference;
+import io.github.luminion.sqlbooster.core.Getter;
 import io.github.luminion.sqlbooster.provider.TableInfoProvider;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
@@ -49,7 +49,7 @@ public class BasicTableInfoProvider implements TableInfoProvider {
     }
 
     @Override
-    public <T, R> String getGetterPropertyName(MethodReference<T, R> getter) {
+    public <T, R> String getGetterPropertyName(Getter<T, R> getter) {
         try {
             return ReflectUtils.getGetterPropertyName(getter);
         } catch (Exception e) {

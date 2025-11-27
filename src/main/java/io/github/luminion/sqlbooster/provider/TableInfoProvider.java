@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.provider;
 
-import io.github.luminion.sqlbooster.core.MethodReference;
+import io.github.luminion.sqlbooster.core.Getter;
 import org.springframework.core.Ordered;
 
 import java.util.Map;
@@ -43,7 +43,7 @@ public interface TableInfoProvider extends Ordered{
      * @return 属性名
      * @since 1.0.0
      */
-    <T, R> String getGetterPropertyName(MethodReference<T, R> getter);
+    <T, R> String getGetterPropertyName(Getter<T, R> getter);
     
     /**
      * 获取实体类的属性到数据库列名(别名)的映射.

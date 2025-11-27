@@ -35,12 +35,12 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     //}
     //
     //@Override
-    //default void voPreProcess(QueryParam<T> boosterParam) {
+    //default void voPreProcess(BoosterParam<T> boosterParam) {
     //    // do nothing here, only for override
     //}
     //
     //@Override
-    //default void voPostProcess(List<V> records, QueryParam<T> boosterParam, BoosterPage<V> page) {
+    //default void voPostProcess(List<V> records, BoosterParam<T> boosterParam, BoosterPage<V> page) {
     //    // do nothing here, only for override
     //}
 
@@ -96,8 +96,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default V voFirst(QueryParam<T> queryParam) {
-        List<V> vs = voList(queryParam);
+    default V voFirst(BoosterParam<T> boosterParam) {
+        List<V> vs = voList(boosterParam);
         if (vs.isEmpty()) {
             return null;
         }
@@ -105,23 +105,23 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default <R> R voFirst(QueryParam<T> queryParam, Class<R> targetType) {
-        return ReflectUtils.toTarget(voFirst(queryParam), targetType);
+    default <R> R voFirst(BoosterParam<T> boosterParam, Class<R> targetType) {
+        return ReflectUtils.toTarget(voFirst(boosterParam), targetType);
     }
 
     @Override
-    default Optional<V> voFirstOpt(QueryParam<T> queryParam) {
-        return Optional.ofNullable(voFirst(queryParam));
+    default Optional<V> voFirstOpt(BoosterParam<T> boosterParam) {
+        return Optional.ofNullable(voFirst(boosterParam));
     }
 
     @Override
-    default <R> Optional<R> voFirstOpt(QueryParam<T> queryParam, Class<R> targetType) {
-        return Optional.ofNullable(voFirst(queryParam, targetType));
+    default <R> Optional<R> voFirstOpt(BoosterParam<T> boosterParam, Class<R> targetType) {
+        return Optional.ofNullable(voFirst(boosterParam, targetType));
     }
 
     @Override
-    default V voUnique(QueryParam<T> queryParam) {
-        List<V> vs = voList(queryParam);
+    default V voUnique(BoosterParam<T> boosterParam) {
+        List<V> vs = voList(boosterParam);
         if (vs.isEmpty()) {
             return null;
         }
@@ -132,18 +132,18 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default <R> R voUnique(QueryParam<T> queryParam, Class<R> targetType) {
-        return ReflectUtils.toTarget(voUnique(queryParam), targetType);
+    default <R> R voUnique(BoosterParam<T> boosterParam, Class<R> targetType) {
+        return ReflectUtils.toTarget(voUnique(boosterParam), targetType);
     }
 
     @Override
-    default Optional<V> voUniqueOpt(QueryParam<T> queryParam) {
-        return Optional.ofNullable(voUnique(queryParam));
+    default Optional<V> voUniqueOpt(BoosterParam<T> boosterParam) {
+        return Optional.ofNullable(voUnique(boosterParam));
     }
 
     @Override
-    default <R> Optional<R> voUniqueOpt(QueryParam<T> queryParam, Class<R> targetType) {
-        return Optional.ofNullable(voUnique(queryParam, targetType));
+    default <R> Optional<R> voUniqueOpt(BoosterParam<T> boosterParam, Class<R> targetType) {
+        return Optional.ofNullable(voUnique(boosterParam, targetType));
     }
 
     @Override
@@ -152,45 +152,45 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
     }
 
     @Override
-    default List<V> voList(QueryParam<T> queryParam) {
-        return selectByBooster(queryParam, null);
+    default List<V> voList(BoosterParam<T> boosterParam) {
+        return selectByBooster(boosterParam, null);
     }
 
     @Override
-    default <R> List<R> voList(QueryParam<T> queryParam, Class<R> targetType) {
-        List<V> vs = voList(queryParam);
+    default <R> List<R> voList(BoosterParam<T> boosterParam, Class<R> targetType) {
+        List<V> vs = voList(boosterParam);
         return vs.stream()
                 .map(v -> ReflectUtils.toTarget(v, targetType))
                 .collect(Collectors.toList());
     }
 
     @Override
-    default BoosterPage<V> voPage(QueryParam<T> queryParam, int pageNum, int pageSize) {
-        return voPage(queryParam, (long) pageNum, pageSize);
+    default BoosterPage<V> voPage(BoosterParam<T> boosterParam, int pageNum, int pageSize) {
+        return voPage(boosterParam, (long) pageNum, pageSize);
     }
 
     @Override
-    default BoosterPage<V> voPage(QueryParam<T> queryParam, long pageNum, long pageSize) {
+    default BoosterPage<V> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(QueryParam<T> queryParam, int pageNum, int pageSize, Class<R> targetType) {
-        return voPage(queryParam, (long) pageNum, pageSize, targetType);
+    default <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, int pageNum, int pageSize, Class<R> targetType) {
+        return voPage(boosterParam, (long) pageNum, pageSize, targetType);
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(QueryParam<T> queryParam, long pageNum, long pageSize, Class<R> targetType) {
-        return voPage(queryParam, pageNum, pageSize).convertRecords(targetType);
+    default <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize, Class<R> targetType) {
+        return voPage(boosterParam, pageNum, pageSize).convertRecords(targetType);
     }
 
     /**
      * 最终执行查询的方法.
      *
-     * @param queryParam 查询条件
+     * @param boosterParam 查询条件
      * @param page         分页对象
      * @return 查询结果列表
      * @since 1.0.0
      */
-    List<V> selectByBooster(QueryParam<T> queryParam, Object page);
+    List<V> selectByBooster(BoosterParam<T> boosterParam, Object page);
 }

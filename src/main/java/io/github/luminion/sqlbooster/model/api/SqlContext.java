@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.model.api;
 
-import io.github.luminion.sqlbooster.core.QueryParam;
+import io.github.luminion.sqlbooster.core.BoosterParam;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SqlContext<T> extends ConditionNode implements QueryParam<T> {
+public class SqlContext<T> extends ConditionNode implements BoosterParam<T> {
 
     /**
      * 排序字段列表.
