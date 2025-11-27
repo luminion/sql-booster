@@ -2,11 +2,10 @@ package io.github.luminion.sqlbooster.extension.mybatis;
 
 import io.github.luminion.sqlbooster.core.BoosterEngine;
 import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.model.api.QueryParam;
+import io.github.luminion.sqlbooster.model.api.BoosterSqlParam;
 import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.model.helper.processor.SuffixProcessor;
 import io.github.luminion.sqlbooster.util.BoostUtils;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public interface BoosterMapper<T, V> extends BoosterEngine<T, V> {
     }
 
 
-    List<V> selectByXml(QueryParam<T> queryParam, Object page);
+    List<V> selectByXml(BoosterSqlParam<T> boosterSqlParam, Object page);
 
 
 }

@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.model.helper;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.QueryParam;
+import io.github.luminion.sqlbooster.model.api.BoosterSqlParam;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.ConditionNode;
 import io.github.luminion.sqlbooster.util.BoostUtils;
@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends QueryParam<T> {
+public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends BoosterSqlParam<T> {
 
     /**
      * 关联的实体类, 用于 SQL 校验和处理.

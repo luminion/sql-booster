@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class QueryParam<T> extends ConditionNode implements BoosterParam<T> {
+public class BoosterSqlParam<T> extends ConditionNode implements BoosterParam<T> {
 
     /**
      * 排序字段列表.
@@ -30,14 +30,14 @@ public class QueryParam<T> extends ConditionNode implements BoosterParam<T> {
     protected transient Map<String, Object> extra = new HashMap<>();
     
     @Override
-    protected ConditionNode merge(ConditionNode segment) {
-        if (segment == null) {
+    protected ConditionNode merge(ConditionNode conditionNode) {
+        if (conditionNode == null) {
             return this;
         }
-        if (segment instanceof QueryParam) {
-            QueryParam<?> queryParams = (QueryParam<?>) segment;
-            this.sorts.addAll(queryParams.getSorts());
+        if (conditionNode instanceof BoosterSqlParam) {
+            BoosterSqlParam<?> boosterSqlParam = (BoosterSqlParam<?>) conditionNode;
+            this.sorts.addAll(boosterSqlParam.getSorts());
         }
-        return super.merge(segment);
+        return super.merge(conditionNode);
     }
 }
