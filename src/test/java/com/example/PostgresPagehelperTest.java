@@ -4,7 +4,7 @@ import com.example.entity.SysUser;
 import com.example.impl.PostgresService;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterPage;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PostgresqlSqlHelperTest {
+public class PostgresPagehelperTest {
 
     @Autowired
     private PostgresService baseService;
@@ -35,7 +35,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(1)
     public void testEq() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .eq(SysUser::getName, "张三")
                 .boost(baseService)
                 .list();
@@ -50,7 +50,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(2)
     public void testNe() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .ne(SysUser::getName, "张三")
                 .boost(baseService)
                 .list();
@@ -65,7 +65,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(3)
     public void testGt() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .gt(SysUser::getAge, 25)
                 .boost(baseService)
                 .list();
@@ -80,7 +80,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(4)
     public void testGe() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 25)
                 .boost(baseService)
                 .list();
@@ -95,7 +95,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(5)
     public void testLt() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .lt(SysUser::getAge, 30)
                 .boost(baseService)
                 .list();
@@ -110,7 +110,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(6)
     public void testLe() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .le(SysUser::getAge, 30)
                 .boost(baseService)
                 .list();
@@ -125,7 +125,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(7)
     public void testLike() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .like(SysUser::getName, "张")
                 .boost(baseService)
                 .list();
@@ -140,7 +140,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(8)
     public void testNotLike() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .notLike(SysUser::getName, "张")
                 .boost(baseService)
                 .list();
@@ -155,7 +155,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(9)
     public void testIn() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .in(SysUser::getAge, Arrays.asList(25, 30))
                 .boost(baseService)
                 .list();
@@ -171,7 +171,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(10)
     public void testNotIn() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .notIn(SysUser::getAge, Arrays.asList(25, 30))
                 .boost(baseService)
                 .list();
@@ -187,7 +187,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(11)
     public void testIsNull() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .isNull(SysUser::getNameLike)
                 .boost(baseService)
                 .list();
@@ -203,7 +203,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(12)
     public void testIsNotNull() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .isNotNull(SysUser::getName)
                 .boost(baseService)
                 .list();
@@ -218,7 +218,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(13)
     public void testOr() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getState, 1)
                 .or(s->s.eq(SysUser::getName, "李四").eq(SysUser::getName, "张三"))
                 .or(s->s.ge(SysUser::getAge, 20).le(SysUser::getAge, 30))
@@ -236,7 +236,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(14)
     public void testOrderByAsc() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .orderByAsc(SysUser::getAge)
                 .boost(baseService)
                 .list();
@@ -253,7 +253,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(15)
     public void testOrderByDesc() {
-        List<SysUserVO> list = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                 .orderByDesc(SysUser::getAge)
                 .orderByAsc(SysUser::getState)
                 .boost(baseService)
@@ -271,7 +271,7 @@ public class PostgresqlSqlHelperTest {
     @Test
     @Order(16)
     public void testPage() {
-        BoosterPage<SysUserVO> page = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 25)
                 .boost(baseService)
                 .page(1L, 2L);
@@ -290,7 +290,7 @@ public class PostgresqlSqlHelperTest {
     public void testBitAny() {
         // 测试具有指定位的用户 (state & 1 > 0)
         // 张三(state=1)和王五(state=3)应该匹配这个条件
-        List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list1 = SqlBuilder.of(SysUser.class)
                 .bitAny(SysUser::getState, 1)
                 .boost(baseService)
                 .list();
@@ -300,7 +300,7 @@ public class PostgresqlSqlHelperTest {
 
         // 测试具有指定位的用户 (state & 2 > 0)
         // 李四(state=2)和王五(state=3)应该匹配这个条件
-        List<SysUserVO> list2 = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list2 = SqlBuilder.of(SysUser.class)
                 .bitAny(SysUser::getState, 2)
                 .boost(baseService)
                 .list();
@@ -314,7 +314,7 @@ public class PostgresqlSqlHelperTest {
     public void testBitAll(){
         // 测试具有指定位的用户 (state & 3 = 3)
         // 王五(state=3)应该匹配这个条件
-        List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list1 = SqlBuilder.of(SysUser.class)
                 .bitAll(SysUser::getState, 3)
                 .boost(baseService)
                 .list();
@@ -324,7 +324,7 @@ public class PostgresqlSqlHelperTest {
 
         // 测试具有指定位的用户 (state & 2 = 2)
         // 李四(state=2)和王五(state=3)应该匹配这个条件
-        List<SysUserVO> list2 = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list2 = SqlBuilder.of(SysUser.class)
                 .bitAll(SysUser::getState, 2)
                 .boost(baseService)
                 .list();
@@ -341,7 +341,7 @@ public class PostgresqlSqlHelperTest {
     public void testBitNone() {
         // 测试不具有指定位的用户 (state & 2 = 0)
         // 只有张三(state=1)应该匹配这个条件
-        List<SysUserVO> list1 = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list1 = SqlBuilder.of(SysUser.class)
                 .bitNone(SysUser::getState, 2)
                 .boost(baseService)
                 .list();
@@ -351,7 +351,7 @@ public class PostgresqlSqlHelperTest {
 
         // 测试不具有指定位的用户 (state & 1 = 0)
         // 只有李四(state=2)应该匹配这个条件
-        List<SysUserVO> list2 = SqlHelper.of(SysUser.class)
+        List<SysUserVO> list2 = SqlBuilder.of(SysUser.class)
                 .bitNone(SysUser::getState, 1)
                 .boost(baseService)
                 .list();
@@ -367,7 +367,7 @@ public class PostgresqlSqlHelperTest {
     @Order(19)
     public void testNullAndBoundaryConditions() {
         // 测试空值查询
-        List<SysUserVO> nullNameList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> nullNameList = SqlBuilder.of(SysUser.class)
                 .isNull(SysUser::getNameLike)
                 .boost(baseService)
                 .list();
@@ -375,7 +375,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(nullNameList.size() >= 1); // user4的name为null
 
         // 测试边界值查询
-        List<SysUserVO> zeroAgeList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> zeroAgeList = SqlBuilder.of(SysUser.class)
                 .eq(SysUser::getAge, 25)
                 .boost(baseService)
                 .list();
@@ -383,7 +383,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(zeroAgeList.size() >= 1); // user1的age为0
 
         // 测试空集合查询
-        List<SysUserVO> emptyInList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> emptyInList = SqlBuilder.of(SysUser.class)
                 .in(SysUser::getAge, Collections.emptyList())
                 .boost(baseService)
                 .list();
@@ -398,7 +398,7 @@ public class PostgresqlSqlHelperTest {
     @Order(20)
     public void testComplexConditions() {
         // 测试复杂AND条件组合
-        List<SysUserVO> complexAndList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> complexAndList = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 25)
                 .le(SysUser::getAge, 35)
                 .isNotNull(SysUser::getName)
@@ -408,7 +408,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(complexAndList.size() >= 2); // 张三、李四、王五符合条件
 
         // 测试复杂OR条件组合
-        List<SysUserVO> complexOrList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> complexOrList = SqlBuilder.of(SysUser.class)
                 .gt(SysUser::getAge, 10)
                 .or(helper -> helper
                         .eq(SysUser::getName, "李四")
@@ -421,7 +421,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(complexOrList.stream().allMatch(e -> e.getAge()>10));
 
         // 测试混合条件
-        List<SysUserVO> mixedList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> mixedList = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 5)
                 .or(helper -> helper
                         .eq(SysUser::getState, 1)
@@ -445,7 +445,7 @@ public class PostgresqlSqlHelperTest {
         queryParams.put("ageGe", 25); // 应该转换为age >= 25
         queryParams.put("ageLe", 35); // 应该转换为age <= 35
 
-        List<SysUserVO> suffixList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> suffixList = SqlBuilder.of(SysUser.class)
                 .append(queryParams)
                 .boost(baseService)
                 .list();
@@ -467,7 +467,7 @@ public class PostgresqlSqlHelperTest {
     public void testExceptionHandling() {
         // 测试无效操作符（这个测试可能需要根据实际实现调整）
         assertDoesNotThrow(() -> {
-            List<SysUserVO> list = SqlHelper.of(SysUser.class)
+            List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                     .eq(SysUser::getName, "张三")
                     .boost(baseService)
                     .list();
@@ -476,7 +476,7 @@ public class PostgresqlSqlHelperTest {
 
         // 测试空参数
         assertDoesNotThrow(() -> {
-            List<SysUserVO> list = SqlHelper.of(SysUser.class)
+            List<SysUserVO> list = SqlBuilder.of(SysUser.class)
                     .boost(baseService)
                     .list();
             assertNotNull(list);
@@ -492,7 +492,7 @@ public class PostgresqlSqlHelperTest {
         long startTime = System.currentTimeMillis();
 
         // 执行复杂查询
-        List<SysUserVO> performanceList = SqlHelper.of(SysUser.class)
+        List<SysUserVO> performanceList = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .le(SysUser::getAge, 100)
                 .isNotNull(SysUser::getCreateTime)
@@ -525,7 +525,7 @@ public class PostgresqlSqlHelperTest {
     @Order(24)
     public void testPaginationBoundaries() {
 
-        BoosterPage<SysUserVO> page = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(1, 2);
@@ -533,7 +533,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(page.getTotal() >= 4);
 
 
-        BoosterPage<SysUserVO> page2 = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> page2 = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(2, 2);
@@ -541,7 +541,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(page.getTotal() >= 4);
 
         // 测试第一页
-        BoosterPage<SysUserVO> firstPage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(1L, 2L);
@@ -552,7 +552,7 @@ public class PostgresqlSqlHelperTest {
         assertEquals(2, firstPage.getRecords().size());
 
         // 测试超出范围的页码
-        BoosterPage<SysUserVO> outOfRangePage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(999L, 10L);
@@ -561,7 +561,7 @@ public class PostgresqlSqlHelperTest {
         assertTrue(outOfRangePage.getRecords().isEmpty());
 
         // 测试负数页码（应该被修正为1）
-        BoosterPage<SysUserVO> negativePage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(-1L, 10L);

@@ -227,19 +227,19 @@ public interface CustomBooster<T> extends BoosterEngine<SysUser, SysUserVO> {
         voPreProcess(queryParam);
 
         // !!!重要!!!, 记得调用SqlHelper.process()方法
-        // SqlHelper.process()方法用于处理动态映射和后缀映射, 同时检查条件合法性, 防止sql注入
-        BaseHelper<T> sqlHelper = SqlHelper.of(queryParam).entity(this)
+        // SqlBuilder.process()方法用于处理动态映射和后缀映射, 同时检查条件合法性, 防止sql注入
+        BaseHelper<T> sqlBuilder = SqlHelper.of(queryParam).entity(this)
                 .process(SuffixProcessor.of()::process);
 
         // 分页逻辑, 以下为Mybatis-plus的分页示例, 实际实现时替换为自己的即可
         PageDTO<V> pageInfo = new PageDTO<>(pageNum, pageSize);
-        List<V> vs = selectByBooster(sqlHelper, pageInfo); // 真正执行查询的mapper层方法
+        List<V> vs = selectByBooster(sqlBuilder, pageInfo); // 真正执行查询的mapper层方法
         pageInfo.setRecords(vs);
         MybatisPlusPage<V> page = new MybatisPlusPage<>(pageInfo);
 
 
         // 查询后处理 - 提供给子类重写的方法, 可用于对查询结果进行后处理, 可以不调用, 但建议调用以规范行为
-        voPostProcess(page.getRecords(), sqlHelper, page);
+        voPostProcess(page.getRecords(), sqlBuilder, page);
         return null;
     }
 
@@ -263,7 +263,7 @@ public interface SysUserMapper extends CustomBooster<SysUser, SysUserVO> {
 ## 使用示例
 
 ```java
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
+import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -297,14 +297,14 @@ public class SysUserController {
 
     // 使用SqlHelper作为参数时, 前端可通过入参动态指定条件及排序
     @PostMapping("/sql")
-    public List<SysUserVO> getUsersBySql(@RequestBody SqlHelper<SysUser> sqlHelper) {
-        return sysUserMapper.voList(sqlHelper);
+    public List<SysUserVO> getUsersBySql(@RequestBody SqlBuilder<SysUser> sqlBuilder) {
+        return sysUserMapper.voList(sqlBuilder);
     }
 
     // lambda调用,添加必要条件, 例如权限角色等
     @PostMapping("/lambda")
     public List<SysUserVO> getUsersBySql(@RequestBody Map<String, Object> params) {
-        return SqlHelper.of(SysUser.class)
+        return SqlBuilder.of(SysUser.class)
                 .append(params) // 合并或添加条件, 支持实体类, DTO对象, map, SqlHelper等
                 .eq(SysUser::getState, 1) // state=1
                 .ge(SysUser::getAge, 18) // age>=18
@@ -389,7 +389,7 @@ public class SysUserController {
 自定义示例:
 
 ```java
-import processor.io.github.luminion.sqlbooster.model.helper.SuffixProcessor;
+import processor.io.github.luminion.sqlbooster.model.builder.SuffixProcessor;
 
 @SpringBootApplication
 public class App {
@@ -420,7 +420,7 @@ public class App {
 - 支持复杂条件自由组合
 
 #### 入参格式
-支持动态sql的入参类为[SqlHelper](src/main/java/io/github/luminion/sqlbooster/model/helper/SqlHelper.java)类,
+支持动态sql的入参类为[SqlHelper](src/main/java/io/github/luminion/sqlbooster/model/builder/SqlHelper.java)类,
 其格式如下:
 
 ```json

@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.helper;
+package io.github.luminion.sqlbooster.model.builder;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.model.api.Condition;
@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends SqlContext<T> {
+public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  extends SqlContext<T> {
 
     /**
      * 关联的实体类, 用于 SQL 校验和处理.
@@ -94,17 +94,17 @@ public abstract class AbstractHelper<T, S extends AbstractHelper<T, S>>  extends
     }
 
     /**
-     * 转换为 {@link SqlHelperBooster}.
+     * 转换为 {@link BoostBuilder}.
      *
      * @param boosterCore {@link BoosterCore} 实例
      * @param <V>       VO 类型
      * @param <P>       分页对象类型
-     * @return {@link SqlHelperBooster} 实例
+     * @return {@link BoostBuilder} 实例
      * @since 1.0.0
      */
-    public <V, P> SqlHelperBooster<T, V> boost(BoosterCore<T, V> boosterCore) {
+    public <V, P> BoostBuilder<T, V> boost(BoosterCore<T, V> boosterCore) {
         this.entityClass = BoostUtils.getEntityClass(boosterCore);
-        return new SqlHelperBooster<>(boosterCore).append(this);
+        return new BoostBuilder<>(boosterCore).append(this);
     }
 
 }

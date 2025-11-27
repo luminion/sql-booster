@@ -6,10 +6,10 @@ import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.core.BoosterPage;
 import io.github.luminion.sqlbooster.model.api.SqlContext;
+import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MysqlMapperTest {
+public class MysqlMybatisplusTest {
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -40,7 +40,7 @@ public class MysqlMapperTest {
 //    @Test
 //    @Order(0)
 //    public void testInsert() {
-//        SqlHelper<SysUser> iSqlTrees = new SqlHelper<>();
+//        SqlBuilder<SysUser> iSqlTrees = new SqlBuilder<>();
 //        Class<SysUser> entityClass = iSqlTrees.getEntityClass();
 //        System.out.println(entityClass);
 //    }
@@ -121,7 +121,7 @@ public class MysqlMapperTest {
     @Order(4)
     public void testLikeQuery() {
        
-        SqlHelper<SysUser> sqlEntity = SqlHelper.of(SysUser.class)
+        SqlBuilder<SysUser> sqlEntity = SqlBuilder.of(SysUser.class)
                 ;
         sqlEntity.like(SysUser::getDescription,"测试")
                 ;
@@ -339,7 +339,7 @@ public class MysqlMapperTest {
     @Order(24)
     public void testPaginationBoundaries() {
 
-        BoosterPage<SysUserVO> page = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-2, 10);
@@ -347,7 +347,7 @@ public class MysqlMapperTest {
         assertTrue(page.getTotal() >= 4);
         
         // 测试第一页
-        BoosterPage<SysUserVO> firstPage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(1L, 2L);
@@ -356,7 +356,7 @@ public class MysqlMapperTest {
         assertEquals(2, firstPage.getSize());
         assertTrue(firstPage.getTotal() >= 4);
         // 测试超出范围的页码
-        BoosterPage<SysUserVO> outOfRangePage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(999L, 10L);
@@ -365,7 +365,7 @@ public class MysqlMapperTest {
         assertTrue(outOfRangePage.getRecords().isEmpty());
 
         // 测试负数页码（应该被修正为1）
-        BoosterPage<SysUserVO> negativePage = SqlHelper.of(SysUser.class)
+        BoosterPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-1L, 10L);

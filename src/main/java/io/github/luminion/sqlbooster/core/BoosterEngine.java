@@ -1,8 +1,8 @@
 package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.model.api.Condition;
+import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.helper.SqlHelper;
 import io.github.luminion.sqlbooster.util.BoostUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
@@ -55,8 +55,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
             throw new IllegalStateException("can't find id property");
         }
         Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getKeyword(), id);
-        SqlHelper<T> sqlHelper = SqlHelper.of(this).append(condition);
-        return voUnique(sqlHelper);
+        SqlBuilder<T> sqlBuilder = SqlBuilder.of(this).append(condition);
+        return voUnique(sqlBuilder);
     }
 
     @Override
@@ -83,8 +83,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
         Class<T> entityClass = BoostUtils.getEntityClass(this);
         String idPropertyName = BoostUtils.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
-        SqlHelper<T> sqlHelper = SqlHelper.of(this).append(condition);
-        return voList(sqlHelper);
+        SqlBuilder<T> sqlBuilder = SqlBuilder.of(this).append(condition);
+        return voList(sqlBuilder);
     }
 
     @Override

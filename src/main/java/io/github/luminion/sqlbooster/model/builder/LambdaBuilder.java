@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.helper;
+package io.github.luminion.sqlbooster.model.builder;
 
 import io.github.luminion.sqlbooster.core.MethodReference;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @SuppressWarnings({"unchecked", "unused"})
-public abstract class LambdaHelper<T, S extends LambdaHelper<T, S>> extends AbstractHelper<T, S> {
+public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends AbstractBuilder<T, S> {
 
     /**
      * 添加一组 OR 连接的条件.

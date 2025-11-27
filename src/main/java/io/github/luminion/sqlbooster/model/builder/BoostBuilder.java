@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.helper;
+package io.github.luminion.sqlbooster.model.builder;
 
 import io.github.luminion.sqlbooster.core.BoosterCore;
 import io.github.luminion.sqlbooster.core.BoosterPage;
@@ -9,22 +9,21 @@ import java.util.Optional;
 /**
  * 具备扩展查询功能的 SQL 构建助手.
  * <p>
- * 封装了 {@link BoosterCore} 和 {@link AbstractHelper}, 提供了方便的链式调用查询方法.
  *
  * @param <T> 实体类型
  * @param <V> VO 类型
  * @author luminion
  * @since 1.0.0
  */
-public class SqlHelperBooster<T, V> extends LambdaHelper<T, SqlHelperBooster<T, V>> {
+public class BoostBuilder<T, V> extends LambdaBuilder<T, BoostBuilder<T, V>> {
     private final BoosterCore<T, V> boosterCore;
 
     @Override
-    public SqlHelperBooster<T, V> newInstance() {
-        return new SqlHelperBooster<>(boosterCore);
+    public BoostBuilder<T, V> newInstance() {
+        return new BoostBuilder<>(boosterCore);
     }
 
-    public SqlHelperBooster(BoosterCore<T, V> boosterCore) {
+    public BoostBuilder(BoosterCore<T, V> boosterCore) {
         this.boosterCore = boosterCore;
     }
 

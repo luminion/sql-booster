@@ -4,7 +4,7 @@ import io.github.luminion.sqlbooster.model.api.Condition;
 import io.github.luminion.sqlbooster.model.api.Sort;
 import io.github.luminion.sqlbooster.model.api.ConditionNode;
 import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.helper.AbstractHelper;
+import io.github.luminion.sqlbooster.model.builder.AbstractBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import java.util.*;
  * @since 1.0.0
  */
 @Slf4j
-public abstract class HelperBuildUtils {
+public abstract class BuildUtils {
     /**
      * 当前处理器实例使用的后缀到操作符的映射.
      */
@@ -161,7 +161,7 @@ public abstract class HelperBuildUtils {
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public <T, S extends AbstractHelper<T, S>> S build(AbstractHelper<T, S> rootHelper) {
+    public <T, S extends AbstractBuilder<T, S>> S build(AbstractBuilder<T, S> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
@@ -175,7 +175,7 @@ public abstract class HelperBuildUtils {
             LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
             while (conditionIterator.hasNext()) {
                 Condition condition = conditionIterator.next();
-                Condition replaceCondition = HelperBuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                Condition replaceCondition = BuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
                 if (replaceCondition == null) {
                     continue;
                 }
@@ -193,7 +193,7 @@ public abstract class HelperBuildUtils {
     }
 
 
-    public static <T, S extends AbstractHelper<T, S>> S buildWithSuffix(AbstractHelper<T, S> rootHelper, Map<String, String> suffixToOperatorMap) {
+    public static <T, S extends AbstractBuilder<T, S>> S buildWithSuffix(AbstractBuilder<T, S> rootHelper, Map<String, String> suffixToOperatorMap) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
@@ -219,7 +219,7 @@ public abstract class HelperBuildUtils {
                             String operator = suffixToOperatorMap.get(suffix);
                             log.debug("condition field [{}] Matched suffix operator [{}]", field, operator);
                             Condition suffixCondition = new Condition(sourceFiled, operator, condition.getValue());
-                            Condition validateSuffixCondition = HelperBuildUtils.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
+                            Condition validateSuffixCondition = BuildUtils.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
                             if (validateSuffixCondition == null) {
                                 continue;
                             }
@@ -231,7 +231,7 @@ public abstract class HelperBuildUtils {
                         continue;
                     }
                 }
-                Condition replaceCondition = HelperBuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                Condition replaceCondition = BuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
                 if (replaceCondition == null) {
                     continue;
                 }
@@ -240,7 +240,7 @@ public abstract class HelperBuildUtils {
             resultHelper.appendConditions(replacedConditions, currentHelper.getConnector());
         }
         for (Sort sort : rootHelper.getSorts()) {
-            Sort validateSort = HelperBuildUtils.replaceSort(sort, propertyToColumnAliasMap);
+            Sort validateSort = BuildUtils.replaceSort(sort, propertyToColumnAliasMap);
             if (validateSort != null) {
                 resultHelper.getSorts().add(validateSort);
             }
@@ -248,7 +248,7 @@ public abstract class HelperBuildUtils {
         return resultHelper;
     }
 
-    public static <T, S extends AbstractHelper<T, S>> S buildWithSuffix(AbstractHelper<T, S> rootHelper) {
+    public static <T, S extends AbstractBuilder<T, S>> S buildWithSuffix(AbstractBuilder<T, S> rootHelper) {
         return buildWithSuffix(rootHelper, DEFAULT_SUFFIX_MAP);
     } 
 
