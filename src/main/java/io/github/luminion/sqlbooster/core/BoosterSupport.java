@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.model.BoosterPage;
 import io.github.luminion.sqlbooster.model.BoosterParam;
-import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;

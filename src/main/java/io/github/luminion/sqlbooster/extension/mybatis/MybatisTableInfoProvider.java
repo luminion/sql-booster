@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.extension.mybatis;
 
-import io.github.luminion.sqlbooster.core.LambdaMethodReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.core.TableInfoProvider;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
@@ -50,7 +50,7 @@ public class MybatisTableInfoProvider implements TableInfoProvider {
     }
 
     @Override
-    public <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter) {
+    public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
         try {
             return ReflectUtils.getGetterPropertyName(getter);
         } catch (Exception e) {

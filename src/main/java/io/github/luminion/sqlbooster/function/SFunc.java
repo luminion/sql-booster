@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.core;
+package io.github.luminion.sqlbooster.function;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -12,6 +12,6 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 @FunctionalInterface
-public interface LambdaMethodReference<T, R> extends Function<T, R>, Serializable {
+public interface SFunc<T, R> extends Function<T, R>, Serializable {
 
 }

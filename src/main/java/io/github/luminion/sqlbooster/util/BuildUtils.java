@@ -1,8 +1,8 @@
 package io.github.luminion.sqlbooster.util;
 
-import io.github.luminion.sqlbooster.model.Condition;
-import io.github.luminion.sqlbooster.model.Sort;
-import io.github.luminion.sqlbooster.model.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.Condition;
+import io.github.luminion.sqlbooster.model.query.Sort;
+import io.github.luminion.sqlbooster.model.query.ConditionNode;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.builder.AbstractBuilder;
 import lombok.extern.slf4j.Slf4j;

@@ -1,10 +1,10 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.BoosterApi;
-import io.github.luminion.sqlbooster.model.Condition;
-import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.model.Sort;
-import io.github.luminion.sqlbooster.model.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.Condition;
+import io.github.luminion.sqlbooster.model.query.SqlContext;
+import io.github.luminion.sqlbooster.model.query.Sort;
+import io.github.luminion.sqlbooster.model.query.ConditionNode;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.Getter;

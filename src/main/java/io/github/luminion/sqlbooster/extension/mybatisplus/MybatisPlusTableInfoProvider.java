@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import io.github.luminion.sqlbooster.core.LambdaMethodReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.core.TableInfoProvider;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.EqualsAndHashCode;
@@ -25,7 +25,7 @@ public class MybatisPlusTableInfoProvider implements TableInfoProvider {
     private final int order;
 
     @Override
-    public <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter) {
+    public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
         return ReflectUtils.getGetterPropertyName(getter);
     }
 

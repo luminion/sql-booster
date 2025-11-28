@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.extension.mybatis;
 
 import io.github.luminion.sqlbooster.core.BoosterSupport;
 import io.github.luminion.sqlbooster.model.BoosterParam;
-import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.model.query.SqlContext;
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.util.BuildUtils;
 

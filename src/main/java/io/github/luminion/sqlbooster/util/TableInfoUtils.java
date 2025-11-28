@@ -2,13 +2,12 @@ package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.model.BoosterParam;
-import io.github.luminion.sqlbooster.core.LambdaMethodReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.core.TableInfoProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Booster运行时核心工具类.
@@ -209,7 +208,7 @@ public abstract class TableInfoUtils {
      * @throws IllegalStateException 如果没有找到对应的属性名
      * @since 1.0.0
      */
-    public static <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter) {
+    public static <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
         for (TableInfoProvider provider : PROVIDERS) {
             String propertyName = provider.getGetterPropertyName(getter);
             if (propertyName != null) {
