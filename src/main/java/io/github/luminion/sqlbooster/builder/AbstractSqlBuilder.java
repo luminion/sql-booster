@@ -6,6 +6,7 @@ import io.github.luminion.sqlbooster.model.query.ConditionNode;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -44,13 +45,10 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      */
     protected abstract S newInstance();
 
-    /**
-     * 应用一个处理器对当前的 SQL 助手进行转换或处理.
-     *
-     * @param builder 处理器函数
-     * @return this
-     * @since 1.0.0
-     */
+    public SqlContext<T> build() {
+        return build(SqlContextUtils::build);
+    }
+    
     public SqlContext<T> build(BiFunction<Class<T>, SqlContext<T>, SqlContext<T>> builder) {
         return builder.apply(this.entityClass,this.sqlContext);
     }

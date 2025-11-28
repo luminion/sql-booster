@@ -93,12 +93,19 @@ public abstract class SqlContextUtils {
             return null;
         }
         operator = SqlKeyword.replaceOperator(operator);
-        if (!SqlKeyword.isNullOperator(operator) && value == null) {
-            log.debug("condition field [{}] requires value but value is null, it will be removed and put into paramMap", field);
-            extra.putIfAbsent(field, "null");
-            return null;
+        if (!SqlKeyword.isNullOperator(operator)) {
+            // 判断值是boolean并且是true
+            if (! (value instanceof Boolean)){
+                log.debug("condition field [{}] requires boolean but value is not a boolean, it will be removed", field);
+                return null;
+            }
+            if (!(Boolean) value){
+                log.debug("condition field [{}] requires boolean but value is false, it will be removed", field);
+                return null;
+            }
         }
         if (SqlKeyword.isInOperator(operator)) {
+            // 判断是集合并且有值
             boolean iterableValue = value instanceof Iterable;
             if (!iterableValue) {
                 log.debug("condition field [{}] requires collection but value is not iterable, it will be removed and put into paramMap", field);

@@ -126,7 +126,7 @@ public class MysqlMybatisplusTest {
         sqlEntity.like(SysUser::getDescription,"测试")
                 ;
         
-        List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
+        List<SysUserVO> result = sysUserMapper.voList(sqlEntity.build());
         
         assertNotNull(result);
         assertTrue(result.size() >= 3); // 至少有4个用户（我们插入的4个），考虑可能已存在的数据
