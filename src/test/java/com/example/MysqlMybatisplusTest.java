@@ -4,7 +4,7 @@ package com.example;
 import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
@@ -75,12 +75,12 @@ public class MysqlMybatisplusTest {
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
 
         // 创建分页对象
-//        IPage<SysUserVO> page = new BoosterPage<>(1, 2);
+//        IPage<SysUserVO> page = new BPage<>(1, 2);
         int pageNum = 1;
         int pageSize = 2;
 
 //        List<SysUserVO> result = sysUserMapper.voPage(sqlEntity, 1,2);
-        BoosterPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, pageNum,pageSize);
+        BPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, pageNum,pageSize);
 
         assertNotNull(page);
         assertTrue(page.getPages() <= 2);
@@ -109,7 +109,7 @@ public class MysqlMybatisplusTest {
             assertTrue(user.getAge() >= 25 && user.getAge() <= 35);
         });
         
-        BoosterPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
+        BPage<SysUserVO> page = sysUserMapper.voPage(sqlEntity, 1,2);
         System.out.println(page);
         
     }
@@ -339,7 +339,7 @@ public class MysqlMybatisplusTest {
     @Order(24)
     public void testPaginationBoundaries() {
 
-        BoosterPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-2, 10);
@@ -347,7 +347,7 @@ public class MysqlMybatisplusTest {
         assertTrue(page.getTotal() >= 4);
         
         // 测试第一页
-        BoosterPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(1L, 2L);
@@ -356,7 +356,7 @@ public class MysqlMybatisplusTest {
         assertEquals(2, firstPage.getSize());
         assertTrue(firstPage.getTotal() >= 4);
         // 测试超出范围的页码
-        BoosterPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(999L, 10L);
@@ -365,7 +365,7 @@ public class MysqlMybatisplusTest {
         assertTrue(outOfRangePage.getRecords().isEmpty());
 
         // 测试负数页码（应该被修正为1）
-        BoosterPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-1L, 10L);

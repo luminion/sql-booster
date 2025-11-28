@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.builder.SqlBuilderWrapper;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
@@ -149,22 +149,22 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     }
 
     @Override
-    default BoosterPage<V> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize) {
+    default BPage<V> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize) {
         return voPage(sqlContext, (long) pageNum, pageSize);
     }
 
     @Override
-    default BoosterPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
+    default BPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize, Class<R> targetType) {
+    default <R> BPage<R> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize, Class<R> targetType) {
         return voPage(sqlContext, (long) pageNum, pageSize, targetType);
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType) {
+    default <R> BPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType) {
         return voPage(sqlContext, pageNum, pageSize).convertRecords(targetType);
     }
     

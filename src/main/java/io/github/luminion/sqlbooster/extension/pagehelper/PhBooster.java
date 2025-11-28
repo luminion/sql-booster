@@ -3,7 +3,7 @@ package io.github.luminion.sqlbooster.extension.pagehelper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.github.luminion.sqlbooster.core.BoosterSupport;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 
 /**
@@ -16,12 +16,12 @@ import io.github.luminion.sqlbooster.model.SqlContext;
  * @author luminion
  * @since 1.0.0
  */
-public interface PageHelperBoosterSupport<T, V> extends BoosterSupport<T, V> {
+public interface PhBooster<T, V> extends BoosterSupport<T, V> {
 
     @Override
-    default BoosterPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
+    default BPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
         PageInfo<V> pageInfo = PageHelper.startPage((int) pageNum, (int) pageSize)
                 .doSelectPageInfo(() -> selectByBooster(sqlContext, null));
-        return new PageHelperBoosterPage<>(pageInfo);
+        return new PhPage<>(pageInfo);
     }
 }

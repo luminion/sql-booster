@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +15,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RequiredArgsConstructor
-public class MybatisPlusBoosterPage<T> implements BoosterPage<T> {
+public class MpPage<T> implements BPage<T> {
 
     /**
      * Mybatis-Plus 的分页对象
@@ -43,9 +43,9 @@ public class MybatisPlusBoosterPage<T> implements BoosterPage<T> {
     }
 
     @Override
-    public <R> BoosterPage<R> convertRecords(Class<R> targetType) {
+    public <R> BPage<R> convertRecords(Class<R> targetType) {
         IPage<R> convert = pageInfo.convert(e -> ReflectUtils.toTarget(e, targetType));
-        return new MybatisPlusBoosterPage<>(convert);
+        return new MpPage<>(convert);
     }
 
 }

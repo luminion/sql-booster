@@ -1,9 +1,9 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
+import io.github.luminion.sqlbooster.core.TableResolver;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.function.SFunc;
-import io.github.luminion.sqlbooster.core.TableInfoProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 /**
  * Booster运行时核心工具类.
  * <p>
- * 提供可扩展的、针对实体和VO的功能。通过注册 {@link TableInfoProvider}，可以插入自定义逻辑.
+ * 提供可扩展的、针对实体和VO的功能。通过注册 {@link TableResolver}，可以插入自定义逻辑.
  *
  * @author luminion
  * @since 1.0.0
@@ -20,9 +20,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Slf4j
 public abstract class TableInfoUtils {
     /**
-     * 已注册的 TableInfoProvider 实例.
+     * 已注册的 TableResolver 实例.
      */
-    private static final ConcurrentSkipListSet<TableInfoProvider> PROVIDERS = new ConcurrentSkipListSet<>();
+    private static final ConcurrentSkipListSet<TableResolver> PROVIDERS = new ConcurrentSkipListSet<>();
 
     /**
      * 获取所有已注册的 Provider.
@@ -30,7 +30,7 @@ public abstract class TableInfoUtils {
      * @return Provider 列表
      * @since 1.0.0
      */
-    public static List<TableInfoProvider> checkoutProviders() {
+    public static List<TableResolver> checkoutProviders() {
         return new ArrayList<>(PROVIDERS);
     }
 
@@ -41,7 +41,7 @@ public abstract class TableInfoUtils {
      * @return 如果注册成功返回 true, 否则返回 false
      * @since 1.0.0
      */
-    public static boolean registerProvider(TableInfoProvider provider) {
+    public static boolean registerProvider(TableResolver provider) {
         return PROVIDERS.add(provider);
     }
 
@@ -52,20 +52,20 @@ public abstract class TableInfoUtils {
      * @return 如果移除成功返回 true, 否则返回 false
      * @since 1.0.0
      */
-    public static boolean removeProvider(TableInfoProvider provider) {
+    public static boolean removeProvider(TableResolver provider) {
         return PROVIDERS.remove(provider);
     }
 
     /**
      * 移除指定类型的Provider.
      *
-     * @param providerType 要移除的 Provider 的类型
+     * @param providerType 要移除的 Provider 的类型(严格匹配, 不包含子类)
      * @return 移除的 Provider 的数量
      * @since 1.0.0
      */
-    public static int removeProvider(Class<? extends TableInfoProvider> providerType) {
+    public static int removeProvider(Class<? extends TableResolver> providerType) {
         int count = 0;
-        for (TableInfoProvider provider : PROVIDERS) {
+        for (TableResolver provider : PROVIDERS) {
             if (provider.getClass().equals(providerType)) {
                 boolean remove = PROVIDERS.remove(provider);
                 if (remove) {
@@ -171,7 +171,7 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static String getTableName(Class<?> entityClass) {
-        for (TableInfoProvider provider : PROVIDERS) {
+        for (TableResolver provider : PROVIDERS) {
             String tableName = provider.getTableName(entityClass);
             if (tableName != null) {
                 return tableName;
@@ -189,7 +189,7 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static String getIdPropertyName(Class<?> entityClass) {
-        for (TableInfoProvider provider : PROVIDERS) {
+        for (TableResolver provider : PROVIDERS) {
             String idPropertyName = provider.getIdPropertyName(entityClass);
             if (idPropertyName != null) {
                 return idPropertyName;
@@ -209,7 +209,7 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
-        for (TableInfoProvider provider : PROVIDERS) {
+        for (TableResolver provider : PROVIDERS) {
             String propertyName = provider.getGetterPropertyName(getter);
             if (propertyName != null) {
                 return propertyName;
@@ -226,7 +226,7 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static Map<String, String> getPropertyToColumnAliasMap(Class<?> entityClass) {
-        for (TableInfoProvider provider : PROVIDERS) {
+        for (TableResolver provider : PROVIDERS) {
             Map<String, String> contributedMap = provider.getPropertyToColumnAliasMap(entityClass);
             if (contributedMap != null && !contributedMap.isEmpty()) {
                 log.debug("found alias map provider: [{}], class: [{}]", provider.getClass().getName(), entityClass.getName());

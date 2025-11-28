@@ -10,9 +10,19 @@ import java.util.Map;
  * @author luminion
  * @since 1.0.0
  */
-public interface TableInfoProvider{
+public interface TableResolver extends Comparable<TableResolver>{
 
-    int getOrder();
+    @Override
+    default int compareTo(TableResolver o){
+        return o.getPriority() - getPriority();
+    }
+
+    /**
+     * 优先级, 多个provider优先级应不同
+     *
+     * @return int
+     */
+    int getPriority();
 
     /**
      * 根据实体类获取表名.

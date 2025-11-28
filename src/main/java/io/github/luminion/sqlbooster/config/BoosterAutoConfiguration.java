@@ -1,9 +1,9 @@
 package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import io.github.luminion.sqlbooster.extension.mybatisplus.MybatisPlusTableInfoProvider;
-import io.github.luminion.sqlbooster.core.TableInfoProvider;
-import io.github.luminion.sqlbooster.extension.mybatis.MybatisTableInfoProvider;
+import io.github.luminion.sqlbooster.core.BasicTableResolver;
+import io.github.luminion.sqlbooster.core.TableResolver;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.MapperUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +49,8 @@ public class BoosterAutoConfiguration implements InitializingBean {
             }
         }
 
-        Map<String, TableInfoProvider> providerMap = applicationContext.getBeansOfType(TableInfoProvider.class);
-        for (TableInfoProvider provider : providerMap.values()) {
+        Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
+        for (TableResolver provider : providerMap.values()) {
             TableInfoUtils.registerProvider(provider);
         }
         log.debug("{} boost providers registered", providerMap.size());
@@ -62,9 +62,9 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
         @Bean
 //        @ConditionalOnMissingBean
-        public TableInfoProvider mybatisPlusProvider() {
-            log.debug("MybatisPlusTableInfoProvider configured");
-            return new MybatisPlusTableInfoProvider(Integer.MAX_VALUE - 100);
+        public TableResolver mybatisPlusProvider() {
+            log.debug("MpTableResolver configured");
+            return new MpTableResolver(Integer.MAX_VALUE - 100);
         }
     }
 
@@ -75,10 +75,10 @@ public class BoosterAutoConfiguration implements InitializingBean {
         @Bean
 //        @ConditionalOnMissingBean
         @ConditionalOnBean(SqlSessionFactory.class)
-        public TableInfoProvider mybatisProvider(SqlSessionFactory sqlSessionFactory) {
+        public TableResolver mybatisProvider(SqlSessionFactory sqlSessionFactory) {
             boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
-            log.debug("MybatisTableInfoProvider for mybatis configured");
-            return new MybatisTableInfoProvider(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
+            log.debug("BasicTableResolver for mybatis configured");
+            return new BasicTableResolver(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
  * @author luminion
  * @since 1.0.0
  */
-public abstract class MyBatisPlusBoosterServiceImpl<M extends MyBatisPlusBoosterMapper<T, V>, T, V> extends ServiceImpl<M, T> implements MyBatisPlusBoosterService<T, V> {
+public abstract class MpServiceImpl<M extends MpMapper<T, V>, T, V> extends ServiceImpl<M, T> implements MpService<T, V> {
 
     @Override
     public List<V> selectByBooster(SqlContext<T> sqlContext, Object page) {

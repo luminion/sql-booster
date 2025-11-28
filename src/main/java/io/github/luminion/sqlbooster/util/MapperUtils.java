@@ -32,7 +32,7 @@ public abstract class MapperUtils {
      */
     public static boolean initSqlFragment(SqlSessionFactory sqlSessionFactory) {
         Configuration configuration = sqlSessionFactory.getConfiguration();
-        String resource = "sqlbooster/sqlbooster.xml";
+        String resource = "booster/booster.xml";
         try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
             XMLMapperBuilder mapperBuilder = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
             mapperBuilder.parse();

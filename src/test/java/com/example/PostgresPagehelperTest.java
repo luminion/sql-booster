@@ -3,7 +3,7 @@ package com.example;
 import com.example.entity.SysUser;
 import com.example.impl.PostgresService;
 import com.example.vo.SysUserVO;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
@@ -271,7 +271,7 @@ public class PostgresPagehelperTest {
     @Test
     @Order(16)
     public void testPage() {
-        BoosterPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 25)
                 .boost(baseService)
                 .page(1L, 2L);
@@ -525,7 +525,7 @@ public class PostgresPagehelperTest {
     @Order(24)
     public void testPaginationBoundaries() {
 
-        BoosterPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(1, 2);
@@ -533,7 +533,7 @@ public class PostgresPagehelperTest {
         assertTrue(page.getTotal() >= 4);
 
 
-        BoosterPage<SysUserVO> page2 = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> page2 = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(2, 2);
@@ -541,7 +541,7 @@ public class PostgresPagehelperTest {
         assertTrue(page.getTotal() >= 4);
 
         // 测试第一页
-        BoosterPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(1L, 2L);
@@ -552,7 +552,7 @@ public class PostgresPagehelperTest {
         assertEquals(2, firstPage.getRecords().size());
 
         // 测试超出范围的页码
-        BoosterPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(999L, 10L);
@@ -561,7 +561,7 @@ public class PostgresPagehelperTest {
         assertTrue(outOfRangePage.getRecords().isEmpty());
 
         // 测试负数页码（应该被修正为1）
-        BoosterPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
+        BPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
                 .ge(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(-1L, 10L);

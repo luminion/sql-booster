@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 
@@ -69,19 +69,19 @@ public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapp
         return booster.voList(this.sqlContext, targetType);
     }
 
-    public BoosterPage<V> page(int pageNum, int pageSize) {
+    public BPage<V> page(int pageNum, int pageSize) {
         return booster.voPage(this.sqlContext, pageNum, pageSize);
     }
 
-    public BoosterPage<V> page(long pageNum, long pageSize) {
+    public BPage<V> page(long pageNum, long pageSize) {
         return booster.voPage(this.sqlContext, pageNum, pageSize);
     }
 
-    public <R> BoosterPage<R> page(int pageNum, int pageSize, Class<R> targetType) {
+    public <R> BPage<R> page(int pageNum, int pageSize, Class<R> targetType) {
         return booster.voPage(this.sqlContext, pageNum, pageSize, targetType);
     }
 
-    public <R> BoosterPage<R> page(long pageNum, long pageSize, Class<R> targetType) {
+    public <R> BPage<R> page(long pageNum, long pageSize, Class<R> targetType) {
         return booster.voPage(this.sqlContext, pageNum, pageSize, targetType);
     }
 

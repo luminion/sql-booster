@@ -132,10 +132,10 @@ public static void main(String[] args) {
 #### Mybatis环境, 使用`PageHelperBooster`
 
 ```java
-import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterSupport;
+import io.github.luminion.sqlbooster.extension.pagehelper.PhBooster;
 
 // 继承PageHelperBooster
-public interface SysUserMapper extends PageHelperBoosterSupport<SysUser, SysUserVO> {
+public interface SysUserMapper extends PhBooster<SysUser, SysUserVO> {
 
 }
 
@@ -154,31 +154,33 @@ public interface SysUserMapper extends PageHelperBoosterSupport<SysUser, SysUser
 - `BoosterMpService`继承了`IService`和`MybatisPlusBooster`
 
 ```java
+import io.github.luminion.sqlbooster.extension.mybatisplus.MpMapper;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MyBatisPlusBoosterMapper;
 
 // 继承BoosterBaseMapper
 // eg: BoosterBaseMapper已继承BaseMapper, SysUserMapper无需继承原BaseMapper
-public interface SysUserMapper extends MyBatisPlusBoosterMapper<SysUser, SysUserVO> {
+public interface SysUserMapper extends MpMapper<SysUser, SysUserVO> {
 
 }
 ```
 
 ```java
-import io.github.luminion.sqlbooster.extension.mybatisplus.MyBatisPlusBoosterServiceImpl;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MpServiceImpl;
 
 // 继承BoosterMpServiceImpl
 // eg: BoosterMpServiceImpl已继承ServicImpl, SysUserServiceImpl无需继承原ServiceImpl
-public class SysUserServiceImpl extends MyBatisPlusBoosterServiceImpl<SysUser, SysUserVO> {
+public class SysUserServiceImpl extends MpServiceImpl<SysUser, SysUserVO> {
 
 }
 ```
 
 ```java
+import io.github.luminion.sqlbooster.extension.mybatisplus.MpService;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MyBatisPlusBoosterService;
 
-// MyBatisPlusBoosterService
+// MpService
 // eg: BoosterMpService已继承IService, SysUserService无需继承原IService
-public class SysUserService extends MyBatisPlusBoosterService<SysUser, SysUserVO> {
+public class SysUserService extends MpService<SysUser, SysUserVO> {
 
 }
 ```

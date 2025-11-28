@@ -3,7 +3,7 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import io.github.luminion.sqlbooster.function.SFunc;
-import io.github.luminion.sqlbooster.core.TableInfoProvider;
+import io.github.luminion.sqlbooster.core.TableResolver;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class MybatisPlusTableInfoProvider implements TableInfoProvider {
-    private final int order;
+public class MpTableResolver implements TableResolver {
+    private final int priority;
 
     @Override
     public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
@@ -47,7 +47,7 @@ public class MybatisPlusTableInfoProvider implements TableInfoProvider {
     }
 
     @Override
-    public int getOrder() {
-        return order;
+    public int getPriority() {
+        return priority;
     }
 }

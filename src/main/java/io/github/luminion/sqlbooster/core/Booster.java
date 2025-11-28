@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.builder.SqlBuilderWrapper;
-import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 
 import java.io.Serializable;
@@ -222,7 +222,7 @@ public interface Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    BoosterPage<V> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize);
+    BPage<V> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize);
 
 
     /**
@@ -234,7 +234,7 @@ public interface Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    BoosterPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize);
+    BPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize);
 
     /**
      * 根据条件查询VO对象列表并转换类型（分页）.
@@ -247,7 +247,7 @@ public interface Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    <R> BoosterPage<R> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize, Class<R> targetType);
+    <R> BPage<R> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize, Class<R> targetType);
 
     /**
      * 根据条件查询VO对象列表（分页）.
@@ -260,7 +260,7 @@ public interface Booster<T, V> {
      * @return 分页结果对象
      * @since 1.0.0
      */
-    <R> BoosterPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType);
+    <R> BPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType);
 
     /**
      * 获取SqlBuilderBooster对象，用于构建SQL查询条件.

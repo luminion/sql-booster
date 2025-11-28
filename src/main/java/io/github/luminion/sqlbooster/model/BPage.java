@@ -8,7 +8,7 @@ import java.util.List;
  * @author luminion
  * @since 1.0.0
  */
-public interface BoosterPage<T> {
+public interface BPage<T> {
     /**
      * 获取记录列表
      *
@@ -65,5 +65,5 @@ public interface BoosterPage<T> {
      * @return 转换后的记录列表
      * @since 1.0.0
      */
-    <R> BoosterPage<R> convertRecords(Class<R> clazz);
+    <R> BPage<R> convertRecords(Class<R> clazz);
 }

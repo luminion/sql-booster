@@ -31,7 +31,7 @@ public class App {
         log.info("Application started springdoc at: http://{}:{}{}swagger", host, port, context);
         log.info("Application started smartDoc at: http://{}:{}{}doc/index.html", host, port, context);
         log.info("Application started springdoc at: http://127.0.0.1/swagger");
-//        TableInfoUtils.removeProvider(MybatisTableInfoProvider.class);
+//        TableInfoUtils.removeProvider(BasicTableResolver.class);
     }
 
 }
