@@ -81,17 +81,4 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>> {
         return (S) this;
     }
 
-    /**
-     * 转换为 {@link SqlBuilderBooster}.
-     *
-     * @param boosterApi {@link BoosterApi} 实例
-     * @param <V>        VO 类型
-     * @param <P>        分页对象类型
-     * @return {@link SqlBuilderBooster} 实例
-     * @since 1.0.0
-     */
-    public <V, P> SqlBuilderBooster<T, V> boost(BoosterApi<T, V> boosterApi) {
-        return new SqlBuilderBooster<>(boosterApi, this.sqlContext);
-    }
-
 }

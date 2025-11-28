@@ -1,6 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
+import io.github.luminion.sqlbooster.core.BoosterApi;
 import io.github.luminion.sqlbooster.model.BoosterParam;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 
@@ -35,5 +36,18 @@ public class SqlBuilder<T> extends LambdaBuilder<T, SqlBuilder<T>> {
     @Override
     public SqlBuilder<T> newInstance() {
         return new SqlBuilder<>(this.entityClass);
+    }
+
+    /**
+     * 转换为 {@link SqlBuilderBooster}.
+     *
+     * @param boosterApi {@link BoosterApi} 实例
+     * @param <V>        VO 类型
+     * @param <P>        分页对象类型
+     * @return {@link SqlBuilderBooster} 实例
+     * @since 1.0.0
+     */
+    public <V, P> SqlBuilderBooster<T, V> boost(BoosterApi<T, V> boosterApi) {
+        return new SqlBuilderBooster<>(boosterApi, this.sqlContext);
     }
 }

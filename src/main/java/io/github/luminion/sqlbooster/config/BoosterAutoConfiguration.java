@@ -64,7 +64,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 //        @ConditionalOnMissingBean
         public TableInfoProvider mybatisPlusProvider() {
             log.debug("MybatisPlusTableInfoProvider configured");
-            return new MybatisPlusTableInfoProvider(Integer.MAX_VALUE -100);
+            return new MybatisPlusTableInfoProvider(Integer.MAX_VALUE - 100);
         }
     }
 

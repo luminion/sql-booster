@@ -1,5 +1,6 @@
 package io.github.luminion.sqlbooster.core;
 
+import io.github.luminion.sqlbooster.builder.SqlBuilderBooster;
 import io.github.luminion.sqlbooster.model.BoosterPage;
 import io.github.luminion.sqlbooster.model.BoosterParam;
 import io.github.luminion.sqlbooster.model.query.Condition;
@@ -184,6 +185,10 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
     @Override
     default <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize, Class<R> targetType) {
         return voPage(boosterParam, pageNum, pageSize).convertRecords(targetType);
+    }
+    
+    default SqlBuilderBooster<T, V> lambdaBuilder() {
+        return new SqlBuilderBooster<>(this);
     }
 
     /**
