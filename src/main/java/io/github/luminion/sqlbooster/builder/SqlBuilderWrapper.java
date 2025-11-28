@@ -33,7 +33,7 @@ public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapp
     }
 
     @Override
-    public SqlBuilderWrapper<T, V> newInstance() {
+    protected SqlBuilderWrapper<T, V> newInstance() {
         return new SqlBuilderWrapper<>(booster);
     }
 

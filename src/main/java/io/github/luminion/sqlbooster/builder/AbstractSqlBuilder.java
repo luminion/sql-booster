@@ -48,35 +48,66 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     public SqlContext<T> build() {
         return build(SqlContextUtils::build);
     }
-    
+
     public SqlContext<T> build(BiFunction<Class<T>, SqlContext<T>, SqlContext<T>> builder) {
-        return builder.apply(this.entityClass,this.sqlContext);
+        return builder.apply(this.entityClass, this.sqlContext);
     }
 
     /**
-     * 从目标对象加载查询条件.
-     *
-     * @param object 目标对象
-     * @return 当前实例
-     * @since 1.0.0
+     * 添加一个查询条件.
      */
-    public S append(Object object) {
-        if (object == null) {
-        } else if (object instanceof Condition) {
-            this.sqlContext.getConditions().add((Condition) object);
-        } else if (object instanceof Sort) {
-            this.sqlContext.getSorts().add((Sort) object);
-        } else if (object instanceof ConditionNode) {
-            this.sqlContext.merge((ConditionNode) object);
-        } else {
-            Map<?, ?> map = ReflectUtils.objectToMap(object);
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                Object key = entry.getKey();
-                Object value = entry.getValue();
+    public S append(Condition condition) {
+        if (condition != null) {
+            this.sqlContext.getConditions().add(condition);
+        }
+        return (S) this;
+    }
+
+    /**
+     * 添加一个排序规则.
+     */
+    public S append(Sort sort) {
+        if (sort != null) {
+            this.sqlContext.getSorts().add(sort);
+        }
+        return (S) this;
+    }
+
+    /**
+     * 合并另一个条件节点.
+     */
+    public S append(ConditionNode node) {
+        if (node != null) {
+            this.sqlContext.merge(node);
+        }
+        return (S) this;
+    }
+
+    /**
+     * 将map中的key作为condition的field, value作为condition的value, 生成等于的condition并添加到sqlContext中
+     *
+     */
+    public S append(Map<?, ?> map) {
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (value != null) {
                 Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getKeyword(), value);
                 this.sqlContext.getConditions().add(condition);
             }
         }
+        return (S) this;
+    }
+
+
+    /**
+     * 根据实体对象的非空属性生成等值查询条件 (Query By Example).
+     *
+     * @param entity 包含查询值的实体对象或 Map
+     */
+    public S match(Object entity) {
+        // todo 判断入参为javabean 
+        
         return (S) this;
     }
 

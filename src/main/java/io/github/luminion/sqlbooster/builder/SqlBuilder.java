@@ -33,7 +33,7 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     }
 
     @Override
-    public SqlBuilder<T> newInstance() {
+    protected SqlBuilder<T> newInstance() {
         return new SqlBuilder<>(this.entityClass);
     }
 
