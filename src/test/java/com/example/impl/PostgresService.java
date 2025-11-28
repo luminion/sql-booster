@@ -4,8 +4,8 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
-import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterEngine;
+import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterSupport;
+import io.github.luminion.sqlbooster.model.BoosterParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Service
 @DS("postgresql")
-public class PostgresService implements PageHelperBoosterEngine<SysUser,SysUserVO> {
+public class PostgresService implements PageHelperBoosterSupport<SysUser,SysUserVO> {
     @Autowired
     private SysUserMapper sysUserMapper;
 

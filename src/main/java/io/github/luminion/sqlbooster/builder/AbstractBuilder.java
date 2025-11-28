@@ -1,11 +1,11 @@
-package io.github.luminion.sqlbooster.model.builder;
+package io.github.luminion.sqlbooster.builder;
 
-import io.github.luminion.sqlbooster.core.BoosterCore;
-import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.SqlContext;
-import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.model.api.ConditionNode;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.core.BoosterApi;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.model.Sort;
+import io.github.luminion.sqlbooster.model.ConditionNode;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.Getter;
 
@@ -96,15 +96,15 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  exten
     /**
      * 转换为 {@link BoostBuilder}.
      *
-     * @param boosterCore {@link BoosterCore} 实例
+     * @param boosterApi {@link BoosterApi} 实例
      * @param <V>       VO 类型
      * @param <P>       分页对象类型
      * @return {@link BoostBuilder} 实例
      * @since 1.0.0
      */
-    public <V, P> BoostBuilder<T, V> boost(BoosterCore<T, V> boosterCore) {
-        this.entityClass = BoostUtils.getEntityClass(boosterCore);
-        return new BoostBuilder<>(boosterCore).append(this);
+    public <V, P> BoostBuilder<T, V> boost(BoosterApi<T, V> boosterApi) {
+        this.entityClass = TableInfoUtils.getEntityClass(boosterApi);
+        return new BoostBuilder<>(boosterApi).append(this);
     }
 
 }

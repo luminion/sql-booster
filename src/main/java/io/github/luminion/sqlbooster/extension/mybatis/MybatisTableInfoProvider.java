@@ -1,8 +1,8 @@
-package io.github.luminion.sqlbooster.provider.support;
+package io.github.luminion.sqlbooster.extension.mybatis;
 
-import io.github.luminion.sqlbooster.core.Getter;
-import io.github.luminion.sqlbooster.provider.TableInfoProvider;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.core.LambdaMethodReference;
+import io.github.luminion.sqlbooster.core.TableInfoProvider;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +22,17 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class BasicTableInfoProvider implements TableInfoProvider {
+public class MybatisTableInfoProvider implements TableInfoProvider {
 
     /**
      * 是否将驼峰命名转换为下划线命名
      */
     private final boolean mapUnderscoreToCamelCase;
+    private final int order;
 
     @Override
     public <T> String getTableName(Class<T> clazz) {
-        String tableName = BoostUtils.camelCaseToUnderscore(clazz.getName());
+        String tableName = TableInfoUtils.camelCaseToUnderscore(clazz.getName());
         if (tableName.startsWith("_")){
             return tableName.substring(1);
         }
@@ -49,7 +50,7 @@ public class BasicTableInfoProvider implements TableInfoProvider {
     }
 
     @Override
-    public <T, R> String getGetterPropertyName(Getter<T, R> getter) {
+    public <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter) {
         try {
             return ReflectUtils.getGetterPropertyName(getter);
         } catch (Exception e) {
@@ -62,12 +63,12 @@ public class BasicTableInfoProvider implements TableInfoProvider {
         Set<String> strings = ReflectUtils.fieldMap(clazz).keySet();
         return strings.stream()
                 .collect(Collectors.toMap(e -> e, e -> 
-                        String.format("a.%s", mapUnderscoreToCamelCase ? BoostUtils.camelCaseToUnderscore(e) : e)));
+                        String.format("a.%s", mapUnderscoreToCamelCase ? TableInfoUtils.camelCaseToUnderscore(e) : e)));
     }
 
     @Override
     public int getOrder() {
-        return Integer.MAX_VALUE;
+        return order;
     }
 
 }

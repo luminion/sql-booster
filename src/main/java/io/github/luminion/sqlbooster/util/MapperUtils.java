@@ -86,9 +86,9 @@ public abstract class MapperUtils {
     public static <T> String getSqlContent(Class<T> entityClass) {
         String tableName;
         try {
-            tableName = BoostUtils.getTableName(entityClass);
+            tableName = TableInfoUtils.getTableName(entityClass);
         } catch (IllegalStateException e) {
-            tableName = BoostUtils.camelCaseToUnderscore(entityClass.getName());
+            tableName = TableInfoUtils.camelCaseToUnderscore(entityClass.getName());
             if (tableName.startsWith("_")) {
                 return tableName.substring(1);
             }

@@ -2,9 +2,9 @@ package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MybatisPlusTableInfoProvider;
-import io.github.luminion.sqlbooster.provider.TableInfoProvider;
-import io.github.luminion.sqlbooster.provider.support.BasicTableInfoProvider;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.core.TableInfoProvider;
+import io.github.luminion.sqlbooster.extension.mybatis.MybatisTableInfoProvider;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.MapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -51,7 +51,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
         Map<String, TableInfoProvider> providerMap = applicationContext.getBeansOfType(TableInfoProvider.class);
         for (TableInfoProvider provider : providerMap.values()) {
-            BoostUtils.registerProvider(provider);
+            TableInfoUtils.registerProvider(provider);
         }
         log.debug("{} boost providers registered", providerMap.size());
     }
@@ -64,7 +64,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 //        @ConditionalOnMissingBean
         public TableInfoProvider mybatisPlusProvider() {
             log.debug("MybatisPlusTableInfoProvider configured");
-            return new MybatisPlusTableInfoProvider();
+            return new MybatisPlusTableInfoProvider(Integer.MAX_VALUE -100);
         }
     }
 
@@ -77,8 +77,8 @@ public class BoosterAutoConfiguration implements InitializingBean {
         @ConditionalOnBean(SqlSessionFactory.class)
         public TableInfoProvider mybatisProvider(SqlSessionFactory sqlSessionFactory) {
             boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
-            log.debug("BasicTableInfoProvider for mybatis configured");
-            return new BasicTableInfoProvider(mapUnderscoreToCamelCase);
+            log.debug("MybatisTableInfoProvider for mybatis configured");
+            return new MybatisTableInfoProvider(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
         }
     }
 }

@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.api;
+package io.github.luminion.sqlbooster.model;
 
 import lombok.*;
 

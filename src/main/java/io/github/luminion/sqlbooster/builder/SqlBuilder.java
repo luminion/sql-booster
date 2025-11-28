@@ -1,8 +1,8 @@
-package io.github.luminion.sqlbooster.model.builder;
+package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 
 /**
  * SQL 构建助手实现类.
@@ -28,13 +28,13 @@ public class SqlBuilder<T> extends LambdaBuilder<T, SqlBuilder<T>> {
 
     public static <T> SqlBuilder<T> of(Booster<T, ?> booster) {
         SqlBuilder<T> sqlBuilder = new SqlBuilder<>();
-        sqlBuilder.entityClass = BoostUtils.getEntityClass(booster);
+        sqlBuilder.entityClass = TableInfoUtils.getEntityClass(booster);
         return sqlBuilder;
     }
 
     public static <T> SqlBuilder<T> of(BoosterParam<T> boosterParam) {
         SqlBuilder<T> sqlBuilder = new SqlBuilder<>();
-        sqlBuilder.entityClass = BoostUtils.getEntityClass(boosterParam);
+        sqlBuilder.entityClass = TableInfoUtils.getEntityClass(boosterParam);
         return sqlBuilder;
     }
 

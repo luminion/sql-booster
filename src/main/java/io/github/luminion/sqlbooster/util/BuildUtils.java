@@ -1,10 +1,10 @@
 package io.github.luminion.sqlbooster.util;
 
-import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.model.api.ConditionNode;
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.builder.AbstractBuilder;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.Sort;
+import io.github.luminion.sqlbooster.model.ConditionNode;
+import io.github.luminion.sqlbooster.enums.SqlKeyword;
+import io.github.luminion.sqlbooster.builder.AbstractBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -58,9 +58,9 @@ public abstract class BuildUtils {
      */
     private static void addBothCamelCaseAndUnderscore(Map<String, String> map, String suffix, String operator) {
         map.putIfAbsent(suffix, operator);
-        String camelCase = BoostUtils.underscoreToCamelCase(suffix);
+        String camelCase = TableInfoUtils.underscoreToCamelCase(suffix);
         map.putIfAbsent(camelCase, operator);
-        String underscore = BoostUtils.camelCaseToUnderscore(suffix);
+        String underscore = TableInfoUtils.camelCaseToUnderscore(suffix);
         map.putIfAbsent(underscore, operator);
     }
 
@@ -167,7 +167,7 @@ public abstract class BuildUtils {
             throw new IllegalArgumentException("can't get entity class from sql helper");
         }
         S resultHelper = rootHelper.newInstance();
-        Map<String, String> propertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
+        Map<String, String> propertyToColumnAliasMap = TableInfoUtils.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> extraParams = resultHelper.getExtra();
         for (ConditionNode currentHelper : rootHelper) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
@@ -200,7 +200,7 @@ public abstract class BuildUtils {
         }
         S resultHelper = rootHelper.newInstance();
         Map<String, Object> extraParams = resultHelper.getExtra();
-        Map<String, String> propertyToColumnAliasMap = BoostUtils.getPropertyToColumnAliasMap(entityClass);
+        Map<String, String> propertyToColumnAliasMap = TableInfoUtils.getPropertyToColumnAliasMap(entityClass);
         Set<String> suffixes = suffixToOperatorMap.keySet();
         for (ConditionNode currentHelper : rootHelper) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();

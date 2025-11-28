@@ -1,9 +1,11 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.builder.SqlBuilder;
+import io.github.luminion.sqlbooster.enums.SqlKeyword;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
@@ -22,16 +24,16 @@ import java.util.stream.Collectors;
  * @author luminion
  * @since 1.0.0
  */
-public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
+public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
 
     //@Override
     //default T toEntity(Object source) {
-    //    return ReflectUtils.toTarget(source, BoostUtils.getEntityClass(this));
+    //    return ReflectUtils.toTarget(source, TableInfoUtils.getEntityClass(this));
     //}
     //
     //@Override
     //default V toVo(Object source) {
-    //    return ReflectUtils.toTarget(source, BoostUtils.getViewObjectClass(this));
+    //    return ReflectUtils.toTarget(source, TableInfoUtils.getViewObjectClass(this));
     //}
     //
     //@Override
@@ -49,8 +51,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
         if (ObjectUtils.isEmpty(id)) {
             throw new NullPointerException("id can't be null");
         }
-        Class<T> clazz = BoostUtils.getEntityClass(this);
-        String keyProperty = BoostUtils.getIdPropertyName(clazz);
+        Class<T> clazz = TableInfoUtils.getEntityClass(this);
+        String keyProperty = TableInfoUtils.getIdPropertyName(clazz);
         if (ObjectUtils.isEmpty(keyProperty)) {
             throw new IllegalStateException("can't find id property");
         }
@@ -80,8 +82,8 @@ public interface BoosterEngine<T, V> extends BoosterCore<T, V> {
 
     @Override
     default List<V> voListByIds(Collection<? extends Serializable> ids) {
-        Class<T> entityClass = BoostUtils.getEntityClass(this);
-        String idPropertyName = BoostUtils.getIdPropertyName(entityClass);
+        Class<T> entityClass = TableInfoUtils.getEntityClass(this);
+        String idPropertyName = TableInfoUtils.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
         SqlBuilder<T> sqlBuilder = SqlBuilder.of(this).append(condition);
         return voList(sqlBuilder);

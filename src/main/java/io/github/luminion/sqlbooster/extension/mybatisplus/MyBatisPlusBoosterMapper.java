@@ -9,5 +9,5 @@ import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
  * @author luminion
  * @since 1.0.0
  */
-public interface MyBatisPlusBoosterMapper<T, V> extends BaseMapper<T>, MybatisPlusBoosterEngine<T, V>, BoosterMapper<T, V> {
+public interface MyBatisPlusBoosterMapper<T, V> extends BaseMapper<T>, MybatisPlusBoosterSupport<T, V>, BoosterMapper<T, V> {
 }

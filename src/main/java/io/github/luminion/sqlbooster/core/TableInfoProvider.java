@@ -1,6 +1,5 @@
-package io.github.luminion.sqlbooster.provider;
+package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.core.Getter;
 import org.springframework.core.Ordered;
 
 import java.util.Map;
@@ -11,7 +10,9 @@ import java.util.Map;
  * @author luminion
  * @since 1.0.0
  */
-public interface TableInfoProvider extends Ordered{
+public interface TableInfoProvider{
+
+    int getOrder();
 
     /**
      * 根据实体类获取表名.
@@ -43,7 +44,7 @@ public interface TableInfoProvider extends Ordered{
      * @return 属性名
      * @since 1.0.0
      */
-    <T, R> String getGetterPropertyName(Getter<T, R> getter);
+    <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter);
     
     /**
      * 获取实体类的属性到数据库列名(别名)的映射.

@@ -8,5 +8,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author luminion
  * @since 1.0.0
  */
-public interface MyBatisPlusBoosterService<T, V> extends IService<T>, MybatisPlusBoosterEngine<T, V> {
+public interface MyBatisPlusBoosterService<T, V> extends IService<T>, MybatisPlusBoosterSupport<T, V> {
 }

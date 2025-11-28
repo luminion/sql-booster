@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.util;
 
-import io.github.luminion.sqlbooster.core.Getter;
+import io.github.luminion.sqlbooster.core.LambdaMethodReference;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.GenericTypeResolver;
@@ -154,7 +154,7 @@ public abstract class ReflectUtils {
      * @since 1.0.0
      */
     @SneakyThrows
-    private static <T, R> SerializedLambda getSerializedLambda(Getter<T, R> getter) {
+    private static <T, R> SerializedLambda getSerializedLambda(LambdaMethodReference<T, R> getter) {
         Method writeReplaceMethod = getter.getClass().getDeclaredMethod("writeReplace");
         writeReplaceMethod.setAccessible(true);
         return (SerializedLambda) writeReplaceMethod.invoke(getter);
@@ -169,7 +169,7 @@ public abstract class ReflectUtils {
      */
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T, R> Class<T> getGetterClass(Getter<T, R> getter) {
+    public static <T, R> Class<T> getGetterClass(LambdaMethodReference<T, R> getter) {
         SerializedLambda serializedLambda = getSerializedLambda(getter);
         String className = serializedLambda.getImplClass().replace("/", ".");
         return (Class<T>) Class.forName(className);
@@ -183,7 +183,7 @@ public abstract class ReflectUtils {
      * @since 1.0.0
      */
     @SneakyThrows
-    public static <T, R> Method getGetterMethod(Getter<T, R> getter) {
+    public static <T, R> Method getGetterMethod(LambdaMethodReference<T, R> getter) {
         SerializedLambda serializedLambda = getSerializedLambda(getter);
         String implMethodName = serializedLambda.getImplMethodName();
         Class<?> getterClass = getGetterClass(getter);
@@ -202,7 +202,7 @@ public abstract class ReflectUtils {
      * @since 1.0.0
      */
     @SneakyThrows
-    public static <T, R> String getGetterPropertyName(Getter<T, R> getter) {
+    public static <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter) {
         String name = getSerializedLambda(getter).getImplMethodName();
         if (name.startsWith("is")) {
             name = name.substring(2);

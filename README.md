@@ -132,10 +132,10 @@ public static void main(String[] args) {
 #### Mybatis环境, 使用`PageHelperBooster`
 
 ```java
-import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterEngine;
+import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterSupport;
 
 // 继承PageHelperBooster
-public interface SysUserMapper extends PageHelperBoosterEngine<SysUser, SysUserVO> {
+public interface SysUserMapper extends PageHelperBoosterSupport<SysUser, SysUserVO> {
 
 }
 
@@ -195,10 +195,10 @@ public class SysUserService extends MyBatisPlusBoosterService<SysUser, SysUserVO
 * `BoosterEngine`分页查询`voPage`方法在调用时会抛出一个`UnsupportedOperationException`异常
 
 ```java
-import io.github.luminion.sqlbooster.core.BoosterEngine;
+import io.github.luminion.sqlbooster.core.BoosterSupport;
 
 // mapper继承BoosterEngine
-public interface SysUserMapper extends BoosterEngine<SysUser, SysUserVO> {
+public interface SysUserMapper extends BoosterSupport<SysUser, SysUserVO> {
 
 }
 ```
@@ -216,10 +216,10 @@ public interface SysUserMapper extends BoosterEngine<SysUser, SysUserVO> {
 建议抽象一个父接口书写逻辑, 继承`BoosterEngine`, 其他Mapper再继承该接口, 以免多次重写:
 
 ```java
-import io.github.luminion.sqlbooster.core.BoosterEngine;
+import io.github.luminion.sqlbooster.core.BoosterSupport;
 
 // 自定义全局接口, 继承BoosterEngine
-public interface CustomBooster<T> extends BoosterEngine<SysUser, SysUserVO> {
+public interface CustomBooster<T> extends BoosterSupport<SysUser, SysUserVO> {
 
     @Override
     default Page<SysUserVO> voPage(Wrapper<SysUser> boosterParam, long pageNum, long pageSize) {
@@ -263,7 +263,7 @@ public interface SysUserMapper extends CustomBooster<SysUser, SysUserVO> {
 ## 使用示例
 
 ```java
-import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
+import io.github.luminion.sqlbooster.builder.SqlBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -420,7 +420,7 @@ public class App {
 - 支持复杂条件自由组合
 
 #### 入参格式
-支持动态sql的入参类为[SqlHelper](src/main/java/io/github/luminion/sqlbooster/model/builder/SqlHelper.java)类,
+支持动态sql的入参类为[SqlHelper](src/main/java/io/github/luminion/sqlbooster/builder/SqlHelper.java)类,
 其格式如下:
 
 ```json

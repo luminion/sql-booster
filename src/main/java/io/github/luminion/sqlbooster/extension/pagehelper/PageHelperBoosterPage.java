@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.extension.pagehelper;
 
 import com.github.pagehelper.PageInfo;
-import io.github.luminion.sqlbooster.core.BoosterPage;
+import io.github.luminion.sqlbooster.model.BoosterPage;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.RequiredArgsConstructor;
 

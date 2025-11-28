@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.core;
+package io.github.luminion.sqlbooster.model;
 
 import java.util.List;
 

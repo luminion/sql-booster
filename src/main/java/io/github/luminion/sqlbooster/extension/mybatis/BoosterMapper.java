@@ -1,9 +1,9 @@
 package io.github.luminion.sqlbooster.extension.mybatis;
 
-import io.github.luminion.sqlbooster.core.BoosterEngine;
-import io.github.luminion.sqlbooster.core.BoosterParam;
-import io.github.luminion.sqlbooster.model.api.SqlContext;
-import io.github.luminion.sqlbooster.model.builder.SqlBuilder;
+import io.github.luminion.sqlbooster.core.BoosterSupport;
+import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.util.BuildUtils;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author luminion
  * @since 1.0.0
  */
-public interface BoosterMapper<T, V> extends BoosterEngine<T, V> {
+public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
 
     @Override
     default List<V> selectByBooster(BoosterParam<T> boosterParam, Object page) {

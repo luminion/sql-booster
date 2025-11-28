@@ -1,10 +1,10 @@
-package io.github.luminion.sqlbooster.model.builder;
+package io.github.luminion.sqlbooster.builder;
 
-import io.github.luminion.sqlbooster.core.Getter;
-import io.github.luminion.sqlbooster.model.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.model.api.Condition;
-import io.github.luminion.sqlbooster.model.api.Sort;
-import io.github.luminion.sqlbooster.util.BoostUtils;
+import io.github.luminion.sqlbooster.core.LambdaMethodReference;
+import io.github.luminion.sqlbooster.enums.SqlKeyword;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.Sort;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -47,11 +47,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S eq(Getter<T, R> getter, R value) {
+    public <R> S eq(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.EQ.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.EQ.getKeyword(), value));
         return (S) this;
     }
 
@@ -64,11 +64,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S ne(Getter<T, R> getter, R value) {
+    public <R> S ne(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NE.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NE.getKeyword(), value));
         return (S) this;
     }
 
@@ -81,11 +81,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S gt(Getter<T, R> getter, R value) {
+    public <R> S gt(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.GT.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.GT.getKeyword(), value));
         return (S) this;
     }
 
@@ -98,11 +98,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S ge(Getter<T, R> getter, R value) {
+    public <R> S ge(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.GTE.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.GTE.getKeyword(), value));
         return (S) this;
     }
 
@@ -115,11 +115,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S lt(Getter<T, R> getter, R value) {
+    public <R> S lt(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LT.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LT.getKeyword(), value));
         return (S) this;
     }
 
@@ -132,11 +132,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S le(Getter<T, R> getter, R value) {
+    public <R> S le(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LTE.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LTE.getKeyword(), value));
         return (S) this;
     }
 
@@ -149,11 +149,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S like(Getter<T, R> getter, R value) {
+    public <R> S like(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.LIKE.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LIKE.getKeyword(), value));
         return (S) this;
     }
 
@@ -166,11 +166,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S notLike(Getter<T, R> getter, R value) {
+    public <R> S notLike(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NOT_LIKE.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NOT_LIKE.getKeyword(), value));
         return (S) this;
     }
 
@@ -183,11 +183,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S in(Getter<T, R> getter, Collection<? extends R> value) {
+    public <R> S in(LambdaMethodReference<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IN.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IN.getKeyword(), value));
         return (S) this;
     }
 
@@ -200,11 +200,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S notIn(Getter<T, R> getter, Collection<? extends R> value) {
+    public <R> S notIn(LambdaMethodReference<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.NOT_IN.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NOT_IN.getKeyword(), value));
         return (S) this;
     }
 
@@ -215,8 +215,8 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S isNull(Getter<T, ?> getter) {
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
+    public S isNull(LambdaMethodReference<T, ?> getter) {
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
         return (S) this;
     }
 
@@ -227,8 +227,8 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S isNotNull(Getter<T, ?> getter) {
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+    public S isNotNull(LambdaMethodReference<T, ?> getter) {
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         return (S) this;
     }
 
@@ -239,8 +239,8 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S orderByAsc(Getter<T, ?> getter) {
-        getSorts().add(new Sort(BoostUtils.getGetterPropertyName(getter), true));
+    public S orderByAsc(LambdaMethodReference<T, ?> getter) {
+        getSorts().add(new Sort(TableInfoUtils.getGetterPropertyName(getter), true));
         return (S) this;
     }
 
@@ -251,8 +251,8 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public S orderByDesc(Getter<T, ?> getter) {
-        getSorts().add(new Sort(BoostUtils.getGetterPropertyName(getter), false));
+    public S orderByDesc(LambdaMethodReference<T, ?> getter) {
+        getSorts().add(new Sort(TableInfoUtils.getGetterPropertyName(getter), false));
         return (S) this;
     }
 
@@ -265,11 +265,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitAny(Getter<T, R> getter, R value) {
+    public <R> S bitAny(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
         return (S) this;
     }
 
@@ -282,11 +282,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitAll(Getter<T, R> getter, R value) {
+    public <R> S bitAll(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
         return (S) this;
     }
 
@@ -299,11 +299,11 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @return 当前实例
      * @since 1.0.0
      */
-    public <R> S bitNone(Getter<T, R> getter, R value) {
+    public <R> S bitNone(LambdaMethodReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(BoostUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
+        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
         return (S) this;
     }
 

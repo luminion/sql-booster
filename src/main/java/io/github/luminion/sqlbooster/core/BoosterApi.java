@@ -1,5 +1,8 @@
 package io.github.luminion.sqlbooster.core;
 
+import io.github.luminion.sqlbooster.model.BoosterPage;
+import io.github.luminion.sqlbooster.model.BoosterParam;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +27,7 @@ import java.util.Optional;
  * @author luminion
  * @since 1.0.0
  */
-public interface BoosterCore<T, V> extends Booster<T, V> {
+public interface BoosterApi<T, V> extends Booster<T, V> {
 
     // ==================== 根据ID查询 ====================
 

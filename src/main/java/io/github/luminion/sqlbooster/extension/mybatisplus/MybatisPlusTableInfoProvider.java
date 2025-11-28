@@ -2,8 +2,8 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import io.github.luminion.sqlbooster.core.Getter;
-import io.github.luminion.sqlbooster.provider.TableInfoProvider;
+import io.github.luminion.sqlbooster.core.LambdaMethodReference;
+import io.github.luminion.sqlbooster.core.TableInfoProvider;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class MybatisPlusTableInfoProvider implements TableInfoProvider {
+    private final int order;
 
     @Override
-    public <T, R> String getGetterPropertyName(Getter<T, R> getter) {
+    public <T, R> String getGetterPropertyName(LambdaMethodReference<T, R> getter) {
         return ReflectUtils.getGetterPropertyName(getter);
     }
 
@@ -47,6 +48,6 @@ public class MybatisPlusTableInfoProvider implements TableInfoProvider {
 
     @Override
     public int getOrder() {
-        return Integer.MAX_VALUE - 100;
+        return order;
     }
 }

@@ -1,6 +1,5 @@
-package io.github.luminion.sqlbooster.model.api;
+package io.github.luminion.sqlbooster.model;
 
-import io.github.luminion.sqlbooster.core.BoosterParam;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
