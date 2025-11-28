@@ -10,5 +10,5 @@ package io.github.luminion.sqlbooster.core;
  * @since 1.0.0
  */
 public interface Booster<T, V> {
-    
+
 }

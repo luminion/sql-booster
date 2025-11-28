@@ -1,13 +1,13 @@
 package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.builder.SqlBuilderBooster;
+import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.BoosterPage;
 import io.github.luminion.sqlbooster.model.BoosterParam;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.builder.SqlBuilder;
-import io.github.luminion.sqlbooster.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
+import io.github.luminion.sqlbooster.model.query.SqlContext;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
 
@@ -27,26 +27,6 @@ import java.util.stream.Collectors;
  */
 public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
 
-    //@Override
-    //default T toEntity(Object source) {
-    //    return ReflectUtils.toTarget(source, TableInfoUtils.getEntityClass(this));
-    //}
-    //
-    //@Override
-    //default V toVo(Object source) {
-    //    return ReflectUtils.toTarget(source, TableInfoUtils.getViewObjectClass(this));
-    //}
-    //
-    //@Override
-    //default void voPreProcess(BoosterParam<T> boosterParam) {
-    //    // do nothing here, only for override
-    //}
-    //
-    //@Override
-    //default void voPostProcess(List<V> records, BoosterParam<T> boosterParam, BoosterPage<V> page) {
-    //    // do nothing here, only for override
-    //}
-
     @Override
     default V voById(Serializable id) {
         if (ObjectUtils.isEmpty(id)) {
@@ -58,8 +38,9 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
             throw new IllegalStateException("can't find id property");
         }
         Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getKeyword(), id);
-        SqlBuilder<T> sqlBuilder = SqlBuilder.of(this).append(condition);
-        return voUnique(sqlBuilder);
+        SqlContext<T> sqlContext = new SqlContext<>();
+        sqlContext.getConditions().add(condition);
+        return voUnique(sqlContext);
     }
 
     @Override
@@ -86,8 +67,9 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
         Class<T> entityClass = TableInfoUtils.getEntityClass(this);
         String idPropertyName = TableInfoUtils.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
-        SqlBuilder<T> sqlBuilder = SqlBuilder.of(this).append(condition);
-        return voList(sqlBuilder);
+        SqlContext<T> sqlContext = new SqlContext<>();
+        sqlContext.getConditions().add(condition);
+        return voList(sqlContext);
     }
 
     @Override

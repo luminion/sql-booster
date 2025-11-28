@@ -1,6 +1,5 @@
 package io.github.luminion.sqlbooster.builder;
 
-import io.github.luminion.sqlbooster.core.BoosterApi;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.ConditionNode;

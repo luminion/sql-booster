@@ -109,9 +109,9 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询第一个VO对象并转换类型.
      *
-     * @param boosterParam  查询条件
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return VO对象，不存在返回null
      * @since 1.0.0
      */
@@ -129,9 +129,9 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询第一个VO对象并转换类型（返回Optional）.
      *
-     * @param boosterParam  查询条件
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return Optional包装的VO对象
      * @since 1.0.0
      */
@@ -154,9 +154,9 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
      * 根据条件查询唯一VO对象并转换类型.
      * <p><b>注意：如果查询结果超过1条，将抛出异常</b></p>
      *
-     * @param boosterParam  查询条件
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return VO对象，不存在返回null
      * @since 1.0.0
      */
@@ -174,9 +174,9 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询唯一VO对象并转换类型（返回Optional）.
      *
-     * @param boosterParam  查询条件
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return Optional包装的VO对象
      * @since 1.0.0
      */
@@ -204,9 +204,9 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询VO对象列表并转换类型.
      *
-     * @param boosterParam  查询条件
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return 转换后的VO对象列表
      * @since 1.0.0
      */
@@ -216,8 +216,8 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
      * 根据条件查询VO对象列表（分页）.
      *
      * @param boosterParam 查询条件
-     * @param pageNum   页码
-     * @param pageSize  每页数量
+     * @param pageNum      页码
+     * @param pageSize     每页数量
      * @return 分页结果对象
      * @since 1.0.0
      */
@@ -228,8 +228,8 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
      * 根据条件查询VO对象列表（分页）.
      *
      * @param boosterParam 查询条件
-     * @param pageNum   页码
-     * @param pageSize  每页数量
+     * @param pageNum      页码
+     * @param pageSize     每页数量
      * @return 分页结果对象
      * @since 1.0.0
      */
@@ -238,11 +238,11 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询VO对象列表并转换类型（分页）.
      *
-     * @param boosterParam  查询条件
-     * @param pageNum    页码
-     * @param pageSize   每页数量
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param pageNum      页码
+     * @param pageSize     每页数量
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return 分页结果对象
      * @since 1.0.0
      */
@@ -251,11 +251,11 @@ public interface BoosterApi<T, V> extends Booster<T, V> {
     /**
      * 根据条件查询VO对象列表（分页）.
      *
-     * @param boosterParam  查询条件
-     * @param pageNum    页码
-     * @param pageSize   每页数量
-     * @param targetType 目标VO类型
-     * @param <R>        目标VO类型
+     * @param boosterParam 查询条件
+     * @param pageNum      页码
+     * @param pageSize     每页数量
+     * @param targetType   目标VO类型
+     * @param <R>          目标VO类型
      * @return 分页结果对象
      * @since 1.0.0
      */
