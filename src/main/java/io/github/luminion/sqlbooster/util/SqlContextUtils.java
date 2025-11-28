@@ -126,10 +126,7 @@ public abstract class SqlContextUtils {
                 value = "%" + value + "%";
             }
         }
-        condition.setField(jdbcColumn);
-        condition.setOperator(operator);
-        condition.setValue(value);
-        return condition;
+        return new Condition(jdbcColumn, operator, value);
     }
 
     /**
@@ -146,7 +143,7 @@ public abstract class SqlContextUtils {
             log.warn("sort field [{}] not exist in fieldMap , it will be removed", sort.getField());
             return null;
         }
-        return sort;
+        return new Sort(jdbcColumn, sort.isAsc());
     }
 
     /**
