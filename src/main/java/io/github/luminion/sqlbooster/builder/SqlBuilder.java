@@ -1,8 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.BoosterApi;
-import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 
 /**
@@ -15,7 +14,7 @@ import io.github.luminion.sqlbooster.util.TableInfoUtils;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class SqlBuilder<T> extends LambdaBuilder<T, SqlBuilder<T>> {
+public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     
     public static <T> SqlBuilder<T> of(Class<T> entityClass) {
         return new SqlBuilder<>(entityClass);
@@ -25,8 +24,8 @@ public class SqlBuilder<T> extends LambdaBuilder<T, SqlBuilder<T>> {
         return new SqlBuilder<>(TableInfoUtils.getEntityClass(booster));
     }
 
-    public static <T> SqlBuilder<T> of(BoosterParam<T> boosterParam) {
-        return new SqlBuilder<>(TableInfoUtils.getEntityClass(boosterParam));
+    public static <T> SqlBuilder<T> of(SqlContext<T> sqlContext) {
+        return new SqlBuilder<>(TableInfoUtils.getEntityClass(sqlContext));
     }
 
     public SqlBuilder(Class<T> entityClass) {
@@ -39,15 +38,15 @@ public class SqlBuilder<T> extends LambdaBuilder<T, SqlBuilder<T>> {
     }
 
     /**
-     * 转换为 {@link SqlBuilderBooster}.
+     * 转换为 {@link SqlBuilderWrapper}.
      *
-     * @param boosterApi {@link BoosterApi} 实例
+     * @param booster {@link Booster} 实例
      * @param <V>        VO 类型
      * @param <P>        分页对象类型
-     * @return {@link SqlBuilderBooster} 实例
+     * @return {@link SqlBuilderWrapper} 实例
      * @since 1.0.0
      */
-    public <V, P> SqlBuilderBooster<T, V> boost(BoosterApi<T, V> boosterApi) {
-        return new SqlBuilderBooster<>(boosterApi, this.sqlContext);
+    public <V, P> SqlBuilderWrapper<T, V> boost(Booster<T, V> booster) {
+        return new SqlBuilderWrapper<>(booster, this.sqlContext);
     }
 }

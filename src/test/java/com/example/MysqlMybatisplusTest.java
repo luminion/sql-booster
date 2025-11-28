@@ -5,7 +5,7 @@ import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.model.BoosterPage;
-import io.github.luminion.sqlbooster.model.query.SqlContext;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;

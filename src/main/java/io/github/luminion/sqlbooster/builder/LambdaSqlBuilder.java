@@ -20,9 +20,9 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @SuppressWarnings({"unchecked", "unused"})
-public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends AbstractBuilder<T, S> {
+public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> extends AbstractSqlBuilder<T, S> {
 
-    public LambdaBuilder(Class<T> entityClass) {
+    public LambdaSqlBuilder(Class<T> entityClass) {
         super(entityClass);
     }
 

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class MysqlService extends MyBatisPlusBoosterServiceImpl<SysUserMapper, SysUser, SysUserVO> {
 
     //@Override
-    //public List<SysUserVO> selectByBooster(BoosterParam<SysUser> params, IPage<?> page) {
+    //public List<SysUserVO> selectByBooster(SqlContext<SysUser> params, IPage<?> page) {
     //    return getBaseMapper().selectByBooster(params, page);
     //}
 }

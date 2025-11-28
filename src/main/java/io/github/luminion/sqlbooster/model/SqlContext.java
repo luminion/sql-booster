@@ -1,6 +1,7 @@
-package io.github.luminion.sqlbooster.model.query;
+package io.github.luminion.sqlbooster.model;
 
-import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.query.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,7 +22,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class SqlContext<T> extends ConditionNode implements BoosterParam<T> {
+public class SqlContext<T> extends ConditionNode {
 
     /**
      * 排序字段列表.
@@ -32,7 +33,7 @@ public class SqlContext<T> extends ConditionNode implements BoosterParam<T> {
      * 非本表字段的额外条件.
      */
     protected transient Map<String, Object> extra = new HashMap<>();
-    
+
     @Override
     public ConditionNode merge(ConditionNode conditionNode) {
         if (conditionNode == null) {

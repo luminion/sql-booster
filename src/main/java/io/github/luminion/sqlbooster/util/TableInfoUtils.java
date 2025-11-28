@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.core.TableInfoProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -124,14 +124,14 @@ public abstract class TableInfoUtils {
     /**
      * 获取对应的实体类的 Class 对象.
      *
-     * @param boosterParam 参数
+     * @param sqlContext 参数
      * @param <T>          实体类型
      * @return 实体类的 Class 对象
      * @since 1.0.0
      */
     @SuppressWarnings({"unchecked"})
-    public static <T, V> Class<T> getEntityClass(BoosterParam<T> boosterParam) {
-        return (Class<T>) ReflectUtils.resolveTypeArguments(boosterParam.getClass(), BoosterParam.class)[0];
+    public static <T, V> Class<T> getEntityClass(SqlContext<T> sqlContext) {
+        return (Class<T>) ReflectUtils.resolveTypeArguments(sqlContext.getClass(), SqlContext.class)[0];
     }
 
     /**

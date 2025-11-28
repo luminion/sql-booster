@@ -1,11 +1,10 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.builder.SqlBuilderBooster;
+import io.github.luminion.sqlbooster.builder.SqlBuilderWrapper;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.BoosterPage;
-import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.SqlContext;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
  * @author luminion
  * @since 1.0.0
  */
-public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
+public interface BoosterSupport<T, V> extends Booster<T, V> {
 
     @Override
     default V voById(Serializable id) {
@@ -81,8 +80,8 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
     }
 
     @Override
-    default V voFirst(BoosterParam<T> boosterParam) {
-        List<V> vs = voList(boosterParam);
+    default V voFirst(SqlContext<T> sqlContext) {
+        List<V> vs = voList(sqlContext);
         if (vs.isEmpty()) {
             return null;
         }
@@ -90,23 +89,23 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
     }
 
     @Override
-    default <R> R voFirst(BoosterParam<T> boosterParam, Class<R> targetType) {
-        return ReflectUtils.toTarget(voFirst(boosterParam), targetType);
+    default <R> R voFirst(SqlContext<T> sqlContext, Class<R> targetType) {
+        return ReflectUtils.toTarget(voFirst(sqlContext), targetType);
     }
 
     @Override
-    default Optional<V> voFirstOpt(BoosterParam<T> boosterParam) {
-        return Optional.ofNullable(voFirst(boosterParam));
+    default Optional<V> voFirstOpt(SqlContext<T> sqlContext) {
+        return Optional.ofNullable(voFirst(sqlContext));
     }
 
     @Override
-    default <R> Optional<R> voFirstOpt(BoosterParam<T> boosterParam, Class<R> targetType) {
-        return Optional.ofNullable(voFirst(boosterParam, targetType));
+    default <R> Optional<R> voFirstOpt(SqlContext<T> sqlContext, Class<R> targetType) {
+        return Optional.ofNullable(voFirst(sqlContext, targetType));
     }
 
     @Override
-    default V voUnique(BoosterParam<T> boosterParam) {
-        List<V> vs = voList(boosterParam);
+    default V voUnique(SqlContext<T> sqlContext) {
+        List<V> vs = voList(sqlContext);
         if (vs.isEmpty()) {
             return null;
         }
@@ -117,18 +116,18 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
     }
 
     @Override
-    default <R> R voUnique(BoosterParam<T> boosterParam, Class<R> targetType) {
-        return ReflectUtils.toTarget(voUnique(boosterParam), targetType);
+    default <R> R voUnique(SqlContext<T> sqlContext, Class<R> targetType) {
+        return ReflectUtils.toTarget(voUnique(sqlContext), targetType);
     }
 
     @Override
-    default Optional<V> voUniqueOpt(BoosterParam<T> boosterParam) {
-        return Optional.ofNullable(voUnique(boosterParam));
+    default Optional<V> voUniqueOpt(SqlContext<T> sqlContext) {
+        return Optional.ofNullable(voUnique(sqlContext));
     }
 
     @Override
-    default <R> Optional<R> voUniqueOpt(BoosterParam<T> boosterParam, Class<R> targetType) {
-        return Optional.ofNullable(voUnique(boosterParam, targetType));
+    default <R> Optional<R> voUniqueOpt(SqlContext<T> sqlContext, Class<R> targetType) {
+        return Optional.ofNullable(voUnique(sqlContext, targetType));
     }
 
     @Override
@@ -137,49 +136,50 @@ public interface BoosterSupport<T, V> extends BoosterApi<T, V> {
     }
 
     @Override
-    default List<V> voList(BoosterParam<T> boosterParam) {
-        return selectByBooster(boosterParam, null);
+    default List<V> voList(SqlContext<T> sqlContext) {
+        return selectByBooster(sqlContext, null);
     }
 
     @Override
-    default <R> List<R> voList(BoosterParam<T> boosterParam, Class<R> targetType) {
-        List<V> vs = voList(boosterParam);
+    default <R> List<R> voList(SqlContext<T> sqlContext, Class<R> targetType) {
+        List<V> vs = voList(sqlContext);
         return vs.stream()
                 .map(v -> ReflectUtils.toTarget(v, targetType))
                 .collect(Collectors.toList());
     }
 
     @Override
-    default BoosterPage<V> voPage(BoosterParam<T> boosterParam, int pageNum, int pageSize) {
-        return voPage(boosterParam, (long) pageNum, pageSize);
+    default BoosterPage<V> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize) {
+        return voPage(sqlContext, (long) pageNum, pageSize);
     }
 
     @Override
-    default BoosterPage<V> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize) {
+    default BoosterPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, int pageNum, int pageSize, Class<R> targetType) {
-        return voPage(boosterParam, (long) pageNum, pageSize, targetType);
+    default <R> BoosterPage<R> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize, Class<R> targetType) {
+        return voPage(sqlContext, (long) pageNum, pageSize, targetType);
     }
 
     @Override
-    default <R> BoosterPage<R> voPage(BoosterParam<T> boosterParam, long pageNum, long pageSize, Class<R> targetType) {
-        return voPage(boosterParam, pageNum, pageSize).convertRecords(targetType);
+    default <R> BoosterPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType) {
+        return voPage(sqlContext, pageNum, pageSize).convertRecords(targetType);
     }
     
-    default SqlBuilderBooster<T, V> lambdaBuilder() {
-        return new SqlBuilderBooster<>(this);
+    @Override
+    default SqlBuilderWrapper<T, V> sqlBuilder() {
+        return new SqlBuilderWrapper<>(this);
     }
 
     /**
      * 最终执行查询的方法.
      *
-     * @param boosterParam 查询条件
+     * @param sqlContext 查询条件
      * @param page         分页对象
      * @return 查询结果列表
      * @since 1.0.0
      */
-    List<V> selectByBooster(BoosterParam<T> boosterParam, Object page);
+    List<V> selectByBooster(SqlContext<T> sqlContext, Object page);
 }

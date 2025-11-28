@@ -4,11 +4,13 @@ import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.ConditionNode;
 import io.github.luminion.sqlbooster.model.query.Sort;
-import io.github.luminion.sqlbooster.model.query.SqlContext;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -23,7 +25,7 @@ import java.util.function.Function;
  */
 @SuppressWarnings({"unused", "unchecked"})
 @RequiredArgsConstructor
-public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>> {
+public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> {
 
     /**
      * 关联的实体类, 用于 SQL 校验和处理.
@@ -40,17 +42,17 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>> {
      * @return 新实例
      * @since 1.0.0
      */
-    public abstract S newInstance();
+    protected abstract S newInstance();
 
     /**
      * 应用一个处理器对当前的 SQL 助手进行转换或处理.
      *
-     * @param processor 处理器函数
+     * @param builder 处理器函数
      * @return this
      * @since 1.0.0
      */
-    public SqlContext<T> build(Function<S, SqlContext<T>> processor) {
-        return processor.apply((S) this);
+    public SqlContext<T> build(BiFunction<Class<T>, SqlContext<T>, SqlContext<T>> builder) {
+        return builder.apply(this.entityClass,this.sqlContext);
     }
 
     /**

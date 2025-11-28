@@ -5,7 +5,7 @@ import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
 import io.github.luminion.sqlbooster.extension.pagehelper.PageHelperBoosterSupport;
-import io.github.luminion.sqlbooster.model.BoosterParam;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class PostgresService implements PageHelperBoosterSupport<SysUser,SysUser
 
 
     @Override
-    public List<SysUserVO> selectByBooster(BoosterParam<SysUser> boosterParam, Object page) {
-        return sysUserMapper.selectByBooster(boosterParam,null);
+    public List<SysUserVO> selectByBooster(SqlContext<SysUser> sqlContext, Object page) {
+        return sysUserMapper.selectByBooster(sqlContext,null);
     }
 }

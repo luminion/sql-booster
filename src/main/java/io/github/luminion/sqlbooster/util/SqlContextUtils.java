@@ -1,11 +1,10 @@
 package io.github.luminion.sqlbooster.util;
 
-import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.Sort;
-import io.github.luminion.sqlbooster.model.query.ConditionNode;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
-import io.github.luminion.sqlbooster.builder.AbstractBuilder;
-import io.github.luminion.sqlbooster.model.query.SqlContext;
+import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.model.query.Condition;
+import io.github.luminion.sqlbooster.model.query.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -19,33 +18,33 @@ import java.util.*;
  * @since 1.0.0
  */
 @Slf4j
-public abstract class BuildUtils {
+public abstract class SqlContextUtils {
     /**
      * 当前处理器实例使用的后缀到操作符的映射.
      */
     private final static Map<String, String> DEFAULT_SUFFIX_MAP = new HashMap<>();
 
     static {
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Ne", SqlKeyword.NE.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Ne", SqlKeyword.NE.getKeyword());
 
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Lt", SqlKeyword.LT.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Lte", SqlKeyword.LTE.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Lt", SqlKeyword.LT.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Lte", SqlKeyword.LTE.getKeyword());
 
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Gt", SqlKeyword.GT.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Gte", SqlKeyword.GTE.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Gt", SqlKeyword.GT.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Gte", SqlKeyword.GTE.getKeyword());
 
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "Like", SqlKeyword.LIKE.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "NotLike", SqlKeyword.NOT_LIKE.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Like", SqlKeyword.LIKE.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "NotLike", SqlKeyword.NOT_LIKE.getKeyword());
 
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "In", SqlKeyword.IN.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "NotIn", SqlKeyword.NOT_IN.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "In", SqlKeyword.IN.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "NotIn", SqlKeyword.NOT_IN.getKeyword());
 
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "IsNull", SqlKeyword.IS_NULL.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "IsNotNull", SqlKeyword.IS_NOT_NULL.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "IsNull", SqlKeyword.IS_NULL.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "IsNotNull", SqlKeyword.IS_NOT_NULL.getKeyword());
 
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "BitAny", SqlKeyword.BIT_ANY.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "BitAll", SqlKeyword.BIT_ALL.getKeyword());
-        addBothCamelCaseAndUnderscore(DEFAULT_SUFFIX_MAP, "BitNone", SqlKeyword.BIT_NONE.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "BitAny", SqlKeyword.BIT_ANY.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "BitAll", SqlKeyword.BIT_ALL.getKeyword());
+        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "BitNone", SqlKeyword.BIT_NONE.getKeyword());
     }
 
 
@@ -53,15 +52,13 @@ public abstract class BuildUtils {
      * 向map中同时添加驼峰式和下划线式后缀的映射
      *
      * @param map      映射关系表
-     * @param suffix   后缀
+     * @param camelSuffix   后缀
      * @param operator 操作符
      * @since 1.0.0
      */
-    private static void addBothCamelCaseAndUnderscore(Map<String, String> map, String suffix, String operator) {
-        map.putIfAbsent(suffix, operator);
-        String camelCase = TableInfoUtils.underscoreToCamelCase(suffix);
-        map.putIfAbsent(camelCase, operator);
-        String underscore = TableInfoUtils.camelCaseToUnderscore(suffix);
+    public static void addBothCamelCaseAndUnderscoreSuffix(Map<String, String> map, String camelSuffix, String operator) {
+        map.putIfAbsent(camelSuffix, operator);
+        String underscore = TableInfoUtils.camelCaseToUnderscore(camelSuffix);
         map.putIfAbsent(underscore, operator);
     }
 
@@ -155,55 +152,56 @@ public abstract class BuildUtils {
     /**
      * 构建供xml使用的Helper
      *
-     * @param rootHelper 根 SQL 助手
+     * @param sqlContext 根 SQL 助手
      * @param <T>        实体类型
-     * @param <S>        helper类型
      * @return 处理后的实例
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public static <T, S extends AbstractBuilder<T, S>> SqlContext<T> build(AbstractBuilder<T, S> rootHelper) {
-        Class<T> entityClass = rootHelper.getEntityClass();
+    public static <T> SqlContext<T> build(Class<T> entityClass, SqlContext<?> sqlContext) {
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
         }
-        S resultHelper = rootHelper.newInstance();
+        SqlContext<T> resultContext = new SqlContext<>();
         Map<String, String> propertyToColumnAliasMap = TableInfoUtils.getPropertyToColumnAliasMap(entityClass);
-        Map<String, Object> extraParams = resultHelper.getExtra();
-        for (ConditionNode currentHelper : rootHelper) {
+        Map<String, Object> extraParams = resultContext.getExtra();
+        for (ConditionNode currentHelper : sqlContext) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
             Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
             LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
             while (conditionIterator.hasNext()) {
                 Condition condition = conditionIterator.next();
-                Condition replaceCondition = BuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                Condition replaceCondition = SqlContextUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
                 if (replaceCondition == null) {
                     continue;
                 }
                 replacedConditions.add(replaceCondition);
             }
-            resultHelper.appendConditions(replacedConditions, currentHelper.getConnector());
+            resultContext.appendConditions(replacedConditions, currentHelper.getConnector());
         }
-        for (Sort sort : rootHelper.getSorts()) {
+        for (Sort sort : sqlContext.getSorts()) {
             Sort validateSort = replaceSort(sort, propertyToColumnAliasMap);
             if (validateSort != null) {
-                resultHelper.getSorts().add(validateSort);
+                resultContext.getSorts().add(validateSort);
             }
         }
-        return resultHelper;
+        return resultContext;
     }
 
 
-    public static <T, S extends AbstractBuilder<T, S>> SqlContext<T> buildWithSuffix(AbstractBuilder<T, S> rootHelper, Map<String, String> suffixToOperatorMap) {
-        Class<T> entityClass = rootHelper.getEntityClass();
+    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> sqlContext) {
+        return buildWithSuffix(entityClass, sqlContext, DEFAULT_SUFFIX_MAP);
+    }
+
+    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> sqlContext, Map<String, String> suffixToOperatorMap) {
         if (entityClass == null) {
-            throw new IllegalArgumentException("can't get entity class from sql helper");
+            throw new IllegalArgumentException("can't get entity class");
         }
-        S resultHelper = rootHelper.newInstance();
-        Map<String, Object> extraParams = resultHelper.getExtra();
+        SqlContext<T> resultContext = new SqlContext<>();
+        Map<String, Object> extraParams = resultContext.getExtra();
         Map<String, String> propertyToColumnAliasMap = TableInfoUtils.getPropertyToColumnAliasMap(entityClass);
         Set<String> suffixes = suffixToOperatorMap.keySet();
-        for (ConditionNode currentHelper : rootHelper) {
+        for (ConditionNode currentHelper : sqlContext) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
             Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
             LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
@@ -220,7 +218,7 @@ public abstract class BuildUtils {
                             String operator = suffixToOperatorMap.get(suffix);
                             log.debug("condition field [{}] Matched suffix operator [{}]", field, operator);
                             Condition suffixCondition = new Condition(sourceFiled, operator, condition.getValue());
-                            Condition validateSuffixCondition = BuildUtils.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
+                            Condition validateSuffixCondition = SqlContextUtils.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
                             if (validateSuffixCondition == null) {
                                 continue;
                             }
@@ -232,25 +230,22 @@ public abstract class BuildUtils {
                         continue;
                     }
                 }
-                Condition replaceCondition = BuildUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
+                Condition replaceCondition = SqlContextUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
                 if (replaceCondition == null) {
                     continue;
                 }
                 replacedConditions.add(replaceCondition);
             }
-            resultHelper.appendConditions(replacedConditions, currentHelper.getConnector());
+            resultContext.appendConditions(replacedConditions, currentHelper.getConnector());
         }
-        for (Sort sort : rootHelper.getSorts()) {
-            Sort validateSort = BuildUtils.replaceSort(sort, propertyToColumnAliasMap);
+        for (Sort sort : sqlContext.getSorts()) {
+            Sort validateSort = SqlContextUtils.replaceSort(sort, propertyToColumnAliasMap);
             if (validateSort != null) {
-                resultHelper.getSorts().add(validateSort);
+                resultContext.getSorts().add(validateSort);
             }
         }
-        return resultHelper;
+        return resultContext;
     }
 
-    public static <T, S extends AbstractBuilder<T, S>> SqlContext<T> buildWithSuffix(AbstractBuilder<T, S> rootHelper) {
-        return buildWithSuffix(rootHelper, DEFAULT_SUFFIX_MAP);
-    } 
 
 }
