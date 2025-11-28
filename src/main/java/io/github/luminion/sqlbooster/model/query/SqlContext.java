@@ -1,8 +1,10 @@
 package io.github.luminion.sqlbooster.model.query;
 
 import io.github.luminion.sqlbooster.model.BoosterParam;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -17,6 +19,8 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class SqlContext<T> extends ConditionNode implements BoosterParam<T> {
 
     /**
@@ -30,13 +34,14 @@ public class SqlContext<T> extends ConditionNode implements BoosterParam<T> {
     protected transient Map<String, Object> extra = new HashMap<>();
     
     @Override
-    protected ConditionNode merge(ConditionNode conditionNode) {
+    public ConditionNode merge(ConditionNode conditionNode) {
         if (conditionNode == null) {
             return this;
         }
         if (conditionNode instanceof SqlContext) {
             SqlContext<?> sqlContext = (SqlContext<?>) conditionNode;
             this.sorts.addAll(sqlContext.getSorts());
+            this.extra.putAll(sqlContext.getExtra());
         }
         return super.merge(conditionNode);
     }

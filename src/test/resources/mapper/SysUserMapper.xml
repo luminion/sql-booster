@@ -3,7 +3,6 @@
 <mapper namespace="com.example.mapper.SysUserMapper">
 
     <select id="selectByXml" resultType="com.example.vo.SysUserVO">
-    <!--<select id="selectByBooster" resultType="com.example.vo.SysUserVO">-->
         SELECT
         a.*
         FROM

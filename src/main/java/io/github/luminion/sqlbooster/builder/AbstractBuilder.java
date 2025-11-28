@@ -1,6 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.BoosterApi;
+import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Sort;
@@ -86,7 +87,7 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  exten
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                Condition condition = new Condition(key.toString(), value);
+                Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getKeyword(),value);
                 this.getConditions().add(condition);
             }
         }

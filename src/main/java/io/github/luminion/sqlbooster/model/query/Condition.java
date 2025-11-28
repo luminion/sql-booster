@@ -11,6 +11,7 @@ import lombok.*;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Condition {
 
     /**
@@ -25,16 +26,5 @@ public class Condition {
      * 条件值.
      */
     protected Object value = "";
-
-    public Condition(String field, Object value) {
-        this.field = field;
-        this.value = value;
-    }
-
-    public Condition(String field, String operator, Object value) {
-        this.field = field;
-        this.operator = SqlKeyword.replaceOperator(operator);
-        this.value = value;
-    }
 
 }

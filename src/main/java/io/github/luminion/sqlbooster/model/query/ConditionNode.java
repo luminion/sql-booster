@@ -1,6 +1,7 @@
 package io.github.luminion.sqlbooster.model.query;
 
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.*;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class ConditionNode implements Iterable<ConditionNode> {
     /**
      * 当前节点的条件列表.
@@ -68,7 +70,7 @@ public class ConditionNode implements Iterable<ConditionNode> {
      * @param segment 条件
      * @return this
      */
-    protected ConditionNode merge(ConditionNode segment) {
+    public ConditionNode merge(ConditionNode segment) {
         if (segment == null) {
             return this;
         }
