@@ -5,6 +5,7 @@ import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.query.ConditionNode;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.builder.AbstractBuilder;
+import io.github.luminion.sqlbooster.model.query.SqlContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -161,7 +162,7 @@ public abstract class BuildUtils {
      * @throws IllegalArgumentException 当无法获取实体类时抛出
      * @since 1.0.0
      */
-    public <T, S extends AbstractBuilder<T, S>> S build(AbstractBuilder<T, S> rootHelper) {
+    public <T, S extends AbstractBuilder<T, S>> SqlContext<T> build(AbstractBuilder<T, S> rootHelper) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
@@ -193,7 +194,7 @@ public abstract class BuildUtils {
     }
 
 
-    public static <T, S extends AbstractBuilder<T, S>> S buildWithSuffix(AbstractBuilder<T, S> rootHelper, Map<String, String> suffixToOperatorMap) {
+    public static <T, S extends AbstractBuilder<T, S>> SqlContext<T> buildWithSuffix(AbstractBuilder<T, S> rootHelper, Map<String, String> suffixToOperatorMap) {
         Class<T> entityClass = rootHelper.getEntityClass();
         if (entityClass == null) {
             throw new IllegalArgumentException("can't get entity class from sql helper");
@@ -248,7 +249,7 @@ public abstract class BuildUtils {
         return resultHelper;
     }
 
-    public static <T, S extends AbstractBuilder<T, S>> S buildWithSuffix(AbstractBuilder<T, S> rootHelper) {
+    public static <T, S extends AbstractBuilder<T, S>> SqlContext<T> buildWithSuffix(AbstractBuilder<T, S> rootHelper) {
         return buildWithSuffix(rootHelper, DEFAULT_SUFFIX_MAP);
     } 
 

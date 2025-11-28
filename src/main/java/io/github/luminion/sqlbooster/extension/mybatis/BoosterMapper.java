@@ -18,10 +18,10 @@ public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
 
     @Override
     default List<V> selectByBooster(BoosterParam<T> boosterParam, Object page) {
-        SqlBuilder<T> sqlBuilder = SqlBuilder.of(this)
+        SqlContext<T> sqlContext = SqlBuilder.of(this)
                 .append(boosterParam)
                 .build(BuildUtils::buildWithSuffix);
-        return selectByXml(sqlBuilder, page);
+        return selectByXml(sqlContext, page);
     }
 
 

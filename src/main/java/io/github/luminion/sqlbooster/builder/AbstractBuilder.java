@@ -3,12 +3,11 @@ package io.github.luminion.sqlbooster.builder;
 import io.github.luminion.sqlbooster.core.BoosterApi;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.SqlContext;
-import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.query.ConditionNode;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
+import io.github.luminion.sqlbooster.model.query.Sort;
+import io.github.luminion.sqlbooster.model.query.SqlContext;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -24,13 +23,17 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  extends SqlContext<T> {
+@RequiredArgsConstructor
+public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>> {
 
     /**
      * 关联的实体类, 用于 SQL 校验和处理.
      */
-    @Getter
-    protected transient Class<T> entityClass;
+    protected transient final Class<T> entityClass;
+    /**
+     * 存放条件的上下文
+     */
+    protected transient final SqlContext<T> sqlContext = new SqlContext<>();
 
     /**
      * 创建一个新的自身实例.
@@ -39,7 +42,7 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  exten
      * @since 1.0.0
      */
     public abstract S newInstance();
-    
+
     /**
      * 应用一个处理器对当前的 SQL 助手进行转换或处理.
      *
@@ -47,20 +50,8 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  exten
      * @return this
      * @since 1.0.0
      */
-    public S build(Function<S, S> processor){
+    public SqlContext<T> build(Function<S, SqlContext<T>> processor) {
         return processor.apply((S) this);
-    }
-    
-    /**
-     * 设置关联的实体类.
-     *
-     * @param entityClass 实体类
-     * @return 当前实例
-     * @since 1.0.0
-     */
-    public S entity(Class<T> entityClass){
-        this.entityClass = entityClass;
-        return (S) this;
     }
 
     /**
@@ -72,40 +63,35 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>>  exten
      */
     public S append(Object object) {
         if (object == null) {
-        }
-        else if (object instanceof Condition){
-            this.getConditions().add((Condition) object);
-        }
-        else if (object instanceof Sort){
-            this.getSorts().add((Sort) object);
-        }
-        else if (object instanceof ConditionNode){
-            super.merge((ConditionNode) object);
-        }
-        else{
+        } else if (object instanceof Condition) {
+            this.sqlContext.getConditions().add((Condition) object);
+        } else if (object instanceof Sort) {
+            this.sqlContext.getSorts().add((Sort) object);
+        } else if (object instanceof ConditionNode) {
+            this.sqlContext.merge((ConditionNode) object);
+        } else {
             Map<?, ?> map = ReflectUtils.objectToMap(object);
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getKeyword(),value);
-                this.getConditions().add(condition);
+                Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getKeyword(), value);
+                this.sqlContext.getConditions().add(condition);
             }
         }
         return (S) this;
     }
 
     /**
-     * 转换为 {@link BoostBuilder}.
+     * 转换为 {@link SqlBuilderBooster}.
      *
      * @param boosterApi {@link BoosterApi} 实例
-     * @param <V>       VO 类型
-     * @param <P>       分页对象类型
-     * @return {@link BoostBuilder} 实例
+     * @param <V>        VO 类型
+     * @param <P>        分页对象类型
+     * @return {@link SqlBuilderBooster} 实例
      * @since 1.0.0
      */
-    public <V, P> BoostBuilder<T, V> boost(BoosterApi<T, V> boosterApi) {
-        this.entityClass = TableInfoUtils.getEntityClass(boosterApi);
-        return new BoostBuilder<>(boosterApi).append(this);
+    public <V, P> SqlBuilderBooster<T, V> boost(BoosterApi<T, V> boosterApi) {
+        return new SqlBuilderBooster<>(boosterApi).append(this);
     }
 
 }

@@ -22,6 +22,10 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unchecked", "unused"})
 public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends AbstractBuilder<T, S> {
 
+    public LambdaBuilder(Class<T> entityClass) {
+        super(entityClass);
+    }
+
     /**
      * 添加一组 OR 连接的条件.
      *
@@ -30,10 +34,10 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @since 1.0.0
      */
     public S or(Consumer<S> consumer) {
-        S tree = newInstance();
-        tree.setConnector(SqlKeyword.OR.getKeyword());
-        consumer.accept(tree);
-        this.merge(tree);
+        S newInstance = newInstance();
+        newInstance.sqlContext.setConnector(SqlKeyword.OR.getKeyword());
+        consumer.accept(newInstance);
+        this.sqlContext.merge(newInstance.sqlContext);
         return (S) this;
     }
 
@@ -51,7 +55,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.EQ.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.EQ.getKeyword(), value));
         return (S) this;
     }
 
@@ -68,7 +72,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NE.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NE.getKeyword(), value));
         return (S) this;
     }
 
@@ -85,7 +89,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.GT.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.GT.getKeyword(), value));
         return (S) this;
     }
 
@@ -102,7 +106,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.GTE.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.GTE.getKeyword(), value));
         return (S) this;
     }
 
@@ -119,7 +123,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LT.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LT.getKeyword(), value));
         return (S) this;
     }
 
@@ -136,7 +140,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LTE.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LTE.getKeyword(), value));
         return (S) this;
     }
 
@@ -153,7 +157,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LIKE.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.LIKE.getKeyword(), value));
         return (S) this;
     }
 
@@ -170,7 +174,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NOT_LIKE.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NOT_LIKE.getKeyword(), value));
         return (S) this;
     }
 
@@ -187,7 +191,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IN.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IN.getKeyword(), value));
         return (S) this;
     }
 
@@ -204,7 +208,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NOT_IN.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.NOT_IN.getKeyword(), value));
         return (S) this;
     }
 
@@ -216,7 +220,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @since 1.0.0
      */
     public S isNull(SFunc<T, ?> getter) {
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getKeyword(), true));
         return (S) this;
     }
 
@@ -228,7 +232,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @since 1.0.0
      */
     public S isNotNull(SFunc<T, ?> getter) {
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getKeyword(), true));
         return (S) this;
     }
 
@@ -240,7 +244,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @since 1.0.0
      */
     public S orderByAsc(SFunc<T, ?> getter) {
-        getSorts().add(new Sort(TableInfoUtils.getGetterPropertyName(getter), true));
+        this.sqlContext.getSorts().add(new Sort(TableInfoUtils.getGetterPropertyName(getter), true));
         return (S) this;
     }
 
@@ -252,7 +256,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
      * @since 1.0.0
      */
     public S orderByDesc(SFunc<T, ?> getter) {
-        getSorts().add(new Sort(TableInfoUtils.getGetterPropertyName(getter), false));
+        this.sqlContext.getSorts().add(new Sort(TableInfoUtils.getGetterPropertyName(getter), false));
         return (S) this;
     }
 
@@ -269,7 +273,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getKeyword(), value));
         return (S) this;
     }
 
@@ -286,7 +290,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getKeyword(), value));
         return (S) this;
     }
 
@@ -303,7 +307,7 @@ public abstract class LambdaBuilder<T, S extends LambdaBuilder<T, S>> extends Ab
         if (value == null) {
             return (S) this;
         }
-        getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
+        this.sqlContext.getConditions().add(new Condition(TableInfoUtils.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getKeyword(), value));
         return (S) this;
     }
 
