@@ -2,7 +2,8 @@ package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.BoosterApi;
 import io.github.luminion.sqlbooster.model.BoosterPage;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
+import io.github.luminion.sqlbooster.model.query.SqlContext;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,18 +18,10 @@ import java.util.Optional;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class SqlBuilderBooster<T, V> extends LambdaBuilder<T, SqlBuilderBooster<T, V>> {
+@RequiredArgsConstructor
+public class SqlBuilderBooster<T, V> {
     private final BoosterApi<T, V> boosterApi;
-
-    public SqlBuilderBooster(BoosterApi<T, V> boosterApi) {
-        super(TableInfoUtils.getEntityClass(boosterApi));
-        this.boosterApi = boosterApi;
-    }
-    
-    @Override
-    public SqlBuilderBooster<T, V> newInstance() {
-        return new SqlBuilderBooster<>(boosterApi);
-    }
+    private final SqlContext<T> sqlContext;
 
     public V first() {
         return boosterApi.voFirst(this.sqlContext);

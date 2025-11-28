@@ -91,7 +91,7 @@ public abstract class AbstractBuilder<T, S extends AbstractBuilder<T, S>> {
      * @since 1.0.0
      */
     public <V, P> SqlBuilderBooster<T, V> boost(BoosterApi<T, V> boosterApi) {
-        return new SqlBuilderBooster<>(boosterApi).append(this);
+        return new SqlBuilderBooster<>(boosterApi, this.sqlContext);
     }
 
 }
