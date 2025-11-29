@@ -2,6 +2,7 @@ package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.function.GetterReference;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.StrUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -30,11 +31,7 @@ public class DefaultTableResolver implements TableResolver {
 
     @Override
     public <T> String getTableName(Class<T> clazz) {
-        String tableName = TableMetaRegistry.camelCaseToUnderscore(clazz.getSimpleName());
-        if (tableName.startsWith("_")){
-            return tableName.substring(1);
-        }
-        return tableName;
+        return StrUtils.pascalCaseToUnderscore(clazz.getSimpleName());
     }
 
     @Override
@@ -60,8 +57,8 @@ public class DefaultTableResolver implements TableResolver {
     public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
         Set<String> strings = ReflectUtils.fieldMap(clazz).keySet();
         return strings.stream()
-                .collect(Collectors.toMap(e -> e, e -> 
-                        String.format("a.%s", underscoreToCamelCase ? TableMetaRegistry.camelCaseToUnderscore(e) : e)));
+                .collect(Collectors.toMap(e -> e, e ->
+                        String.format("a.%s", underscoreToCamelCase ? StrUtils.camelCaseToUnderscore(e) : e)));
     }
 
     @Override
