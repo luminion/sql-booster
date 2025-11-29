@@ -70,7 +70,7 @@ public class MysqlMybatisplusTest {
     @Test
     @Order(2)
     public void testPage() {
-        // 创建查询条件 todo 暂未处理分页
+        // 创建查询条件
         SqlContext sqlEntity = new SqlContext();
         sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getSymbol(), 25));
 

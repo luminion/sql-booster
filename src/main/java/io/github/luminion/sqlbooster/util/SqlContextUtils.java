@@ -10,6 +10,7 @@ import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SQL 上下文构建工具。
@@ -69,7 +70,7 @@ public abstract class SqlContextUtils {
         SqlContext<T> result = new SqlContext<>();
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> params = result.getParams();
-
+        Collection<String> columns = columnMap.values();
         // 1. 处理条件
         for (ConditionSegment conditionSegment : source) {
             LinkedHashSet<Condition> validConditions = new LinkedHashSet<>();
@@ -77,7 +78,10 @@ public abstract class SqlContextUtils {
             for (Condition c : conditionSegment.getConditions()) {
                 String field = c.getField();
                 String column = columnMap.get(field);
-
+                // 兼容已转化的列
+                if (column==null && columns.contains(field)){
+                    column = field;
+                }
                 if (column != null) {
                     // 字段在实体中存在，进行校验
                     Condition finalC = validateAndCreate(column, c.getOperator(), c.getValue());
@@ -156,8 +160,14 @@ public abstract class SqlContextUtils {
     // ==================== 辅助方法 ====================
 
     private static void processSorts(Set<Sort> sourceSorts, Map<String, String> columnMap, Set<Sort> targetSorts) {
+        Collection<String> columns = columnMap.values();
         for (Sort sort : sourceSorts) {
-            String column = columnMap.get(sort.getField());
+            String field = sort.getField();
+            String column = columnMap.get(field);
+            // 兼容已转化的列
+            if (column == null && columns.contains(field)) {
+                column = field;
+            }
             if (column != null) {
                 targetSorts.add(new Sort(column, sort.isAsc()));
             } else {
