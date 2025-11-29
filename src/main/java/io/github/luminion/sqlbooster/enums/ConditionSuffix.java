@@ -44,7 +44,7 @@ public enum ConditionSuffix {
         this.underscore = StrUtils.camelCaseToUnderscore(camelCase);
     }
 
-    public String getKeyword() {
+    public String getSymbol() {
         return sqlKeyword.getSymbol();
     }
 }

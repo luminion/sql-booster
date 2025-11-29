@@ -24,6 +24,16 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         super(entityClass);
     }
 
+    public S orderByAsc(GetterReference<T, ?> getter) {
+        this.sqlContext.getSorts().add(new Sort(TableMetaRegistry.getGetterPropertyName(getter), true));
+        return (S) this;
+    }
+
+    public S orderByDesc(GetterReference<T, ?> getter) {
+        this.sqlContext.getSorts().add(new Sort(TableMetaRegistry.getGetterPropertyName(getter), false));
+        return (S) this;
+    }
+    
     /**
      * 添加一组 OR 连接的条件。
      */
@@ -59,7 +69,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S ge(GetterReference<T, R> getter, R value) {
+    public <R> S gte(GetterReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -75,7 +85,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S le(GetterReference<T, R> getter, R value) {
+    public <R> S lte(GetterReference<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -122,16 +132,6 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
 
     public S isNotNull(GetterReference<T, ?> getter) {
         this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getSymbol(), true));
-        return (S) this;
-    }
-
-    public S orderByAsc(GetterReference<T, ?> getter) {
-        this.sqlContext.getSorts().add(new Sort(TableMetaRegistry.getGetterPropertyName(getter), true));
-        return (S) this;
-    }
-
-    public S orderByDesc(GetterReference<T, ?> getter) {
-        this.sqlContext.getSorts().add(new Sort(TableMetaRegistry.getGetterPropertyName(getter), false));
         return (S) this;
     }
 

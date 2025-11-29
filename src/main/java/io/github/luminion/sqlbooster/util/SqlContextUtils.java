@@ -24,8 +24,8 @@ public abstract class SqlContextUtils {
     static {
         Map<String, String> map = new HashMap<>();
         for (ConditionSuffix conditionSuffix : ConditionSuffix.values()) {
-            map.put(conditionSuffix.getCamelCase(), conditionSuffix.getKeyword());
-            map.put(conditionSuffix.getUnderscore(), conditionSuffix.getKeyword());
+            map.put(conditionSuffix.getCamelCase(), conditionSuffix.getSymbol());
+            map.put(conditionSuffix.getUnderscore(), conditionSuffix.getSymbol());
         }
         refreshDefaultSuffixes(map);
     }

@@ -81,7 +81,7 @@ public class PostgresPagehelperTest {
     @Order(4)
     public void testGe() {
         List<SysUserVO> list = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 25)
+                .gte(SysUser::getAge, 25)
                 .boost(baseService)
                 .list();
         assertNotNull(list);
@@ -111,7 +111,7 @@ public class PostgresPagehelperTest {
     @Order(6)
     public void testLe() {
         List<SysUserVO> list = SqlBuilder.of(SysUser.class)
-                .le(SysUser::getAge, 30)
+                .lte(SysUser::getAge, 30)
                 .boost(baseService)
                 .list();
         assertNotNull(list);
@@ -219,9 +219,9 @@ public class PostgresPagehelperTest {
     @Order(13)
     public void testOr() {
         List<SysUserVO> list = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getState, 1)
+                .gte(SysUser::getState, 1)
                 .or(s->s.eq(SysUser::getName, "李四").eq(SysUser::getName, "张三"))
-                .or(s->s.ge(SysUser::getAge, 20).le(SysUser::getAge, 30))
+                .or(s->s.gte(SysUser::getAge, 20).lte(SysUser::getAge, 30))
                 .boost(baseService)
                 .list();
         assertNotNull(list);
@@ -272,7 +272,7 @@ public class PostgresPagehelperTest {
     @Order(16)
     public void testPage() {
         BPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 25)
+                .gte(SysUser::getAge, 25)
                 .boost(baseService)
                 .page(1L, 2L);
         assertNotNull(page);
@@ -399,8 +399,8 @@ public class PostgresPagehelperTest {
     public void testComplexConditions() {
         // 测试复杂AND条件组合
         List<SysUserVO> complexAndList = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 25)
-                .le(SysUser::getAge, 35)
+                .gte(SysUser::getAge, 25)
+                .lte(SysUser::getAge, 35)
                 .isNotNull(SysUser::getName)
                 .boost(baseService)
                 .list();
@@ -422,7 +422,7 @@ public class PostgresPagehelperTest {
 
         // 测试混合条件
         List<SysUserVO> mixedList = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 5)
+                .gte(SysUser::getAge, 5)
                 .or(helper -> helper
                         .eq(SysUser::getState, 1)
                         .eq(SysUser::getState, 2)
@@ -493,8 +493,8 @@ public class PostgresPagehelperTest {
 
         // 执行复杂查询
         List<SysUserVO> performanceList = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
-                .le(SysUser::getAge, 100)
+                .gte(SysUser::getAge, 0)
+                .lte(SysUser::getAge, 100)
                 .isNotNull(SysUser::getCreateTime)
                 .orderByAsc(SysUser::getAge)
                 .orderByDesc(SysUser::getCreateTime)
@@ -526,7 +526,7 @@ public class PostgresPagehelperTest {
     public void testPaginationBoundaries() {
 
         BPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(1, 2);
         assertNotNull(page);
@@ -534,7 +534,7 @@ public class PostgresPagehelperTest {
 
 
         BPage<SysUserVO> page2 = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(2, 2);
         assertNotNull(page);
@@ -542,7 +542,7 @@ public class PostgresPagehelperTest {
 
         // 测试第一页
         BPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(1L, 2L);
         assertNotNull(firstPage);
@@ -553,7 +553,7 @@ public class PostgresPagehelperTest {
 
         // 测试超出范围的页码
         BPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(999L, 10L);
         assertNotNull(outOfRangePage);
@@ -562,7 +562,7 @@ public class PostgresPagehelperTest {
 
         // 测试负数页码（应该被修正为1）
         BPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(baseService)
                 .page(-1L, 10L);
         assertNotNull(negativePage);

@@ -309,7 +309,7 @@ public class SysUserController {
         return SqlBuilder.of(SysUser.class)
                 .appendEqByMap(params) // 合并或添加条件, 支持实体类, DTO对象, map, SqlHelper等
                 .eq(SysUser::getState, 1) // state=1
-                .ge(SysUser::getAge, 18) // age>=18
+                .gte(SysUser::getAge, 18) // age>=18
                 .in(SysUser::getRoleId, Arrays.asList(1, 2))
                 .like(SysUser::getUserName, "tom") // userName like '%tom%'
                 .boost(sysUserMapper)

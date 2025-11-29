@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * 基于原生 MyBatis 的通用 Mapper 接口，用于执行动态 VO 查询。
+ * 默认不提供分页实现, 分页查询方法需子类自行实现。
  */
 public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
 

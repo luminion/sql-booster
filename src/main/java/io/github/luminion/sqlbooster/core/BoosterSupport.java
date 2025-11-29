@@ -17,8 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * {@link Booster} 接口的默认实现集合。
- * <p>
- * 提供了 VO 查询能力的大部分默认实现，具体实现类只需要提供 {@code selectByBooster} 方法。
+ * 提供了 VO 查询能力的大部分默认实现
  *
  * @param <T> 数据库实体的类型
  * @param <V> 要返回的视图对象 (VO) 的类型

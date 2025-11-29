@@ -340,7 +340,7 @@ public class MysqlMybatisplusTest {
     public void testPaginationBoundaries() {
 
         BPage<SysUserVO> page = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-2, 10);
         assertNotNull(page);
@@ -348,7 +348,7 @@ public class MysqlMybatisplusTest {
         
         // 测试第一页
         BPage<SysUserVO> firstPage = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(1L, 2L);
         assertNotNull(firstPage);
@@ -357,7 +357,7 @@ public class MysqlMybatisplusTest {
         assertTrue(firstPage.getTotal() >= 4);
         // 测试超出范围的页码
         BPage<SysUserVO> outOfRangePage = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(999L, 10L);
         assertNotNull(outOfRangePage);
@@ -366,7 +366,7 @@ public class MysqlMybatisplusTest {
 
         // 测试负数页码（应该被修正为1）
         BPage<SysUserVO> negativePage = SqlBuilder.of(SysUser.class)
-                .ge(SysUser::getAge, 0)
+                .gte(SysUser::getAge, 0)
                 .boost(sysUserMapper)
                 .page(-1L, 10L);
         assertNotNull(negativePage);
