@@ -55,7 +55,7 @@ public class DefaultTableResolver implements TableResolver {
 
     @Override
     public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
-        Set<String> strings = ReflectUtils.fieldMap(clazz).keySet();
+        Set<String> strings = ReflectUtils.javaBeanToMap(clazz).keySet();
         return strings.stream()
                 .collect(Collectors.toMap(e -> e, e ->
                         String.format("a.%s", underscoreToCamelCase ? StrUtils.camelCaseToUnderscore(e) : e)));

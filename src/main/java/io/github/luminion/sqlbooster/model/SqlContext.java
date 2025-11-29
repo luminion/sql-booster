@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.model;
 
-import io.github.luminion.sqlbooster.model.query.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +22,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class SqlContext<T> extends ConditionNode {
+public class SqlContext<T> extends ConditionSegment {
 
     /**
      * 排序字段列表.
@@ -32,18 +32,18 @@ public class SqlContext<T> extends ConditionNode {
     /**
      * 非本表字段的额外条件.
      */
-    protected transient Map<String, Object> extra = new HashMap<>();
+    protected Map<String, Object> params = new HashMap<>();
 
     @Override
-    public ConditionNode merge(ConditionNode conditionNode) {
-        if (conditionNode == null) {
+    public ConditionSegment merge(ConditionSegment conditionSegment) {
+        if (conditionSegment == null) {
             return this;
         }
-        if (conditionNode instanceof SqlContext) {
-            SqlContext<?> sqlContext = (SqlContext<?>) conditionNode;
+        if (conditionSegment instanceof SqlContext) {
+            SqlContext<?> sqlContext = (SqlContext<?>) conditionSegment;
             this.sorts.addAll(sqlContext.getSorts());
-            this.extra.putAll(sqlContext.getExtra());
+            this.params.putAll(sqlContext.getParams());
         }
-        return super.merge(conditionNode);
+        return super.merge(conditionSegment);
     }
 }

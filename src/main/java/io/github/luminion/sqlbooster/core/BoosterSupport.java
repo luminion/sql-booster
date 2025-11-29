@@ -35,7 +35,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         if (ObjectUtils.isEmpty(keyProperty)) {
             throw new IllegalStateException("can't find id property");
         }
-        Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getKeyword(), id);
+        Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getSymbol(), id);
         SqlContext<T> sqlContext = new SqlContext<>();
         sqlContext.getConditions().add(condition);
         return voUnique(sqlContext);
@@ -64,7 +64,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     default List<V> voListByIds(Collection<? extends Serializable> ids) {
         Class<T> entityClass = TableMetaRegistry.getEntityClass(this);
         String idPropertyName = TableMetaRegistry.getIdPropertyName(entityClass);
-        Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
+        Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getSymbol(), ids);
         SqlContext<T> sqlContext = new SqlContext<>();
         sqlContext.getConditions().add(condition);
         return voList(sqlContext);

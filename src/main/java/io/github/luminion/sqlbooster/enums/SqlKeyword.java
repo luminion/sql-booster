@@ -1,251 +1,159 @@
 package io.github.luminion.sqlbooster.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * SQL 操作符枚举.
  * <p>
- * 定义了常用的 SQL 操作符及其分类, 用于 SQL 条件构建和验证.
+ * 优化点：
+ * 1. 内置别名定义，消除硬编码 switch.
+ * 2. 使用 HashMap 进行 O(1) 查找.
+ * 3. 提供面向对象的判断方法 (isLike, isCompare).
  *
  * @author luminion
  * @since 1.0.0
  */
 @Getter
-@AllArgsConstructor
 public enum SqlKeyword {
 
-    /**
-     * AND 连接符
-     */
-    AND("AND"),
-    /**
-     * OR 连接符
-     */
-    OR("OR"),
+    // ==================== 连接符 ====================
+    AND("AND", "AND", "&", "&&"),
+    OR("OR", "OR", "|", "||"),
+
+    // ==================== 比较符 ====================
+    EQ("=", "=", "==", "EQ"),
+    NE("<>", "<>", "!=", "NE"),
+    LT("<", "<", "LT"),
+    LTE("<=", "<=", "LE", "LTE"), // 支持 LE 和 LTE
+    GT(">", ">", "GT"),
+    GTE(">=", ">=", "GE", "GTE"), // 支持 GE 和 GTE
+
+    // ==================== 模糊/范围 ====================
+    LIKE("LIKE", "LIKE"),
+    NOT_LIKE("NOT LIKE", "NOT LIKE", "NOT_LIKE"),
+    IN("IN", "IN"),
+    NOT_IN("NOT IN", "NOT IN", "NOT_IN"),
+
+    // ==================== Null 判断 ====================
+    IS_NULL("IS NULL", "IS NULL", "IS_NULL"),
+    IS_NOT_NULL("IS NOT NULL", "IS NOT NULL", "IS_NOT_NULL"),
+
+    // ==================== 位运算 (XML特有) ====================
+    BIT_ANY("BIT ANY", "BIT ANY", "BIT_ANY"),
+    BIT_ALL("BIT ALL", "BIT ALL", "BIT_ALL"),
+    BIT_NONE("BIT NONE", "BIT NONE", "BIT_NONE");
 
     /**
-     * 等于操作符
+     * 标准 SQL 关键字 (用于拼装 SQL).
      */
-    EQ("="),
-    /**
-     * 不等于操作符
-     */
-    NE("<>"),
-    /**
-     * 小于操作符
-     */
-    LT("<"),
-    /**
-     * 小于等于操作符
-     */
-    LTE("<="),
-    /**
-     * 大于操作符
-     */
-    GT(">"),
-    /**
-     * 大于等于操作符
-     */
-    GTE(">="),
-    /**
-     * 模糊匹配操作符
-     */
-    LIKE("LIKE"),
-    /**
-     * 不模糊匹配操作符
-     */
-    NOT_LIKE("NOT LIKE"),
+    private final String symbol;
 
     /**
-     * IS NULL 操作符
+     * 支持的所有别名 (用于解析输入).
      */
-    IS_NULL("IS NULL"),
-    /**
-     * IS NOT NULL 操作符
-     */
-    IS_NOT_NULL("IS NOT NULL"),
+    private final String[] aliases;
 
-    /**
-     * IN 操作符
-     */
-    IN("IN"),
-    /**
-     * NOT IN 操作符
-     */
-    NOT_IN("NOT IN"),
+    SqlKeyword(String symbol, String... aliases) {
+        this.symbol = symbol;
+        this.aliases = aliases;
+    }
 
-    /**
-     * 包含任意指定bit位
-     */
-    BIT_ANY("BIT ANY"),
-    /**
-     * 包含所有指定bit位
-     */
-    BIT_ALL("BIT ALL"),
-    /**
-     * 不包含指定bit位
-     */
-    BIT_NONE("BIT NONE"),
+    // ==================== 静态查找逻辑 ====================
 
-    ;
-    /**
-     * 操作符关键字.
-     */
-    private final String keyword;
+    private static final Map<String, SqlKeyword> LOOKUP_MAP;
 
-
-    /**
-     * 标准化 SQL 连接符 (AND/OR).
-     *
-     * @param connector 连接符字符串
-     * @return 标准化后的连接符 (大写)
-     * @throws IllegalArgumentException 当连接符不是 AND 或 OR 时抛出
-     * @since 1.0.0
-     */
-    public static String replaceConnector(String connector) {
-        if (connector == null || connector.isEmpty()) {
-            return SqlKeyword.AND.getKeyword();
+    static {
+        Map<String, SqlKeyword> map = new HashMap<>();
+        for (SqlKeyword item : values()) {
+            // 注册所有别名 (转大写)
+            for (String alias : item.aliases) {
+                map.put(alias.toUpperCase(), item);
+            }
         }
-        connector = connector.toUpperCase();
-        if (SqlKeyword.AND.getKeyword().equals(connector) || SqlKeyword.OR.getKeyword().equals(connector)) {
-            return connector;
-        }
-        throw new IllegalArgumentException("illegal operator: " + connector);
+        LOOKUP_MAP = Collections.unmodifiableMap(map);
     }
 
     /**
-     * 标准化 SQL 操作符.
+     * 解析操作符字符串为枚举对象.
+     * <p>相当于原来的 replaceOperator + replaceConnector，统一了逻辑.</p>
      *
-     * @param operator 操作符字符串
-     * @return 标准化后的操作符
+     * @param operator 操作符字符串 (e.g. "eq", "==", ">=")
+     * @return 对应的 SqlKeyword
      * @throws IllegalArgumentException 当操作符不支持时抛出
-     * @since 1.0.0
      */
-    public static String replaceOperator(String operator) {
+    public static SqlKeyword resolve(String operator) {
         if (operator == null || operator.isEmpty()) {
-            return SqlKeyword.EQ.getKeyword();
+            return EQ; // 默认行为保持一致
         }
-        operator = operator.toUpperCase();
-        switch (operator) {
-            case "=":
-            case "==":
-            case "EQ":
-                return SqlKeyword.EQ.getKeyword();
-            case "<>":
-            case "!=":
-            case "NE":
-                return SqlKeyword.NE.getKeyword();
-            case "<":
-            case "LT":
-                return SqlKeyword.LT.getKeyword();
-            case "<=":
-            case "LE":
-            case "LTE":
-                return SqlKeyword.LTE.getKeyword();
-            case ">":
-            case "GT":
-                return SqlKeyword.GT.getKeyword();
-            case ">=":
-            case "GE":
-            case "GTE":
-                return SqlKeyword.GTE.getKeyword();
-            case "LIKE":
-                return SqlKeyword.LIKE.getKeyword();
-            case "NOT LIKE":
-            case "NOT_LIKE":
-                return SqlKeyword.NOT_LIKE.getKeyword();
-            case "IN":
-                return SqlKeyword.IN.getKeyword();
-            case "NOT IN":
-            case "NOT_IN":
-                return SqlKeyword.NOT_IN.getKeyword();
-            case "IS NULL":
-            case "IS_NULL":
-                return SqlKeyword.IS_NULL.getKeyword();
-            case "IS NOT NULL":
-            case "IS_NOT_NULL":
-                return SqlKeyword.IS_NOT_NULL.getKeyword();
-            case "BIT ANY":
-            case "BIT_ANY":
-                return SqlKeyword.BIT_ANY.getKeyword();
-            case "BIT ALL":
-            case "BIT_ALL":
-                return SqlKeyword.BIT_ALL.getKeyword();
-            case "BIT NONE":
-            case "BIT_NONE":
-                return SqlKeyword.BIT_NONE.getKeyword();
-            default:
-                throw new IllegalArgumentException("illegal operator: " + operator);
+        SqlKeyword match = LOOKUP_MAP.get(operator.toUpperCase());
+        if (match == null) {
+            throw new IllegalArgumentException("Illegal operator: " + operator);
         }
-    }
-
-
-    /**
-     * 判断是否为相等或不相等操作符.
-     *
-     * @param operator 操作符
-     * @return 如果是相等或不相等操作符返回 true, 否则返回 false
-     * @since 1.0.0
-     */
-    public static boolean isEqOperator(String operator) {
-        return SqlKeyword.EQ.getKeyword().equals(operator) || SqlKeyword.NE.getKeyword().equals(operator);
+        return match;
     }
 
     /**
-     * 判断是否为比较大小的操作符 (不包含等于和不等于).
+     * 兼容旧方法的入口：解析并返回标准关键字字符串.
      *
      * @param operator 操作符
-     * @return 如果是比较大小的操作符返回 true, 否则返回 false
-     * @since 1.0.0
+     * @return 标准 Keyword (e.g. "=")
      */
-    public static boolean isCompareOperator(String operator) {
-        return SqlKeyword.LT.getKeyword().equals(operator) || SqlKeyword.LTE.getKeyword().equals(operator) ||
-                SqlKeyword.GT.getKeyword().equals(operator) || SqlKeyword.GTE.getKeyword().equals(operator);
+    public static String normalize(String operator) {
+        return resolve(operator).getSymbol();
+    }
+
+    // ==================== 实例判断方法 (面向对象) ====================
+
+    /**
+     * 是否为连接符 (AND/OR).
+     */
+    public boolean isConnector() {
+        return this == AND || this == OR;
     }
 
     /**
-     * 判断是否为 LIKE 或 NOT LIKE 操作符.
-     *
-     * @param operator 操作符
-     * @return 如果是 LIKE 或 NOT LIKE 操作符返回 true, 否则返回 false
-     * @since 1.0.0
+     * 是否为相等判断 (EQ/NE).
      */
-    public static boolean isLikeOperator(String operator) {
-        return SqlKeyword.LIKE.getKeyword().equals(operator) || SqlKeyword.NOT_LIKE.getKeyword().equals(operator);
+    public boolean isEquality() {
+        return this == EQ || this == NE;
     }
 
     /**
-     * 判断是否为 IN 或 NOT IN 操作符.
-     *
-     * @param operator 操作符
-     * @return 如果是 IN 或 NOT IN 操作符返回 true, 否则返回 false
-     * @since 1.0.0
+     * 是否为大小比较 (<, <=, >, >=).
      */
-    public static boolean isInOperator(String operator) {
-        return SqlKeyword.IN.getKeyword().equals(operator) || SqlKeyword.NOT_IN.getKeyword().equals(operator);
+    public boolean isCompare() {
+        return this == LT || this == LTE || this == GT || this == GTE;
     }
 
     /**
-     * 判断是否为 IS NULL 或 IS NOT NULL 操作符.
-     *
-     * @param operator 操作符
-     * @return 如果是 IS NULL 或 IS NOT NULL 操作符返回 true, 否则返回 false
-     * @since 1.0.0
+     * 是否为 LIKE 系列.
      */
-    public static boolean isNullOperator(String operator) {
-        return SqlKeyword.IS_NULL.getKeyword().equals(operator) || SqlKeyword.IS_NOT_NULL.getKeyword().equals(operator);
+    public boolean isLike() {
+        return this == LIKE || this == NOT_LIKE;
     }
 
     /**
-     * 判断是否为位操作符.
-     *
-     * @param operator 操作符
-     * @return 如果是位操作符返回 true, 否则返回 false
-     * @since 1.0.0
+     * 是否为 IN 系列.
      */
-    public static boolean isBitOperator(String operator) {
-        return SqlKeyword.BIT_ANY.getKeyword().equals(operator) || SqlKeyword.BIT_ALL.getKeyword().equals(operator)|| SqlKeyword.BIT_NONE.getKeyword().equals(operator);
+    public boolean isIn() {
+        return this == IN || this == NOT_IN;
     }
 
+    /**
+     * 是否为 NULL 判断系列.
+     */
+    public boolean isNullCheck() {
+        return this == IS_NULL || this == IS_NOT_NULL;
+    }
+
+    /**
+     * 是否为位运算系列.
+     */
+    public boolean isBitOperation() {
+        return this == BIT_ANY || this == BIT_ALL || this == BIT_NONE;
+    }
 }

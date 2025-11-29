@@ -1,11 +1,15 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.ReflectionUtils;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,6 +57,33 @@ public abstract class ReflectUtils {
         return BeanUtils.instantiateClass(clazz);
     }
 
+    @SneakyThrows
+    public static boolean isJavaBean(Object object) {
+        if (object == null) {
+            return false;
+        }
+        Class<?> clazz = object.getClass();
+
+        // 1. 它是简单类型吗？(String, Number, Date, URI, URL, Locale, Class)
+        // Spring 的 BeanUtils.isSimpleProperty 涵盖了基础类型、包装类、String、Date 等绝大多数情况
+        if (BeanUtils.isSimpleProperty(clazz)) {
+            return false;
+        }
+
+        // 2. 它是 Map 或 Collection 或 Array 吗？
+        if (Map.class.isAssignableFrom(clazz) ||
+                Collection.class.isAssignableFrom(clazz) ||
+                clazz.isArray()) {
+            return false;
+        }
+
+        BeanInfo beanInfo = Introspector.getBeanInfo(clazz, Object.class);
+        PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+        // 3. 如果存在属性描述符，说明它是 Bean
+        // (PropertyDescriptor 意味着发现了符合 getter/setter 规范的方法)
+        return propertyDescriptors != null && propertyDescriptors.length > 0;
+    }
+
     /**
      * 获取指定类的所有字段.
      *
@@ -84,7 +115,7 @@ public abstract class ReflectUtils {
      * @return 复制完属性的目标对象
      * @since 1.0.0
      */
-    public static <T> T copyFieldProperties(Object source, T target) {
+    public static <T> T copyProperties(Object source, T target) {
         if (source == null || target == null) return target;
         BeanUtils.copyProperties(source, target);
         return target;
@@ -92,24 +123,29 @@ public abstract class ReflectUtils {
 
 
     /**
-     * 将一个对象转换为 {@link Map}.
+     * 将一个对象转换为Map
      *
-     * @param source 源对象
+     * @param bean 源对象, 必须为java bean
      * @return 转换后的 Map
      * @since 1.0.0
      */
     @SneakyThrows
-    @SuppressWarnings("unchecked")
-    public static Map<String, Object> objectToMap(Object source) {
-        if (source == null) return null;
-        if (source instanceof Map) return (Map<String, Object>) source;
-        HashMap<String, Object> map = new HashMap<>();
-        Collection<Field> fields = fieldMap(source.getClass()).values();
-        for (Field field : fields) {
-            ReflectionUtils.makeAccessible(field);
-            Object o = field.get(source);
-            if (o == null) continue;
-            map.put(field.getName(), o);
+    public static Map<String, Object> javaBeanToMap(Object bean) {
+        if (!isJavaBean(bean)) {
+            throw new IllegalArgumentException("bean must be java bean");
+        }
+        Map<String, Object> map = new HashMap<>();
+        BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass(), Object.class);
+        PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+        for (PropertyDescriptor property : propertyDescriptors) {
+            String key = property.getName();
+            Method getter = property.getReadMethod();
+            if (getter != null) {
+                Object value = getter.invoke(bean);
+                if (value != null) {
+                    map.put(key, value);
+                }
+            }
         }
         return map;
     }
@@ -130,7 +166,7 @@ public abstract class ReflectUtils {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz must not be null");
         }
-        return copyFieldProperties(source, newInstance(clazz));
+        return copyProperties(source, newInstance(clazz));
     }
 
     /**

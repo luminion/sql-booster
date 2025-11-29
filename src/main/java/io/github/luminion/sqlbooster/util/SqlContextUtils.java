@@ -1,256 +1,235 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
+import io.github.luminion.sqlbooster.enums.ConditionSuffix;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
 /**
- * 默认 SQL 处理器.
+ * SQL 上下文构建工具.
  * <p>
- * 提供 SQL 条件的验证和处理功能, 包括字段映射验证、操作符验证等.
+ * 负责将原始的 SqlContext 转换为包含数据库列名、经过严格校验的标准 SqlContext.
  *
  * @author luminion
  * @since 1.0.0
  */
 @Slf4j
 public abstract class SqlContextUtils {
-    /**
-     * 当前处理器实例使用的后缀到操作符的映射.
-     */
-    private final static Map<String, String> DEFAULT_SUFFIX_MAP = new HashMap<>();
+
+    private static volatile List<Map.Entry<String, String>> defaultSuffixes;
 
     static {
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Ne", SqlKeyword.NE.getKeyword());
-
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Lt", SqlKeyword.LT.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Lte", SqlKeyword.LTE.getKeyword());
-
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Gt", SqlKeyword.GT.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Gte", SqlKeyword.GTE.getKeyword());
-
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "Like", SqlKeyword.LIKE.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "NotLike", SqlKeyword.NOT_LIKE.getKeyword());
-
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "In", SqlKeyword.IN.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "NotIn", SqlKeyword.NOT_IN.getKeyword());
-
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "IsNull", SqlKeyword.IS_NULL.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "IsNotNull", SqlKeyword.IS_NOT_NULL.getKeyword());
-
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "BitAny", SqlKeyword.BIT_ANY.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "BitAll", SqlKeyword.BIT_ALL.getKeyword());
-        addBothCamelCaseAndUnderscoreSuffix(DEFAULT_SUFFIX_MAP, "BitNone", SqlKeyword.BIT_NONE.getKeyword());
+        Map<String, String> map = new HashMap<>();
+        for (ConditionSuffix conditionSuffix : ConditionSuffix.values()) {
+            map.put(conditionSuffix.getCamelCase(), conditionSuffix.getKeyword());
+            map.put(conditionSuffix.getUnderscore(), conditionSuffix.getKeyword());
+        }
+        refreshDefaultSuffixes(map);
     }
 
-
-    /**
-     * 向map中同时添加驼峰式和下划线式后缀的映射
-     *
-     * @param map      映射关系表
-     * @param camelSuffix   后缀
-     * @param operator 操作符
-     * @since 1.0.0
-     */
-    public static void addBothCamelCaseAndUnderscoreSuffix(Map<String, String> map, String camelSuffix, String operator) {
-        map.putIfAbsent(camelSuffix, operator);
-        String underscore = TableMetaRegistry.camelCaseToUnderscore(camelSuffix);
-        map.putIfAbsent(underscore, operator);
+    public static void refreshDefaultSuffixes(Map<String, String> suffixToOperatorMap) {
+        List<Map.Entry<String, String>> list = new ArrayList<>(suffixToOperatorMap.entrySet());
+        // 按长度倒序，防止短后缀截断长后缀
+        list.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
+        defaultSuffixes = list;
     }
 
+    // ==================== 公开构建入口 ====================
 
     /**
-     * 验证并处理单个 SQL 条件.
-     * <p>
-     * <ul>
-     *     <li>验证字段是否存在于映射中.</li>
-     *     <li>验证操作符和值的合法性.</li>
-     *     <li>处理 LIKE 操作符的值.</li>
-     *     <li>将不符合条件的字段或无法处理的条件放入 `extra` Map 中.</li>
-     * </ul>
-     *
-     * @param condition                待验证的 SQL 条件
-     * @param propertyToColumnAliasMap 属性名到数据库列别名的映射
-     * @param extra                    用于存储额外参数的 Map
-     * @return 验证并处理后的 {@link Condition}, 如果条件无效则返回 null
-     * @since 1.0.0
+     * 仅执行基础构建 (映射已知字段，其余放入 params).
      */
-    public static Condition replaceCondition(Condition condition, Map<String, String> propertyToColumnAliasMap, Map<String, Object> extra) {
-        String field = condition.getField();
-        String operator = condition.getOperator();
-        Object value = condition.getValue();
-        if (field == null || field.isEmpty()) {
-            return null;
-        }
-        String jdbcColumn = propertyToColumnAliasMap.get(field);
-        if (jdbcColumn == null) {
-            log.debug("condition field [{}] not exist in fieldMap , it will be removed and put into paramMap", field);
-            extra.putIfAbsent(field, value);
-            return null;
-        }
-        operator = SqlKeyword.replaceOperator(operator);
-        if (!SqlKeyword.isNullOperator(operator)) {
-            // 判断值是boolean并且是true
-            if (! (value instanceof Boolean)){
-                log.debug("condition field [{}] requires boolean but value is not a boolean, it will be removed", field);
-                return null;
-            }
-            if (!(Boolean) value){
-                log.debug("condition field [{}] requires boolean but value is false, it will be removed", field);
-                return null;
-            }
-        }
-        if (SqlKeyword.isInOperator(operator)) {
-            // 判断是集合并且有值
-            boolean iterableValue = value instanceof Iterable;
-            if (!iterableValue) {
-                log.debug("condition field [{}] requires collection but value is not iterable, it will be removed and put into paramMap", field);
-                extra.putIfAbsent(field, value);
-                return null;
-            }
-            Iterable<?> iterable = (Iterable<?>) value;
-            if (!iterable.iterator().hasNext()) {
-                log.debug("condition field [{}] requires collection but value is empty, it will be removed and put into paramMap", field);
-                extra.putIfAbsent(field, value);
-                return null;
-            }
-        }
-        if (SqlKeyword.isBitOperator(operator)) {
-            boolean isNumber = value instanceof Number;
-            if (!isNumber) {
-                log.debug("condition field [{}] requires number but value is not a number, it will be removed and put into paramMap", field);
-                extra.putIfAbsent(field, value);
-                return null;
-            }
-        }
-        if (SqlKeyword.isLikeOperator(operator)) {
-            value = value.toString();
-            if (!value.toString().contains("%")) {
-                value = "%" + value + "%";
-            }
-        }
-        return new Condition(jdbcColumn, operator, value);
+    public static <T> SqlContext<T> build(Class<T> entityClass, SqlContext<?> source) {
+        return buildBase(entityClass, source);
     }
 
     /**
-     * 验证并处理单个 SQL 排序规则.
-     *
-     * @param sort                     待验证的 SQL 排序规则
-     * @param propertyToColumnAliasMap 属性名到数据库列名的映射
-     * @return 验证并处理后的 {@link Sort}, 如果排序字段无效则返回 null
-     * @since 1.0.0
+     * 执行基础构建 + 后缀解析.
      */
-    public static Sort replaceSort(Sort sort, Map<String, String> propertyToColumnAliasMap) {
-        String jdbcColumn = propertyToColumnAliasMap.get(sort.getField());
-        if (jdbcColumn == null) {
-            log.warn("sort field [{}] not exist in fieldMap , it will be removed", sort.getField());
-            return null;
-        }
-        return new Sort(jdbcColumn, sort.isAsc());
+    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source) {
+        return buildWithSuffix( entityClass,source, null);
     }
 
     /**
-     * 构建供xml使用的Helper
-     *
-     * @param sqlContext 根 SQL 助手
-     * @param <T>        实体类型
-     * @return 处理后的实例
-     * @throws IllegalArgumentException 当无法获取实体类时抛出
-     * @since 1.0.0
+     * 执行基础构建 + 自定义后缀解析.
      */
-    public static <T> SqlContext<T> build(Class<T> entityClass, SqlContext<?> sqlContext) {
-        if (entityClass == null) {
-            throw new IllegalArgumentException("can't get entity class from sql helper");
-        }
-        SqlContext<T> resultContext = new SqlContext<>();
-        Map<String, String> propertyToColumnAliasMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
-        Map<String, Object> extraParams = resultContext.getExtra();
-        for (ConditionNode currentHelper : sqlContext) {
-            Collection<Condition> currentHelperConditions = currentHelper.getConditions();
-            Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
-            LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
-            while (conditionIterator.hasNext()) {
-                Condition condition = conditionIterator.next();
-                Condition replaceCondition = SqlContextUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
-                if (replaceCondition == null) {
-                    continue;
+    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source, Map<String, String> customSuffixMap) {
+        SqlContext<T> context = buildBase(entityClass, source);
+        return resolveSuffixes(context, entityClass, customSuffixMap);
+    }
+
+    // ==================== 核心步骤 1: 基础构建 ====================
+
+    private static <T> SqlContext<T> buildBase(Class<T> entityClass, SqlContext<?> source) {
+        if (entityClass == null) throw new IllegalArgumentException("Entity class cannot be null");
+
+        SqlContext<T> result = new SqlContext<>();
+        Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
+        Map<String, Object> params = result.getParams();
+
+        // 1. 处理条件
+        for (ConditionSegment node : source) {
+            LinkedHashSet<Condition> validConditions = new LinkedHashSet<>();
+
+            for (Condition c : node.getConditions()) {
+                String field = c.getField();
+                String column = columnMap.get(field);
+
+                if (column != null) {
+                    // 命中直接映射 -> 尝试校验
+                    Condition finalC = validateAndCreate(column, c.getOperator(), c.getValue());
+                    if (finalC != null) {
+                        validConditions.add(finalC);
+                    } else {
+                        // 校验失败，保留参数供 xml 使用 (或者你可以选择 drop 掉)
+                        log.debug("Direct condition field [{}] ignored: validation failed.", field);
+                        params.put(field, c.getValue());
+                    }
+                } else {
+                    // 未命中映射 -> 直接放入 params
+                    params.putIfAbsent(field, c.getValue());
                 }
-                replacedConditions.add(replaceCondition);
             }
-            resultContext.appendConditions(replacedConditions, currentHelper.getConnector());
-        }
-        for (Sort sort : sqlContext.getSorts()) {
-            Sort validateSort = replaceSort(sort, propertyToColumnAliasMap);
-            if (validateSort != null) {
-                resultContext.getSorts().add(validateSort);
+
+            if (!validConditions.isEmpty()) {
+                result.appendConditions(validConditions, node.getConnector());
             }
         }
-        return resultContext;
+
+        // 2. 处理排序 (抽离后的方法)
+        processSorts(source.getSorts(), columnMap, result.getSorts());
+
+        return result;
     }
 
+    // ==================== 核心步骤 2: 后缀解析 ====================
 
-    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> sqlContext) {
-        return buildWithSuffix(entityClass, sqlContext, DEFAULT_SUFFIX_MAP);
-    }
-
-    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> sqlContext, Map<String, String> suffixToOperatorMap) {
-        if (entityClass == null) {
-            throw new IllegalArgumentException("can't get entity class");
+    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass, Map<String, String> customSuffixMap) {
+        Map<String, Object> params = context.getParams();
+        if (params.isEmpty()) {
+            return context;
         }
-        SqlContext<T> resultContext = new SqlContext<>();
-        Map<String, Object> extraParams = resultContext.getExtra();
-        Map<String, String> propertyToColumnAliasMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
-        Set<String> suffixes = suffixToOperatorMap.keySet();
-        for (ConditionNode currentHelper : sqlContext) {
-            Collection<Condition> currentHelperConditions = currentHelper.getConditions();
-            Iterator<Condition> conditionIterator = currentHelperConditions.iterator();
-            LinkedHashSet<Condition> replacedConditions = new LinkedHashSet<>(currentHelperConditions.size());
-            while (conditionIterator.hasNext()) {
-                Condition condition = conditionIterator.next();
-                String field = condition.getField();
-                String jdbcColumn = propertyToColumnAliasMap.get(field);
-                if (jdbcColumn == null) {
-                    boolean isSuffixMatched = false;
-                    for (String suffix : suffixes) {
-                        if (field.endsWith(suffix) && field.length() > suffix.length()) {
-                            isSuffixMatched = true;
-                            String sourceFiled = field.substring(0, field.length() - suffix.length());
-                            String operator = suffixToOperatorMap.get(suffix);
-                            log.debug("condition field [{}] Matched suffix operator [{}]", field, operator);
-                            Condition suffixCondition = new Condition(sourceFiled, operator, condition.getValue());
-                            Condition validateSuffixCondition = SqlContextUtils.replaceCondition(suffixCondition, propertyToColumnAliasMap, extraParams);
-                            if (validateSuffixCondition == null) {
-                                continue;
-                            }
-                            replacedConditions.add(validateSuffixCondition);
-                            break;
+
+        List<Map.Entry<String, String>> suffixList;
+        if (customSuffixMap != null && !customSuffixMap.isEmpty()) {
+            suffixList = new ArrayList<>(customSuffixMap.entrySet());
+            suffixList.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
+        } else {
+            suffixList = defaultSuffixes;
+        }
+
+        Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
+
+        // 使用迭代器遍历并安全移除
+        Iterator<Map.Entry<String, Object>> it = params.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Object> entry = it.next();
+            String field = entry.getKey();
+            Object value = entry.getValue();
+
+            for (Map.Entry<String, String> suffixEntry : suffixList) {
+                String suffix = suffixEntry.getKey();
+
+                if (field.endsWith(suffix) && field.length() > suffix.length()) {
+                    String realField = field.substring(0, field.length() - suffix.length());
+                    String realColumn = columnMap.get(realField);
+                    if (realColumn != null) {
+                        String operator = suffixEntry.getValue();
+                        Condition finalC = validateAndCreate(realColumn, operator, value);
+                        if (finalC != null) {
+                            // 匹配成功且校验通过 -> 移入 conditions
+                            context.getConditions().add(finalC);
+                            it.remove();
                         }
-                    }
-                    if (isSuffixMatched) {
-                        continue;
+                        // 只要匹配到后缀，无论校验是否成功，都停止匹配其他后缀
+                        break;
                     }
                 }
-                Condition replaceCondition = SqlContextUtils.replaceCondition(condition, propertyToColumnAliasMap, extraParams);
-                if (replaceCondition == null) {
-                    continue;
-                }
-                replacedConditions.add(replaceCondition);
-            }
-            resultContext.appendConditions(replacedConditions, currentHelper.getConnector());
-        }
-        for (Sort sort : sqlContext.getSorts()) {
-            Sort validateSort = SqlContextUtils.replaceSort(sort, propertyToColumnAliasMap);
-            if (validateSort != null) {
-                resultContext.getSorts().add(validateSort);
             }
         }
-        return resultContext;
+        return context;
     }
 
+    // ==================== 辅助方法 ====================
 
+    /**
+     * 处理排序字段.
+     */
+    private static void processSorts(Set<Sort> sourceSorts, Map<String, String> columnMap, Set<Sort> targetSorts) {
+        for (Sort sort : sourceSorts) {
+            String column = columnMap.get(sort.getField());
+            if (column != null) {
+                targetSorts.add(new Sort(column, sort.isAsc()));
+            } else {
+                log.debug("Sort field [{}] ignored: unmapped.", sort.getField());
+            }
+        }
+    }
+
+    /**
+     * 通用校验与创建逻辑.
+     * <p>包含严格的类型检查规则.</p>
+     */
+    private static Condition validateAndCreate(String column, String operatorStr, Object value) {
+        // 1. 操作符解析
+        SqlKeyword keyword;
+        try {
+            keyword = SqlKeyword.resolve(operatorStr);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
+        // 2. Null 操作符特殊处理 (IS NULL / IS NOT NULL)
+        if (keyword.isNullCheck()) {
+            if (value instanceof Boolean && (Boolean) value) {
+                // IS NULL 不需要值，这里传 value 仅仅是为了保持对象完整，生成 SQL 时应忽略该值
+                return new Condition(column, keyword.getSymbol(), value);
+            }
+            return null;
+        }
+
+        // 3. 其他操作符不允许 value 为 null
+        if (value == null) {
+            return null;
+        }
+
+        // 4. 集合校验 (IN / NOT IN)
+        if (keyword.isIn()) {
+            if (!(value instanceof Iterable) || !((Iterable<?>) value).iterator().hasNext()) {
+                return null;
+            }
+        }
+
+        // 5. 位运算校验 (BIT)
+        // 规则：入参必须是整型 (Byte, Short, Integer, Long)
+        if (keyword.isBitOperation()) {
+            if (!(value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte)) {
+                return null;
+            }
+        }
+
+        // 6. 比较运算校验 (GT, GE, LT, LE, NE)
+        // 规则：入参必须实现了 Comparable 接口 (如 Integer, String, Date)
+        if (keyword.isCompare()) {
+            if (!(value instanceof Comparable)) {
+                return null;
+            }
+        }
+
+        // 7. LIKE 处理
+        if (keyword.isLike()) {
+            String s = value.toString();
+            if (!s.contains("%")) {
+                value = "%" + s + "%";
+            }
+        }
+
+        return new Condition(column, keyword.getSymbol(), value);
+    }
 }

@@ -16,7 +16,7 @@ import java.util.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConditionNode implements Iterable<ConditionNode> {
+public class ConditionSegment implements Iterable<ConditionSegment> {
     /**
      * 当前节点的条件列表.
      */
@@ -24,14 +24,14 @@ public class ConditionNode implements Iterable<ConditionNode> {
     /**
      * 连接当前节点条件的逻辑连接符.
      */
-    protected String connector = SqlKeyword.AND.getKeyword();
+    protected String connector = SqlKeyword.AND.getSymbol();
     /**
      * 子条件树.
      */
-    protected ConditionNode next;
+    protected ConditionSegment next;
 
     @Override
-    public Iterator<ConditionNode> iterator() {
+    public Iterator<ConditionSegment> iterator() {
         return new Itr(this);
     }
 
@@ -42,17 +42,17 @@ public class ConditionNode implements Iterable<ConditionNode> {
      * @param connector 条件间的连接符号
      * @return this
      */
-    public ConditionNode appendConditions(Collection<Condition> conditions, String connector) {
+    public ConditionSegment appendConditions(Collection<Condition> conditions, String connector) {
         if (conditions == null || conditions.isEmpty()) {
             return this;
         }
-        connector = SqlKeyword.replaceConnector(connector);
-        if (SqlKeyword.OR.getKeyword().equals(connector)) {
+        SqlKeyword sqlKeyword = SqlKeyword.resolve(connector);
+        if (SqlKeyword.OR.equals(sqlKeyword)) {
             // append or conditions to last node
-            ConditionNode node = new ConditionNode();
+            ConditionSegment node = new ConditionSegment();
             node.conditions.addAll(conditions);
             node.connector = connector;
-            ConditionNode current = this;
+            ConditionSegment current = this;
             while (current.getNext() != null) {
                 current = current.getNext();
             }
@@ -70,11 +70,11 @@ public class ConditionNode implements Iterable<ConditionNode> {
      * @param segment 条件
      * @return this
      */
-    public ConditionNode merge(ConditionNode segment) {
+    public ConditionSegment merge(ConditionSegment segment) {
         if (segment == null) {
             return this;
         }
-        for (ConditionNode node : segment) {
+        for (ConditionSegment node : segment) {
             if (node.getConditions().isEmpty()) {
                 continue;
             }
@@ -83,11 +83,11 @@ public class ConditionNode implements Iterable<ConditionNode> {
         return this;
     }
 
-    static class Itr implements Iterator<ConditionNode> {
+    static class Itr implements Iterator<ConditionSegment> {
 
-        private ConditionNode current;
+        private ConditionSegment current;
 
-        public Itr(ConditionNode root) {
+        public Itr(ConditionSegment root) {
             current = root;
         }
 
@@ -97,11 +97,11 @@ public class ConditionNode implements Iterable<ConditionNode> {
         }
 
         @Override
-        public ConditionNode next() {
+        public ConditionSegment next() {
             if (current == null) {
                 throw new NoSuchElementException();
             }
-            ConditionNode result = current;
+            ConditionSegment result = current;
             current = current.getNext();
             return result;
         }

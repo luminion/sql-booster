@@ -1,5 +1,12 @@
 package io.github.luminion.sqlbooster.util;
 
+import io.github.luminion.sqlbooster.core.TableMetaRegistry;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author luminion
  * @since 1.0.0

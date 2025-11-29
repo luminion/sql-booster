@@ -2,17 +2,14 @@ package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.ConditionNode;
+import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
 import io.github.luminion.sqlbooster.util.SqlContextUtils;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * 链式助手.
@@ -76,9 +73,9 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     /**
      * 合并另一个条件节点.
      */
-    public S append(ConditionNode node) {
-        if (node != null) {
-            this.sqlContext.merge(node);
+    public S append(ConditionSegment conditionSegment) {
+        if (conditionSegment != null) {
+            this.sqlContext.merge(conditionSegment);
         }
         return (S) this;
     }
@@ -92,7 +89,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
             Object key = entry.getKey();
             Object value = entry.getValue();
             if (value != null) {
-                Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getKeyword(), value);
+                Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getSymbol(), value);
                 this.sqlContext.getConditions().add(condition);
             }
         }
@@ -105,7 +102,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      *
      * @param entity 包含查询值的实体对象或 Map
      */
-    public S match(Object entity) {
+    public S appendJavaBean(Object bean) {
         // todo 判断入参为javabean 
         
         return (S) this;

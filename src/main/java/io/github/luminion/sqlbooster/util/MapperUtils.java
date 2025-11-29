@@ -71,7 +71,7 @@ public abstract class MapperUtils {
      * @since 1.0.0
      */
     public static <T> String getMapperContent(Class<T> entityClass, Class<?> voClass) {
-        return "    <select id=\"selectByBooster\" resultType=\"" + voClass.getName() + "\">\n" +
+        return "    <select id=\"selectByXml\" resultType=\"" + voClass.getName() + "\">\n" +
                 getSqlContent(entityClass) +
                 "    </select>";
     }
@@ -89,7 +89,7 @@ public abstract class MapperUtils {
         try {
             tableName = TableMetaRegistry.getTableName(entityClass);
         } catch (IllegalStateException e) {
-            tableName = TableMetaRegistry.camelCaseToUnderscore(entityClass.getName());
+            tableName = StrUtils.camelCaseToUnderscore(entityClass.getName());
             if (tableName.startsWith("_")) {
                 return tableName.substring(1);
             }

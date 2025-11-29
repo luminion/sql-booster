@@ -21,7 +21,7 @@ public class Condition {
     /**
      * 操作符.
      */
-    protected String operator = SqlKeyword.EQ.getKeyword();
+    protected String operator = SqlKeyword.EQ.getSymbol();
     /**
      * 条件值.
      */

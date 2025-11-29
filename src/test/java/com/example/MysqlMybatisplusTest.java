@@ -53,7 +53,7 @@ public class MysqlMybatisplusTest {
     public void testList() {
         // 创建简单的查询条件
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.EQ.getKeyword(), "张三"));
+        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.EQ.getSymbol(), "张三"));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -72,7 +72,7 @@ public class MysqlMybatisplusTest {
     public void testPage() {
         // 创建查询条件 todo 暂未处理分页
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
+        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getSymbol(), 25));
 
         // 创建分页对象
 //        IPage<SysUserVO> page = new BPage<>(1, 2);
@@ -96,9 +96,9 @@ public class MysqlMybatisplusTest {
     @Order(3)
     public void testMultipleConditions() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getKeyword(), 25));
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.LTE.getKeyword(), 35));
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.GTE.getSymbol(), 25));
+        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.LTE.getSymbol(), 35));
+        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getSymbol(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -140,7 +140,7 @@ public class MysqlMybatisplusTest {
     @Order(5)
     public void testInQuery() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getKeyword(), Arrays.asList(25, 30)));
+        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getSymbol(), Arrays.asList(25, 30)));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -156,7 +156,7 @@ public class MysqlMybatisplusTest {
     @Order(6)
     public void testSorting() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
+        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getSymbol(),true));
         sqlEntity.getSorts().add(new Sort("age", true)); // 年龄升序
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -177,7 +177,7 @@ public class MysqlMybatisplusTest {
     @Order(7)
     public void testDescendingSorting() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(),true));
+        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getSymbol(),true));
         sqlEntity.getSorts().add(new Sort("age", false)); // 年龄降序
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
@@ -213,7 +213,7 @@ public class MysqlMybatisplusTest {
     @Order(9)
     public void testNullValueQuery() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("nameLike", SqlKeyword.IS_NULL.getKeyword(), true));
+        sqlEntity.getConditions().add(new Condition("nameLike", SqlKeyword.IS_NULL.getSymbol(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -229,7 +229,7 @@ public class MysqlMybatisplusTest {
     @Order(10)
     public void testNotNullQuery() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getKeyword(), true));
+        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.IS_NOT_NULL.getSymbol(), true));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -245,7 +245,7 @@ public class MysqlMybatisplusTest {
     @Order(11)
     public void testNotInQuery() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.NOT_IN.getKeyword(), Arrays.asList(25, 30)));
+        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.NOT_IN.getSymbol(), Arrays.asList(25, 30)));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -261,7 +261,7 @@ public class MysqlMybatisplusTest {
     @Order(12)
     public void testNotLikeQuery() {
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.NOT_LIKE.getKeyword(), "%张%"));
+        sqlEntity.getConditions().add(new Condition("name", SqlKeyword.NOT_LIKE.getSymbol(), "%张%"));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         
@@ -324,7 +324,7 @@ public class MysqlMybatisplusTest {
         
         // 测试空集合IN查询
         SqlContext sqlEntity = new SqlContext();
-        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getKeyword(), Collections.emptyList()));
+        sqlEntity.getConditions().add(new Condition("age", SqlKeyword.IN.getSymbol(), Collections.emptyList()));
         
         List<SysUserVO> result = sysUserMapper.voList(sqlEntity);
         assertNotNull(result);
