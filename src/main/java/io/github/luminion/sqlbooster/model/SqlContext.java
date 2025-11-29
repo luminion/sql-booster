@@ -25,8 +25,16 @@ import java.util.Map;
 public class SqlContext<T> extends ConditionSegment {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 排序字段列表。
+     */
     protected LinkedHashSet<Sort> sorts = new LinkedHashSet<>();
 
+    /**
+     * 动态参数，用于存储未被直接解析为 Condition 的查询参数。
+     * <p>
+     * 主要用于 XML 中自定义的 SQL 逻辑。
+     */
     protected Map<String, Object> params = new HashMap<>();
 
     @Override

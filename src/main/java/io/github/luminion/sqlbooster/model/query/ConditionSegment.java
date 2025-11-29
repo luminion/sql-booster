@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * 条件组，用于封装一组以 AND 或 OR 连接的查询条件。
  * <p>
- * 通过 {@code next} 字段形成链表，可以构建出复杂的条件树，例如 (A AND B) OR (C AND D)。
+ * 通过 {@code next} 字段形成链表，可以构建出复杂的条件树，例如 (A AND B) AND (C OR D)。其中每个括号都是一个条件组。
  */
 @Data
 @NoArgsConstructor
@@ -19,12 +19,18 @@ import java.util.*;
 public class ConditionSegment implements Serializable, Iterable<ConditionSegment> {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 当前节点包含的条件列表。
+     */
     protected LinkedHashSet<Condition> conditions = new LinkedHashSet<>();
 
-    protected String connector = SqlKeyword.AND.getSymbol();
+    /**
+     * 条件列表中条件的关系是否为并且，默认true (false时为或)。
+     */
+    protected boolean and = true;
 
     /**
-     * 指向下一个条件组，用于构建 OR 连接的子条件。
+     * 指向下一个条件组
      */
     protected ConditionSegment next;
 
@@ -39,26 +45,24 @@ public class ConditionSegment implements Serializable, Iterable<ConditionSegment
      * 如果连接符是 AND，条件会被添加到当前节点；如果是 OR，会创建一个新的子节点。
      *
      * @param conditions 条件集合
-     * @param connector  条件间的连接符
+     * @param isAnd      条件间关系
      */
-    public ConditionSegment appendConditions(Collection<Condition> conditions, String connector) {
+    public ConditionSegment appendConditions(Collection<Condition> conditions, boolean isAnd) {
         if (conditions == null || conditions.isEmpty()) {
             return this;
         }
-        SqlKeyword sqlKeyword = SqlKeyword.resolve(connector);
-        if (SqlKeyword.OR.equals(sqlKeyword)) {
+        if (isAnd) {
+            this.getConditions().addAll(conditions);
+        } else {
             // OR 条件，追加到链表末尾
-            ConditionSegment node = new ConditionSegment();
-            node.conditions.addAll(conditions);
-            node.connector = connector;
+            ConditionSegment conditionSegment = new ConditionSegment();
+            conditionSegment.conditions.addAll(conditions);
+            conditionSegment.and = false;
             ConditionSegment current = this;
             while (current.getNext() != null) {
                 current = current.getNext();
             }
-            current.next = node;
-        } else {
-            // AND 条件，合并到当前节点
-            this.getConditions().addAll(conditions);
+            current.next = conditionSegment;
         }
         return this;
     }
@@ -76,7 +80,7 @@ public class ConditionSegment implements Serializable, Iterable<ConditionSegment
             if (node.getConditions().isEmpty()) {
                 continue;
             }
-            this.appendConditions(node.getConditions(), node.getConnector());
+            this.appendConditions(node.getConditions(), node.isAnd());
         }
         return this;
     }

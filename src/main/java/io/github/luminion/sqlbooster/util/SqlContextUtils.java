@@ -71,10 +71,10 @@ public abstract class SqlContextUtils {
         Map<String, Object> params = result.getParams();
 
         // 1. 处理条件
-        for (ConditionSegment node : source) {
+        for (ConditionSegment conditionSegment : source) {
             LinkedHashSet<Condition> validConditions = new LinkedHashSet<>();
 
-            for (Condition c : node.getConditions()) {
+            for (Condition c : conditionSegment.getConditions()) {
                 String field = c.getField();
                 String column = columnMap.get(field);
 
@@ -95,7 +95,7 @@ public abstract class SqlContextUtils {
             }
 
             if (!validConditions.isEmpty()) {
-                result.appendConditions(validConditions, node.getConnector());
+                result.appendConditions(validConditions, conditionSegment.isAnd());
             }
         }
 

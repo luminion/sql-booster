@@ -39,8 +39,8 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      */
     public S or(Consumer<S> consumer) {
         S newInstance = newInstance();
-        newInstance.sqlContext.setConnector(SqlKeyword.OR.getSymbol());
         consumer.accept(newInstance);
+        newInstance.sqlContext.setAnd(false);
         this.sqlContext.merge(newInstance.sqlContext);
         return (S) this;
     }

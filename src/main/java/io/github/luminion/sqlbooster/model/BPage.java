@@ -10,14 +10,29 @@ import java.util.List;
  */
 public interface BPage<T> extends Serializable {
 
+    /**
+     * 获取当前页的记录列表。
+     */
     List<T> getRecords();
 
+    /**
+     * 获取总记录数。
+     */
     long getTotal();
 
+    /**
+     * 获取当前页码。
+     */
     long getCurrent();
 
+    /**
+     * 获取每页显示的条数。
+     */
     long getSize();
 
+    /**
+     * 获取总页数。
+     */
     default long getPages() {
         if (getSize() == 0) {
             return 0L;
