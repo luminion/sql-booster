@@ -8,8 +8,12 @@ import io.github.luminion.sqlbooster.model.SqlContext;
 import java.util.List;
 
 /**
- * @author luminion
- * @since 1.0.0
+ * 针对 Mybatis-Plus 分页插件的 {@link BoosterSupport} 扩展接口。
+ * <p>
+ * 提供了基于 Mybatis-Plus 的 {@code voPage} 分页查询实现。
+ *
+ * @param <T> 实体类型
+ * @param <V> VO 类型
  */
 public interface MpBooster<T, V> extends BoosterSupport<T, V> {
     @Override

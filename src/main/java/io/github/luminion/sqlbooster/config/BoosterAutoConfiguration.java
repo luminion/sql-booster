@@ -19,10 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Map;
 
 /**
- * Mybatis-Boost 自动配置类.
- *
- * @author luminion
- * @since 1.0.0
+ * sql-booster 的 Spring Boot 自动配置类。
  */
 @Slf4j
 @AutoConfiguration
@@ -36,6 +33,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        // 初始化 SQL 片段
         Map<String, SqlSessionFactory> sqlSessionFactoryMap = applicationContext.getBeansOfType(SqlSessionFactory.class);
         log.info("Found {} SqlSessionFactory bean(s), starting to configure sqlFragments...", sqlSessionFactoryMap.size());
         for (Map.Entry<String, SqlSessionFactory> entry : sqlSessionFactoryMap.entrySet()) {
@@ -49,6 +47,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
             }
         }
 
+        // 注册所有找到的 TableResolver
         Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
         for (TableResolver provider : providerMap.values()) {
             TableMetaRegistry.registerProvider(provider);
@@ -56,24 +55,28 @@ public class BoosterAutoConfiguration implements InitializingBean {
         log.debug("{} boost providers registered", providerMap.size());
     }
 
+    /**
+     * 当检测到 Mybatis-Plus 时，自动配置 MpTableResolver。
+     */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(BaseMapper.class)
     static class MybatisPlusConfiguration {
 
         @Bean
-//        @ConditionalOnMissingBean
         public TableResolver mybatisPlusProvider() {
             log.debug("MpTableResolver configured");
             return new MpTableResolver(Integer.MAX_VALUE - 100);
         }
     }
 
+    /**
+     * 当检测到原生 Mybatis 时，自动配置 DefaultTableResolver。
+     */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(SqlSessionFactory.class)
     static class MybatisConfiguration {
 
         @Bean
-//        @ConditionalOnMissingBean
         @ConditionalOnBean(SqlSessionFactory.class)
         public TableResolver mybatisProvider(SqlSessionFactory sqlSessionFactory) {
             boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();

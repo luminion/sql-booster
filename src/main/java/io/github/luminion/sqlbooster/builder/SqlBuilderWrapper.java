@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 具备扩展查询功能的 SQL 构建助手.
+ * 一个可执行查询的 SQL 构建器包装类。
  * <p>
+ * 它在 {@link LambdaSqlBuilder} 的基础上，包装了一个 {@link Booster} 实例，
+ * 提供了 {@code first()}, {@code list()}, {@code page()} 等终端操作来立即执行查询。
  *
  * @param <T> 实体类型
  * @param <V> VO 类型
- * @author luminion
- * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapper<T, V>> {
@@ -41,7 +41,7 @@ public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapp
         return booster.voFirst(this.sqlContext);
     }
 
-    public V first(Class<V> targetType) {
+    public <R> R first(Class<R> targetType) {
         return booster.voFirst(this.sqlContext, targetType);
     }
 
@@ -49,16 +49,24 @@ public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapp
         return booster.voFirstOpt(this.sqlContext);
     }
 
+    public <R> Optional<R> firstOpt(Class<R> targetType) {
+        return booster.voFirstOpt(this.sqlContext, targetType);
+    }
+
     public V unique() {
         return booster.voUnique(this.sqlContext);
     }
 
-    public V unique(Class<V> targetType) {
+    public <R> R unique(Class<R> targetType) {
         return booster.voUnique(this.sqlContext, targetType);
     }
 
     public Optional<V> uniqueOpt() {
         return booster.voUniqueOpt(this.sqlContext);
+    }
+
+    public <R> Optional<R> uniqueOpt(Class<R> targetType) {
+        return booster.voUniqueOpt(this.sqlContext, targetType);
     }
 
     public List<V> list() {

@@ -12,12 +12,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * MyBatis-Plus 提供者实现.
+ * 基于 Mybatis-Plus 的 {@link TableResolver} 实现。
  * <p>
- * 基于 MyBatis-Plus 框架提供数据库元数据信息，包括表名、字段映射等.
- *
- * @author luminion
- * @since 1.0.0
+ * 利用 Mybatis-Plus 的缓存和注解信息来提供表名、字段映射等元数据。
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode

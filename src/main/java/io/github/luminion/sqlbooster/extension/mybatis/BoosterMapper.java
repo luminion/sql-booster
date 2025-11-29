@@ -8,10 +8,7 @@ import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import java.util.List;
 
 /**
- * 一个通用的 Mapper 接口，用于执行返回视图对象 (VO) 的动态查询。
- *
- * @author luminion
- * @since 1.0.0
+ * 基于原生 MyBatis 的通用 Mapper 接口，用于执行动态 VO 查询。
  */
 public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
 
@@ -23,8 +20,12 @@ public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
         return selectByXml(sqlContext, page);
     }
 
-
+    /**
+     * 该方法需要由对应的 Mapper XML 文件实现。
+     *
+     * @param sqlContext 经过解析和校验的 SQL 上下文
+     * @param page       分页插件对象 (例如 PageHelper 的 Page)
+     * @return 查询结果列表
+     */
     List<V> selectByXml(SqlContext<T> sqlContext, Object page);
-
-
 }

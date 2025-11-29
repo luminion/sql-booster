@@ -8,19 +8,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /**
- * PageHelper 分页适配对象
+ * 将 PageHelper 的 {@link PageInfo} 适配为 {@link BPage} 的包装类。
  *
  * @param <T> 记录的类型
- * @author luminion
- * @since 1.0.0
  */
 @RequiredArgsConstructor
 public class PhPage<T> implements BPage<T> {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * PageHelper 的分页对象
-     */
     private final PageInfo<T> pageInfo;
 
     @Override

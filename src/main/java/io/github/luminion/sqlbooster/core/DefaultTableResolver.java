@@ -12,20 +12,14 @@ import java.util.stream.Collectors;
 
 
 /**
- * 基础的 Provider 实现
+ * 默认的 {@link TableResolver} 实现。
  * <p>
- * 提供了默认的表名、ID 属性名、getter 属性名和属性到列的映射逻辑.
- *
- * @author luminion
- * @since 1.0.0
+ * 基于通用的命名约定（如类名转表名、"id"作为主键）来提供元信息。
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class DefaultTableResolver implements TableResolver {
 
-    /**
-     * 是否将驼峰命名转换为下划线命名
-     */
     private final boolean underscoreToCamelCase;
     private final int priority;
 

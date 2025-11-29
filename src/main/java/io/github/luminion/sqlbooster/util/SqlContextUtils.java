@@ -12,12 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 /**
- * SQL 上下文构建工具.
+ * SQL 上下文构建工具。
  * <p>
- * 负责将原始的 SqlContext 转换为包含数据库列名、经过严格校验的标准 SqlContext.
- *
- * @author luminion
- * @since 1.0.0
+ * 负责将原始的 SqlContext 转换为包含数据库列名、经过严格校验的标准 SqlContext。
  */
 @Slf4j
 public abstract class SqlContextUtils {
@@ -35,7 +32,7 @@ public abstract class SqlContextUtils {
 
     public static void refreshDefaultSuffixes(Map<String, String> suffixToOperatorMap) {
         List<Map.Entry<String, String>> list = new ArrayList<>(suffixToOperatorMap.entrySet());
-        // 按长度倒序，防止短后缀截断长后缀
+        // 按长度倒序，防止短后缀（如 "In"）优先匹配长后缀（如 "NotIn"）
         list.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
         defaultSuffixes = list;
     }
@@ -43,21 +40,21 @@ public abstract class SqlContextUtils {
     // ==================== 公开构建入口 ====================
 
     /**
-     * 仅执行基础构建 (映射已知字段，其余放入 params).
+     * 仅执行基础构建 (映射已知字段，其余放入 params)。
      */
     public static <T> SqlContext<T> build(Class<T> entityClass, SqlContext<?> source) {
         return buildBase(entityClass, source);
     }
 
     /**
-     * 执行基础构建 + 后缀解析.
+     * 执行基础构建，并使用默认规则解析字段后缀。
      */
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source) {
-        return buildWithSuffix( entityClass,source, null);
+        return buildWithSuffix(entityClass, source, null);
     }
 
     /**
-     * 执行基础构建 + 自定义后缀解析.
+     * 执行基础构建，并使用自定义后缀规则解析。
      */
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source, Map<String, String> customSuffixMap) {
         SqlContext<T> context = buildBase(entityClass, source);
@@ -82,17 +79,17 @@ public abstract class SqlContextUtils {
                 String column = columnMap.get(field);
 
                 if (column != null) {
-                    // 命中直接映射 -> 尝试校验
+                    // 字段在实体中存在，进行校验
                     Condition finalC = validateAndCreate(column, c.getOperator(), c.getValue());
                     if (finalC != null) {
                         validConditions.add(finalC);
                     } else {
-                        // 校验失败，保留参数供 xml 使用 (或者你可以选择 drop 掉)
+                        // 校验失败，保留为动态参数供 XML 使用
                         log.debug("Direct condition field [{}] ignored: validation failed.", field);
                         params.put(field, c.getValue());
                     }
                 } else {
-                    // 未命中映射 -> 直接放入 params
+                    // 字段在实体中不存在，直接放入 params
                     params.putIfAbsent(field, c.getValue());
                 }
             }
@@ -102,7 +99,7 @@ public abstract class SqlContextUtils {
             }
         }
 
-        // 2. 处理排序 (抽离后的方法)
+        // 2. 处理排序
         processSorts(source.getSorts(), columnMap, result.getSorts());
 
         return result;
@@ -116,17 +113,17 @@ public abstract class SqlContextUtils {
             return context;
         }
 
-        List<Map.Entry<String, String>> suffixList;
-        if (customSuffixMap != null && !customSuffixMap.isEmpty()) {
-            suffixList = new ArrayList<>(customSuffixMap.entrySet());
+        List<Map.Entry<String, String>> suffixList = (customSuffixMap != null && !customSuffixMap.isEmpty())
+                ? new ArrayList<>(customSuffixMap.entrySet())
+                : defaultSuffixes;
+        if (customSuffixMap != null) {
             suffixList.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
-        } else {
-            suffixList = defaultSuffixes;
         }
+
 
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
 
-        // 使用迭代器遍历并安全移除
+        // 使用迭代器遍历并安全移除已解析的参数
         Iterator<Map.Entry<String, Object>> it = params.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> entry = it.next();
@@ -147,7 +144,7 @@ public abstract class SqlContextUtils {
                             context.getConditions().add(finalC);
                             it.remove();
                         }
-                        // 只要匹配到后缀，无论校验是否成功，都停止匹配其他后缀
+                        // 只要匹配到后缀，无论校验是否成功，都停止对当前字段匹配其他后缀
                         break;
                     }
                 }
@@ -158,9 +155,6 @@ public abstract class SqlContextUtils {
 
     // ==================== 辅助方法 ====================
 
-    /**
-     * 处理排序字段.
-     */
     private static void processSorts(Set<Sort> sourceSorts, Map<String, String> columnMap, Set<Sort> targetSorts) {
         for (Sort sort : sourceSorts) {
             String column = columnMap.get(sort.getField());
@@ -173,56 +167,52 @@ public abstract class SqlContextUtils {
     }
 
     /**
-     * 通用校验与创建逻辑.
-     * <p>包含严格的类型检查规则.</p>
+     * 根据操作符和值进行校验，并创建合法的 Condition 对象。
+     * <p>包含了所有内置操作符的严格类型检查规则。</p>
      */
     private static Condition validateAndCreate(String column, String operatorStr, Object value) {
-        // 1. 操作符解析
         SqlKeyword keyword;
         try {
             keyword = SqlKeyword.resolve(operatorStr);
         } catch (IllegalArgumentException e) {
-            return null;
+            return null; // 无法识别的操作符
         }
 
-        // 2. Null 操作符特殊处理 (IS NULL / IS NOT NULL)
+        // 规则: IS NULL / IS NOT NULL
         if (keyword.isNullCheck()) {
-            if (value instanceof Boolean && (Boolean) value) {
-                // IS NULL 不需要值，这里传 value 仅仅是为了保持对象完整，生成 SQL 时应忽略该值
-                return new Condition(column, keyword.getSymbol(), value);
-            }
-            return null;
+            // 只有当值为 true 时才生效
+            return (value instanceof Boolean && (Boolean) value)
+                    ? new Condition(column, keyword.getSymbol(), true)
+                    : null;
         }
 
-        // 3. 其他操作符不允许 value 为 null
+        // 规则: 其他所有操作符，值都不能为 null
         if (value == null) {
             return null;
         }
 
-        // 4. 集合校验 (IN / NOT IN)
+        // 规则: IN / NOT IN，值必须是有效的集合
         if (keyword.isIn()) {
             if (!(value instanceof Iterable) || !((Iterable<?>) value).iterator().hasNext()) {
                 return null;
             }
         }
 
-        // 5. 位运算校验 (BIT)
-        // 规则：入参必须是整型 (Byte, Short, Integer, Long)
+        // 规则: 位运算，值必须是整型
         if (keyword.isBitOperation()) {
             if (!(value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte)) {
                 return null;
             }
         }
 
-        // 6. 比较运算校验 (GT, GE, LT, LE, NE)
-        // 规则：入参必须实现了 Comparable 接口 (如 Integer, String, Date)
+        // 规则: 大小比较，值必须可比较
         if (keyword.isCompare()) {
             if (!(value instanceof Comparable)) {
                 return null;
             }
         }
 
-        // 7. LIKE 处理
+        // 规则: LIKE，如果值不包含 '%'，自动添加 '%%'
         if (keyword.isLike()) {
             String s = value.toString();
             if (!s.contains("%")) {

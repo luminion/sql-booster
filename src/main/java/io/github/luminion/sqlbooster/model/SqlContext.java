@@ -12,11 +12,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * 查询参数封装类
+ * SQL 查询的上下文容器。
+ * <p>
+ * 封装了查询条件、排序规则以及其他动态参数。
  *
  * @param <T> 实体类型
- * @author luminion
- * @since 1.0.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -25,14 +25,8 @@ import java.util.Map;
 public class SqlContext<T> extends ConditionSegment {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 排序字段列表.
-     */
     protected LinkedHashSet<Sort> sorts = new LinkedHashSet<>();
 
-    /**
-     * 非本表字段的额外条件.
-     */
     protected Map<String, Object> params = new HashMap<>();
 
     @Override

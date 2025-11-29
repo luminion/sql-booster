@@ -18,22 +18,12 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * 反射工具类.
+ * 反射操作工具类。
  * <p>
- * 提供通用的反射操作, 包括实例创建、字段缓存、属性复制、方法引用解析等.
- *
- * @author luminion
- * @since 1.0.0
+ * 提供实例创建、属性复制、方法引用解析等通用反射功能。
  */
 public abstract class ReflectUtils {
 
-    /**
-     * 判断一个类是否为 Java 核心库中的类.
-     *
-     * @param clazz 待检查的类
-     * @return 如果是核心类则返回 true, 否则返回 false
-     * @since 1.0.0
-     */
     public static boolean isJavaCoreClass(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -41,14 +31,6 @@ public abstract class ReflectUtils {
         return clazz.getClassLoader() == null;
     }
 
-    /**
-     * 使用 Spring 的 {@link BeanUtils} 创建一个新的实例.
-     *
-     * @param clazz 待实例化的类
-     * @param <T>   实例类型
-     * @return 新创建的实例
-     * @since 1.0.0
-     */
     public static <T> T newInstance(Class<T> clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz must not be null");
@@ -56,6 +38,11 @@ public abstract class ReflectUtils {
         return BeanUtils.instantiateClass(clazz);
     }
 
+    /**
+     * 判断一个对象是否为 JavaBean。
+     * <p>
+     * 排除基本类型、Map、Collection、Array，并检查是否存在符合规范的 getter/setter 方法。
+     */
     @SneakyThrows
     public static boolean isJavaBean(Object object) {
         if (object == null) {
@@ -63,13 +50,10 @@ public abstract class ReflectUtils {
         }
         Class<?> clazz = object.getClass();
 
-        // 1. 它是简单类型吗？(String, Number, Date, URI, URL, Locale, Class)
-        // Spring 的 BeanUtils.isSimpleProperty 涵盖了基础类型、包装类、String、Date 等绝大多数情况
         if (BeanUtils.isSimpleProperty(clazz)) {
             return false;
         }
 
-        // 2. 它是 Map 或 Collection 或 Array 吗？
         if (Map.class.isAssignableFrom(clazz) ||
                 Collection.class.isAssignableFrom(clazz) ||
                 clazz.isArray()) {
@@ -78,18 +62,9 @@ public abstract class ReflectUtils {
 
         BeanInfo beanInfo = Introspector.getBeanInfo(clazz, Object.class);
         PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-        // 3. 如果存在属性描述符，说明它是 Bean
-        // (PropertyDescriptor 意味着发现了符合 getter/setter 规范的方法)
         return propertyDescriptors != null && propertyDescriptors.length > 0;
     }
 
-    /**
-     * 获取指定类的所有字段.
-     *
-     * @param clazz 待分析的类
-     * @return 字段名到 {@link Field} 对象的映射
-     * @since 1.0.0
-     */
     public static Map<String, Field> fieldMap(Class<?> clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz must not be null");
@@ -104,29 +79,17 @@ public abstract class ReflectUtils {
         return map;
     }
 
-
-    /**
-     * 使用 {@link BeanUtils#copyProperties(Object, Object)} 复制对象的属性.
-     *
-     * @param source 源对象
-     * @param target 目标对象
-     * @param <T>    目标对象类型
-     * @return 复制完属性的目标对象
-     * @since 1.0.0
-     */
     public static <T> T copyProperties(Object source, T target) {
         if (source == null || target == null) return target;
         BeanUtils.copyProperties(source, target);
         return target;
     }
 
-
     /**
-     * 将一个对象转换为Map
+     * 将一个 JavaBean 对象转换为 Map。
      *
-     * @param bean 源对象, 必须为java bean
+     * @param bean 源对象, 必须为 JavaBean
      * @return 转换后的 Map
-     * @since 1.0.0
      */
     @SneakyThrows
     public static Map<String, Object> javaBeanToMap(Object bean) {
@@ -149,15 +112,6 @@ public abstract class ReflectUtils {
         return map;
     }
 
-    /**
-     * 将一个对象转换为指定类型的新对象.
-     *
-     * @param source 源对象
-     * @param clazz  目标类
-     * @param <T>    目标类型
-     * @return 转换后的新对象
-     * @since 1.0.0
-     */
     public static <T> T toTarget(Object source, Class<T> clazz) {
         if (source == null) {
             return null;
@@ -168,25 +122,15 @@ public abstract class ReflectUtils {
         return copyProperties(source, newInstance(clazz));
     }
 
-    /**
-     * 解析一个类实现的泛型接口或继承的泛型父类的实际类型参数.
-     *
-     * @param clazz      待解析的类
-     * @param superClass 泛型接口或父类
-     * @return 实际类型参数的 {@link Class} 数组
-     * @since 1.0.0
-     */
     public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> superClass) {
         return GenericTypeResolver.resolveTypeArguments(clazz, superClass);
     }
 
-
     /**
-     * 从可序列化的方法引用中提取 {@link SerializedLambda} 信息.
+     * 从可序列化的方法引用中提取 {@link SerializedLambda} 信息。
      *
      * @param getter 方法引用
      * @return {@link SerializedLambda} 实例
-     * @since 1.0.0
      */
     @SneakyThrows
     private static <T, R> SerializedLambda getSerializedLambda(GetterReference<T, R> getter) {
@@ -196,11 +140,10 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 从方法引用中获取其声明所在的类的 {@link Class} 对象.
+     * 从方法引用中获取其声明所在的类的 {@link Class} 对象。
      *
      * @param getter 方法引用
      * @return 声明该方法的类的 {@link Class} 对象
-     * @since 1.0.0
      */
     @SneakyThrows
     @SuppressWarnings("unchecked")
@@ -211,11 +154,10 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 从方法引用中获取其对应的 {@link Method} 对象.
+     * 从方法引用中获取其对应的 {@link Method} 对象。
      *
      * @param getter 方法引用
      * @return {@link Method} 对象
-     * @since 1.0.0
      */
     @SneakyThrows
     public static <T, R> Method getGetterMethod(GetterReference<T, R> getter) {
@@ -230,11 +172,10 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 从 getter 方法引用中获取其对应的属性名
+     * 从 getter 方法引用中获取其对应的属性名。
      *
      * @param getter 方法引用
-     * @return {@link Field} 对象
-     * @since 1.0.0
+     * @return 属性名
      */
     @SneakyThrows
     public static <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
@@ -252,6 +193,4 @@ public abstract class ReflectUtils {
         }
         return name;
     }
-
-
 }

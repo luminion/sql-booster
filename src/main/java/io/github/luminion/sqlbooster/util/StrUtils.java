@@ -1,25 +1,7 @@
 package io.github.luminion.sqlbooster.util;
 
-import io.github.luminion.sqlbooster.core.TableMetaRegistry;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-/**
- * @author luminion
- * @since 1.0.0
- */
 public class StrUtils {
 
-    /**
-     * 将下划线命名的字符串转换为驼峰命名.
-     *
-     * @param str 待转换的字符串
-     * @return 驼峰命名的字符串
-     * @since 1.0.0
-     */
     public static String underscoreToCamelCase(String str) {
         StringBuilder sb = new StringBuilder();
         boolean upperCase = false;
@@ -37,13 +19,6 @@ public class StrUtils {
         return sb.toString();
     }
 
-    /**
-     * 将驼峰命名的字符串转换为下划线命名.
-     *
-     * @param str 待转换的字符串
-     * @return 下划线命名的字符串
-     * @since 1.0.0
-     */
     public static String camelCaseToUnderscore(String str) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
@@ -57,13 +32,6 @@ public class StrUtils {
         return sb.toString();
     }
 
-    /**
-     * 将驼峰首字母大写的命名的字符串转换为下划线命名.
-     *
-     * @param str 待转换的字符串
-     * @return 下划线命名的字符串
-     * @since 1.0.0
-     */
     public static String pascalCaseToUnderscore(String str) {
         String s = camelCaseToUnderscore(str);
         if (s.startsWith("_")){
@@ -71,6 +39,4 @@ public class StrUtils {
         }
         return s;
     }
-    
-    
 }

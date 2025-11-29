@@ -16,12 +16,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Boost 核心引擎，提供 VO 查询能力的默认实现.
+ * {@link Booster} 接口的默认实现集合。
+ * <p>
+ * 提供了 VO 查询能力的大部分默认实现，具体实现类只需要提供 {@code selectByBooster} 方法。
  *
- * @param <T> 数据库实体的类型。
- * @param <V> 要返回的视图对象 (VO) 的类型。
- * @author luminion
- * @since 1.0.0
+ * @param <T> 数据库实体的类型
+ * @param <V> 要返回的视图对象 (VO) 的类型
  */
 public interface BoosterSupport<T, V> extends Booster<T, V> {
 
@@ -173,12 +173,11 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     }
 
     /**
-     * 最终执行查询的方法.
+     * 最终执行查询的方法，由具体实现类提供。
      *
      * @param sqlContext 查询条件
-     * @param page         分页对象
+     * @param page       分页对象，可为 null
      * @return 查询结果列表
-     * @since 1.0.0
      */
     List<V> selectByBooster(SqlContext<T> sqlContext, Object page);
 }

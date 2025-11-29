@@ -7,14 +7,12 @@ import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 
 /**
- * 针对 PageHelper 的 BoosterSupport 扩展接口.
+ * 针对 PageHelper 分页插件的 {@link BoosterSupport} 扩展接口。
  * <p>
- * 集成了 {@link BoosterSupport} 的能力, 提供基于 PageHelper 的分页查询功能.
+ * 提供了基于 PageHelper 的 {@code voPage} 分页查询实现。
  *
  * @param <T> 实体类型
  * @param <V> VO 类型
- * @author luminion
- * @since 1.0.0
  */
 public interface PhBooster<T, V> extends BoosterSupport<T, V> {
 
