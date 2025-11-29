@@ -1,6 +1,7 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
+import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.io.Resources;
@@ -86,9 +87,9 @@ public abstract class MapperUtils {
     public static <T> String getSqlContent(Class<T> entityClass) {
         String tableName;
         try {
-            tableName = TableInfoUtils.getTableName(entityClass);
+            tableName = TableMetaRegistry.getTableName(entityClass);
         } catch (IllegalStateException e) {
-            tableName = TableInfoUtils.camelCaseToUnderscore(entityClass.getName());
+            tableName = TableMetaRegistry.camelCaseToUnderscore(entityClass.getName());
             if (tableName.startsWith("_")) {
                 return tableName.substring(1);
             }

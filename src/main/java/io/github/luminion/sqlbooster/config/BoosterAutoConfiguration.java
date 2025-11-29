@@ -1,10 +1,10 @@
 package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import io.github.luminion.sqlbooster.core.BasicTableResolver;
+import io.github.luminion.sqlbooster.core.DefaultTableResolver;
+import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import io.github.luminion.sqlbooster.core.TableResolver;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import io.github.luminion.sqlbooster.util.MapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -51,7 +51,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
         Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
         for (TableResolver provider : providerMap.values()) {
-            TableInfoUtils.registerProvider(provider);
+            TableMetaRegistry.registerProvider(provider);
         }
         log.debug("{} boost providers registered", providerMap.size());
     }
@@ -77,8 +77,8 @@ public class BoosterAutoConfiguration implements InitializingBean {
         @ConditionalOnBean(SqlSessionFactory.class)
         public TableResolver mybatisProvider(SqlSessionFactory sqlSessionFactory) {
             boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
-            log.debug("BasicTableResolver for mybatis configured");
-            return new BasicTableResolver(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
+            log.debug("DefaultTableResolver for mybatis configured");
+            return new DefaultTableResolver(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
         }
     }
 }

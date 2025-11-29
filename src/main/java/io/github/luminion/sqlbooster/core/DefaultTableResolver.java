@@ -1,7 +1,6 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.function.SFunc;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
+import io.github.luminion.sqlbooster.function.GetterReference;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +20,17 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class BasicTableResolver implements TableResolver {
+public class DefaultTableResolver implements TableResolver {
 
     /**
      * 是否将驼峰命名转换为下划线命名
      */
-    private final boolean mapUnderscoreToCamelCase;
+    private final boolean underscoreToCamelCase;
     private final int priority;
 
     @Override
     public <T> String getTableName(Class<T> clazz) {
-        String tableName = TableInfoUtils.camelCaseToUnderscore(clazz.getSimpleName());
+        String tableName = TableMetaRegistry.camelCaseToUnderscore(clazz.getSimpleName());
         if (tableName.startsWith("_")){
             return tableName.substring(1);
         }
@@ -49,7 +48,7 @@ public class BasicTableResolver implements TableResolver {
     }
 
     @Override
-    public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
+    public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
         try {
             return ReflectUtils.getGetterPropertyName(getter);
         } catch (Exception e) {
@@ -62,7 +61,7 @@ public class BasicTableResolver implements TableResolver {
         Set<String> strings = ReflectUtils.fieldMap(clazz).keySet();
         return strings.stream()
                 .collect(Collectors.toMap(e -> e, e -> 
-                        String.format("a.%s", mapUnderscoreToCamelCase ? TableInfoUtils.camelCaseToUnderscore(e) : e)));
+                        String.format("a.%s", underscoreToCamelCase ? TableMetaRegistry.camelCaseToUnderscore(e) : e)));
     }
 
     @Override

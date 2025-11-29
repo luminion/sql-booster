@@ -1,9 +1,8 @@
-package io.github.luminion.sqlbooster.util;
+package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.TableResolver;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.function.SFunc;
+import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -18,11 +17,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @since 1.0.0
  */
 @Slf4j
-public abstract class TableInfoUtils {
+public abstract class TableMetaRegistry {
     /**
      * 已注册的 TableResolver 实例.
      */
-    private static final ConcurrentSkipListSet<TableResolver> PROVIDERS = new ConcurrentSkipListSet<>();
+    private static final ConcurrentSkipListSet<TableResolver> RESOLVERS = new ConcurrentSkipListSet<>();
 
     /**
      * 获取所有已注册的 Provider.
@@ -31,43 +30,43 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static List<TableResolver> checkoutProviders() {
-        return new ArrayList<>(PROVIDERS);
+        return new ArrayList<>(RESOLVERS);
     }
 
     /**
      * 注册一个新的 Provider.
      *
-     * @param provider 要注册的 Provider
+     * @param tableResolver 要注册的 Provider
      * @return 如果注册成功返回 true, 否则返回 false
      * @since 1.0.0
      */
-    public static boolean registerProvider(TableResolver provider) {
-        return PROVIDERS.add(provider);
+    public static boolean registerProvider(TableResolver tableResolver) {
+        return RESOLVERS.add(tableResolver);
     }
 
     /**
      * 移除一个已注册的 Provider.
      *
-     * @param provider 要移除的 Provider
+     * @param tableResolver 要移除的
      * @return 如果移除成功返回 true, 否则返回 false
      * @since 1.0.0
      */
-    public static boolean removeProvider(TableResolver provider) {
-        return PROVIDERS.remove(provider);
+    public static boolean removeProvider(TableResolver tableResolver) {
+        return RESOLVERS.remove(tableResolver);
     }
 
     /**
      * 移除指定类型的Provider.
      *
-     * @param providerType 要移除的 Provider 的类型(严格匹配, 不包含子类)
-     * @return 移除的 Provider 的数量
+     * @param tableResolverType 要移除的的类型(严格匹配, 不包含子类)
+     * @return 移除的数量
      * @since 1.0.0
      */
-    public static int removeProvider(Class<? extends TableResolver> providerType) {
+    public static int removeProvider(Class<? extends TableResolver> tableResolverType) {
         int count = 0;
-        for (TableResolver provider : PROVIDERS) {
-            if (provider.getClass().equals(providerType)) {
-                boolean remove = PROVIDERS.remove(provider);
+        for (TableResolver tableResolver : RESOLVERS) {
+            if (tableResolver.getClass().equals(tableResolverType)) {
+                boolean remove = RESOLVERS.remove(tableResolver);
                 if (remove) {
                     count++;
                 }
@@ -77,49 +76,7 @@ public abstract class TableInfoUtils {
     }
 
 
-    /**
-     * 将下划线命名的字符串转换为驼峰命名.
-     *
-     * @param str 待转换的字符串
-     * @return 驼峰命名的字符串
-     * @since 1.0.0
-     */
-    public static String underscoreToCamelCase(String str) {
-        StringBuilder sb = new StringBuilder();
-        boolean upperCase = false;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (c == '_') {
-                upperCase = true;
-            } else if (upperCase) {
-                sb.append(Character.toUpperCase(c));
-                upperCase = false;
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
 
-    /**
-     * 将驼峰命名的字符串转换为下划线命名.
-     *
-     * @param str 待转换的字符串
-     * @return 下划线命名的字符串
-     * @since 1.0.0
-     */
-    public static String camelCaseToUnderscore(String str) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (Character.isUpperCase(c)) {
-                sb.append('_').append(Character.toLowerCase(c));
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
 
     /**
      * 获取对应的实体类的 Class 对象.
@@ -171,13 +128,13 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static String getTableName(Class<?> entityClass) {
-        for (TableResolver provider : PROVIDERS) {
-            String tableName = provider.getTableName(entityClass);
+        for (TableResolver tableResolver : RESOLVERS) {
+            String tableName = tableResolver.getTableName(entityClass);
             if (tableName != null) {
                 return tableName;
             }
         }
-        throw new IllegalStateException("No table name found in " + PROVIDERS.size() + " providers, class: " + entityClass.getName());
+        throw new IllegalStateException("No table name found in " + RESOLVERS.size() + " tableResolvers, class: " + entityClass.getName());
     }
 
     /**
@@ -189,13 +146,13 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static String getIdPropertyName(Class<?> entityClass) {
-        for (TableResolver provider : PROVIDERS) {
-            String idPropertyName = provider.getIdPropertyName(entityClass);
+        for (TableResolver tableResolver : RESOLVERS) {
+            String idPropertyName = tableResolver.getIdPropertyName(entityClass);
             if (idPropertyName != null) {
                 return idPropertyName;
             }
         }
-        throw new IllegalStateException("No IdProperty found in " + PROVIDERS.size() + " providers, class: " + entityClass.getName());
+        throw new IllegalStateException("No IdProperty found in " + RESOLVERS.size() + " tableResolvers, class: " + entityClass.getName());
     }
 
     /**
@@ -208,14 +165,14 @@ public abstract class TableInfoUtils {
      * @throws IllegalStateException 如果没有找到对应的属性名
      * @since 1.0.0
      */
-    public static <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
-        for (TableResolver provider : PROVIDERS) {
-            String propertyName = provider.getGetterPropertyName(getter);
+    public static <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
+        for (TableResolver tableResolver : RESOLVERS) {
+            String propertyName = tableResolver.getGetterPropertyName(getter);
             if (propertyName != null) {
                 return propertyName;
             }
         }
-        throw new IllegalStateException("No property name found in " + PROVIDERS.size() + " providers, getter: " + getter);
+        throw new IllegalStateException("No property name found in " + RESOLVERS.size() + " tableResolvers, getter: " + getter);
     }
 
     /**
@@ -226,14 +183,14 @@ public abstract class TableInfoUtils {
      * @since 1.0.0
      */
     public static Map<String, String> getPropertyToColumnAliasMap(Class<?> entityClass) {
-        for (TableResolver provider : PROVIDERS) {
-            Map<String, String> contributedMap = provider.getPropertyToColumnAliasMap(entityClass);
+        for (TableResolver tableResolver : RESOLVERS) {
+            Map<String, String> contributedMap = tableResolver.getPropertyToColumnAliasMap(entityClass);
             if (contributedMap != null && !contributedMap.isEmpty()) {
-                log.debug("found alias map provider: [{}], class: [{}]", provider.getClass().getName(), entityClass.getName());
+                log.debug("found alias map tableResolver: [{}], class: [{}]", tableResolver.getClass().getName(), entityClass.getName());
                 return contributedMap;
             }
         }
-        log.warn("No property to column alias map found in {} providers, class: {}", PROVIDERS.size(), entityClass.getName());
+        log.warn("No property to column alias map found in {} tableResolvers, class: {}", RESOLVERS.size(), entityClass.getName());
         return Collections.emptyNavigableMap();
     }
 }

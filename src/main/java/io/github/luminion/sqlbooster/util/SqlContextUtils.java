@@ -1,5 +1,6 @@
 package io.github.luminion.sqlbooster.util;
 
+import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
@@ -58,7 +59,7 @@ public abstract class SqlContextUtils {
      */
     public static void addBothCamelCaseAndUnderscoreSuffix(Map<String, String> map, String camelSuffix, String operator) {
         map.putIfAbsent(camelSuffix, operator);
-        String underscore = TableInfoUtils.camelCaseToUnderscore(camelSuffix);
+        String underscore = TableMetaRegistry.camelCaseToUnderscore(camelSuffix);
         map.putIfAbsent(underscore, operator);
     }
 
@@ -167,7 +168,7 @@ public abstract class SqlContextUtils {
             throw new IllegalArgumentException("can't get entity class from sql helper");
         }
         SqlContext<T> resultContext = new SqlContext<>();
-        Map<String, String> propertyToColumnAliasMap = TableInfoUtils.getPropertyToColumnAliasMap(entityClass);
+        Map<String, String> propertyToColumnAliasMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> extraParams = resultContext.getExtra();
         for (ConditionNode currentHelper : sqlContext) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();
@@ -203,7 +204,7 @@ public abstract class SqlContextUtils {
         }
         SqlContext<T> resultContext = new SqlContext<>();
         Map<String, Object> extraParams = resultContext.getExtra();
-        Map<String, String> propertyToColumnAliasMap = TableInfoUtils.getPropertyToColumnAliasMap(entityClass);
+        Map<String, String> propertyToColumnAliasMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
         Set<String> suffixes = suffixToOperatorMap.keySet();
         for (ConditionNode currentHelper : sqlContext) {
             Collection<Condition> currentHelperConditions = currentHelper.getConditions();

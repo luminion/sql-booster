@@ -6,7 +6,6 @@ import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.util.ReflectUtils;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
 
@@ -31,8 +30,8 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         if (ObjectUtils.isEmpty(id)) {
             throw new NullPointerException("id can't be null");
         }
-        Class<T> clazz = TableInfoUtils.getEntityClass(this);
-        String keyProperty = TableInfoUtils.getIdPropertyName(clazz);
+        Class<T> clazz = TableMetaRegistry.getEntityClass(this);
+        String keyProperty = TableMetaRegistry.getIdPropertyName(clazz);
         if (ObjectUtils.isEmpty(keyProperty)) {
             throw new IllegalStateException("can't find id property");
         }
@@ -63,8 +62,8 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
 
     @Override
     default List<V> voListByIds(Collection<? extends Serializable> ids) {
-        Class<T> entityClass = TableInfoUtils.getEntityClass(this);
-        String idPropertyName = TableInfoUtils.getIdPropertyName(entityClass);
+        Class<T> entityClass = TableMetaRegistry.getEntityClass(this);
+        String idPropertyName = TableMetaRegistry.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getKeyword(), ids);
         SqlContext<T> sqlContext = new SqlContext<>();
         sqlContext.getConditions().add(condition);

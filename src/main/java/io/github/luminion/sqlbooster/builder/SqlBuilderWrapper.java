@@ -1,9 +1,9 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
+import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.TableInfoUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,12 +22,12 @@ public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapp
     private final Booster<T, V> booster;
 
     public SqlBuilderWrapper(Booster<T, V> booster) {
-        super(TableInfoUtils.getEntityClass(booster));
+        super(TableMetaRegistry.getEntityClass(booster));
         this.booster = booster;
     }
 
     public SqlBuilderWrapper(Booster<T, V> booster, SqlContext<T> sqlContext) {
-        super(TableInfoUtils.getEntityClass(booster));
+        super(TableMetaRegistry.getEntityClass(booster));
         this.booster = booster;
         this.sqlContext.merge(sqlContext);
     }
