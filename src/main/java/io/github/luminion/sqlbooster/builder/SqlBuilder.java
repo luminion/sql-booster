@@ -1,7 +1,6 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 
 /**
@@ -18,13 +17,6 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
 
     public static <T> SqlBuilder<T> of(Booster<T, ?> booster) {
         return new SqlBuilder<>(TableMetaRegistry.getEntityClass(booster));
-    }
-
-    /**
-     * 根据 SqlContext 实例创建 SqlBuilder。
-     */
-    public static <T> SqlBuilder<T> of(SqlContext<T> sqlContext) {
-        return new SqlBuilder<>(TableMetaRegistry.getEntityClass(sqlContext));
     }
 
     public SqlBuilder(Class<T> entityClass) {

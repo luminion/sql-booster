@@ -11,7 +11,6 @@ import java.util.Optional;
 /**
  * 一个可执行查询的 SQL 构建器包装类。
  * <p>
- * 它在 {@link LambdaSqlBuilder} 的基础上，包装了一个 {@link Booster} 实例，
  * 提供了 {@code first()}, {@code list()}, {@code page()} 等终端操作来立即执行查询。
  *
  * @param <T> 实体类型
