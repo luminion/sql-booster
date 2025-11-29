@@ -17,21 +17,19 @@ import java.util.Map;
 @Getter
 public enum SqlKeyword {
 
-    // ==================== 连接符 ====================
-    AND("AND", "AND", "&", "&&"),
-    OR("OR", "OR", "|", "||"),
-
     // ==================== 比较符 ====================
     EQ("=", "=", "==", "EQ"),
     NE("<>", "<>", "!=", "NE"),
     LT("<", "<", "LT"),
-    LTE("<=", "<=", "LE", "LTE"), // 支持 LE 和 LTE
+    LTE("<=", "<=", "LE", "LTE"),
     GT(">", ">", "GT"),
-    GTE(">=", ">=", "GE", "GTE"), // 支持 GE 和 GTE
+    GTE(">=", ">=", "GE", "GTE"),
 
-    // ==================== 模糊/范围 ====================
+    // ==================== 模糊 ====================
     LIKE("LIKE", "LIKE"),
     NOT_LIKE("NOT LIKE", "NOT LIKE", "NOT_LIKE"),
+
+    // ==================== 范围 ====================
     IN("IN", "IN"),
     NOT_IN("NOT IN", "NOT IN", "NOT_IN"),
 
@@ -96,10 +94,6 @@ public enum SqlKeyword {
     }
 
     // ==================== 实例判断方法 ====================
-
-    public boolean isConnector() {
-        return this == AND || this == OR;
-    }
 
     public boolean isEquality() {
         return this == EQ || this == NE;

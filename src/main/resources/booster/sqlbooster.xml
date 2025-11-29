@@ -3,11 +3,18 @@
 <mapper namespace="sqlbooster">
     <sql id="conditions">
         <if test="param1 != null">
-            <foreach collection="param1" item="gen">
-                <if test='gen.conditions != null and !gen.conditions.isEmpty()'>
+            <foreach collection="param1" item="node">
+                <if test='node.conditions != null and !node.conditions.isEmpty()'>
                     <trim prefix="AND (" suffix=")" prefixOverrides="AND|OR">
-                        <foreach collection="gen.conditions" item="item">
-                            ${gen.connector}
+                        <foreach collection="node.conditions" item="item">
+                            <choose>
+                                <when test='node.isAnd()'>
+                                    AND
+                                </when>
+                                <otherwise>
+                                    OR
+                                </otherwise>
+                            </choose>
                             <choose>
                                 <when test='item.operator == "IN" or item.operator == "NOT IN"'>
                                     ${item.field} ${item.operator}
@@ -22,7 +29,7 @@
                                     (${item.field} &amp; #{item.value}) &gt; 0
                                 </when>
                                 <when test='item.operator == "BIT ALL"'>
-                                    (${item.field} &amp; #{item.value}) = ${item.value}
+                                    (${item.field} &amp; #{item.value}) = #{item.value}
                                 </when>
                                 <when test='item.operator == "BIT NONE"'>
                                     (${item.field} &amp; #{item.value}) = 0
