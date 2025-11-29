@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -16,7 +17,8 @@ import java.util.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConditionSegment implements Iterable<ConditionSegment> {
+public class ConditionSegment implements Serializable, Iterable<ConditionSegment> {
+    private static final long serialVersionUID = 1L;
     /**
      * 当前节点的条件列表.
      */
@@ -38,8 +40,9 @@ public class ConditionSegment implements Iterable<ConditionSegment> {
 
     /**
      * 添加一组条件
+     *
      * @param conditions 条件
-     * @param connector 条件间的连接符号
+     * @param connector  条件间的连接符号
      * @return this
      */
     public ConditionSegment appendConditions(Collection<Condition> conditions, String connector) {

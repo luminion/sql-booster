@@ -23,6 +23,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SqlContext<T> extends ConditionSegment {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 排序字段列表.

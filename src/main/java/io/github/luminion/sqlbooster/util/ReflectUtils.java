@@ -1,7 +1,6 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.function.GetterReference;
-import io.github.luminion.sqlbooster.model.SqlContext;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.GenericTypeResolver;

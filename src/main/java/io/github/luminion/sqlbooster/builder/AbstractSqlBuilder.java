@@ -5,6 +5,7 @@ import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.util.ReflectUtils;
 import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -28,11 +29,11 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     /**
      * 关联的实体类, 用于 SQL 校验和处理.
      */
-    protected transient final Class<T> entityClass;
+    protected final Class<T> entityClass;
     /**
      * 存放条件的上下文
      */
-    protected transient final SqlContext<T> sqlContext = new SqlContext<>();
+    protected final SqlContext<T> sqlContext = new SqlContext<>();
 
     /**
      * 创建一个新的自身实例.
@@ -84,7 +85,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      * 将map中的key作为condition的field, value作为condition的value, 生成等于的condition并添加到sqlContext中
      *
      */
-    public S append(Map<?, ?> map) {
+    public S appendEqByMap(Map<?, ?> map) {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
@@ -98,13 +99,13 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
 
 
     /**
-     * 根据实体对象的非空属性生成等值查询条件 (Query By Example).
+     * 根据java bean 对象生成条件, 入参必须为java bean
      *
      * @param entity 包含查询值的实体对象或 Map
      */
-    public S appendJavaBean(Object bean) {
-        // todo 判断入参为javabean 
-        
+    public S appendEqByJavaBean(Object bean) {
+        Map<String, Object> stringObjectMap = ReflectUtils.javaBeanToMap(bean);
+        this.appendEqByMap(stringObjectMap);
         return (S) this;
     }
 

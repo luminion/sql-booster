@@ -16,6 +16,7 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class MpPage<T> implements BPage<T> {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Mybatis-Plus 的分页对象

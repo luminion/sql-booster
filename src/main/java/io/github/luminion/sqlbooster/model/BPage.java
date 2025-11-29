@@ -1,5 +1,6 @@
 package io.github.luminion.sqlbooster.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  * @author luminion
  * @since 1.0.0
  */
-public interface BPage<T> {
+public interface BPage<T> extends Serializable {
     /**
      * 获取记录列表
      *

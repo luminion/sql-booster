@@ -446,7 +446,7 @@ public class PostgresPagehelperTest {
         queryParams.put("ageLe", 35); // 应该转换为age <= 35
 
         List<SysUserVO> suffixList = SqlBuilder.of(SysUser.class)
-                .append(queryParams)
+                .appendEqByMap(queryParams)
                 .boost(baseService)
                 .list();
         assertNotNull(suffixList);

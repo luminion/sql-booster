@@ -3,6 +3,8 @@ package io.github.luminion.sqlbooster.model.query;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import lombok.*;
 
+import java.io.Serializable;
+
 /**
  * SQL 条件实体类.
  *
@@ -12,8 +14,8 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Condition {
-
+public class Condition implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 字段名.
      */

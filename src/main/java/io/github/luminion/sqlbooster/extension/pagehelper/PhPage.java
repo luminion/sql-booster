@@ -16,6 +16,7 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class PhPage<T> implements BPage<T> {
+    private static final long serialVersionUID = 1L;
 
     /**
      * PageHelper 的分页对象
