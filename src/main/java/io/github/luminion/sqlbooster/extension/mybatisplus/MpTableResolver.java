@@ -23,7 +23,7 @@ public class MpTableResolver implements TableResolver {
 
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
-        return ReflectUtils.getGetterPropertyName(getter);
+        return ReflectUtils.resolveGetterPropertyName(getter);
     }
 
     @Override

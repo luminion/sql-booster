@@ -73,12 +73,14 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      * Map 的键作为字段名，值作为查询值。值为 null 的条目将被忽略。
      */
     public S appendEqByMap(Map<?, ?> map) {
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            if (value != null) {
-                Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getSymbol(), value);
-                this.sqlContext.getConditions().add(condition);
+        if (map != null) {
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+                if (value != null) {
+                    Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getSymbol(), value);
+                    this.sqlContext.getConditions().add(condition);
+                }
             }
         }
         return (S) this;
@@ -93,8 +95,10 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      * @param bean 包含查询值的实体对象
      */
     public S appendEqByJavaBean(Object bean) {
-        Map<String, Object> stringObjectMap = ReflectUtils.javaBeanToMap(bean);
-        this.appendEqByMap(stringObjectMap);
+        if (bean != null){
+            Map<String, Object> stringObjectMap = ReflectUtils.beanToMap(bean);
+            this.appendEqByMap(stringObjectMap);
+        }
         return (S) this;
     }
 

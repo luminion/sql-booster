@@ -14,7 +14,7 @@ public class Test1 {
     
     @Test
     void test1(){
-        Map<String, Object> stringObjectMap = ReflectUtils.javaBeanToMap(new SqlContext<>());
+        Map<String, Object> stringObjectMap = ReflectUtils.beanToMap(new SqlContext<>());
         System.out.println(stringObjectMap);
     }
 }

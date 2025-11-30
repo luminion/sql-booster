@@ -6,31 +6,37 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.ReflectionUtils;
 
-import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 反射操作工具类。
  * <p>
- * 提供实例创建、属性复制、方法引用解析等通用反射功能。
+ * 提供实例创建、属性复制、Bean 属性解析、方法引用解析等通用反射功能。
  */
 public abstract class ReflectUtils {
 
-    public static boolean isJavaCoreClass(Class<?> clazz) {
-        if (clazz == null) {
-            return false;
-        }
-        return clazz.getClassLoader() == null;
-    }
+    // ----------------------------------------------------------------------
+    // 缓存区
+    // ----------------------------------------------------------------------
 
+    private static final Map<Class<?>, Map<String, PropertyDescriptor>> BEAN_PROPERTY_MAP_CACHE = new ConcurrentHashMap<>();
+
+    private static final Map<Class<?>, SerializedLambda> LAMBDA_CACHE = new ConcurrentHashMap<>();
+
+
+    // ----------------------------------------------------------------------
+    // 实例创建 / 类型工具
+    // ----------------------------------------------------------------------
+
+    /**
+     * 创建指定类型的实例。
+     * 使用 Spring BeanUtils.instantiateClass，内部已处理无参构造等细节。
+     */
     public static <T> T newInstance(Class<T> clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("clazz must not be null");
@@ -39,134 +45,177 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 判断一个对象是否为 JavaBean。
-     * <p>
-     * 排除基本类型、Map、Collection、Array，并检查是否存在符合规范的 getter/setter 方法。
+     * 解析泛型参数类型。
+     * 直接委托给 Spring 的 GenericTypeResolver。
      */
-    @SneakyThrows
-    public static boolean isJavaBean(Object object) {
-        if (object == null) {
-            return false;
-        }
-        Class<?> clazz = object.getClass();
-
-        if (BeanUtils.isSimpleProperty(clazz)) {
-            return false;
-        }
-
-        if (Map.class.isAssignableFrom(clazz) ||
-                Collection.class.isAssignableFrom(clazz) ||
-                clazz.isArray()) {
-            return false;
-        }
-
-        BeanInfo beanInfo = Introspector.getBeanInfo(clazz, Object.class);
-        PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-        return propertyDescriptors != null && propertyDescriptors.length > 0;
+    public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
+        return GenericTypeResolver.resolveTypeArguments(clazz, genericIfc);
     }
 
-    public static Map<String, Field> fieldMap(Class<?> clazz) {
-        if (clazz == null) {
-            throw new IllegalArgumentException("clazz must not be null");
+
+    // ----------------------------------------------------------------------
+    // Bean 属性工具
+    // ----------------------------------------------------------------------
+
+    /**
+     * 获取 Bean 的属性映射：propertyName -> PropertyDescriptor。
+     * <p>
+     * Spring 的 BeanUtils.getPropertyDescriptors(beanClass) 已经做了 Class 级缓存，
+     * 这里在其基础上仅缓存我们封装的 Map，避免每次都 new HashMap+遍历。
+     *
+     * @param beanClass Bean 的 Class
+     * @return 属性名 -> PropertyDescriptor 的映射，未做防变更包装，按需自行 copy/unmodifiable。
+     */
+    public static Map<String, PropertyDescriptor> beanPropertyMap(Class<?> beanClass) {
+        if (beanClass == null) {
+            throw new IllegalArgumentException("beanClass must not be null");
         }
-        if (isJavaCoreClass(clazz)) {
-            throw new IllegalArgumentException("clazz must not be java class");
+
+        Map<String, PropertyDescriptor> cached = BEAN_PROPERTY_MAP_CACHE.get(beanClass);
+        if (cached != null) {
+            return cached;
         }
-        Map<String, Field> map = new HashMap<>();
-        ReflectionUtils.doWithFields(clazz,
-                field -> map.putIfAbsent(field.getName(), field),
-                ReflectionUtils.COPYABLE_FIELDS);
+
+        PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(beanClass);
+        if (pds.length == 0) {
+            throw new IllegalStateException("Could not find any property of bean class: " + beanClass.getName());
+        }
+
+        Map<String, PropertyDescriptor> map = new HashMap<>(pds.length);
+        for (PropertyDescriptor pd : pds) {
+            // BeanUtils 已经过滤了 getClass()，这里正常加入即可
+            map.put(pd.getName(), pd);
+        }
+        map = Collections.unmodifiableMap(map);
+        BEAN_PROPERTY_MAP_CACHE.put(beanClass, map);
         return map;
     }
 
-    public static <T> T copyProperties(Object source, T target) {
-        if (source == null || target == null) return target;
-        BeanUtils.copyProperties(source, target);
-        return target;
+    /**
+     * 获取 Bean 的所有属性名集合。
+     *
+     * @param beanClass Bean 的 Class
+     * @return 属性名集合（为简化性能，直接返回内部 Map 的 keySet 视图，外部请避免修改）
+     */
+    public static Set<String> beanPropertyNameSet(Class<?> beanClass) {
+        return Collections.unmodifiableSet(beanPropertyMap(beanClass).keySet());
     }
 
     /**
      * 将一个 JavaBean 对象转换为 Map。
+     * <p>
+     * 使用 PropertyDescriptor 的 readMethod 读取属性值，忽略为 null 的属性。
      *
-     * @param bean 源对象, 必须为 JavaBean
+     * @param bean 源对象
      * @return 转换后的 Map
      */
     @SneakyThrows
-    public static Map<String, Object> javaBeanToMap(Object bean) {
-        if (!isJavaBean(bean)) {
-            throw new IllegalArgumentException("bean must be java bean");
+    public static Map<String, Object> beanToMap(Object bean) {
+        if (bean == null) {
+            return Collections.emptyMap();
         }
-        Map<String, Object> map = new HashMap<>();
-        BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass(), Object.class);
-        PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-        for (PropertyDescriptor property : propertyDescriptors) {
-            String key = property.getName();
-            Method getter = property.getReadMethod();
-            if (getter != null) {
-                Object value = getter.invoke(bean);
-                if (value != null) {
-                    map.put(key, value);
-                }
+        Map<String, PropertyDescriptor> propertyDescriptorMap = beanPropertyMap(bean.getClass());
+        Map<String, Object> map = new HashMap<>(propertyDescriptorMap.size());
+
+        for (Map.Entry<String, PropertyDescriptor> entry : propertyDescriptorMap.entrySet()) {
+            PropertyDescriptor pd = entry.getValue();
+            Method readMethod = pd.getReadMethod();
+            if (readMethod == null) {
+                continue;
+            }
+            Object value = readMethod.invoke(bean);
+            if (value != null) {
+                map.put(entry.getKey(), value);
             }
         }
         return map;
     }
 
-    public static <T> T toTarget(Object source, Class<T> clazz) {
-        if (source == null) {
+
+    // ----------------------------------------------------------------------
+    // Bean 拷贝
+    // ----------------------------------------------------------------------
+
+    /**
+     * 属性复制。
+     */
+    public static <T> T copyProperties(Object sourceBean, T targetBean) {
+        if (sourceBean == null || targetBean == null) {
+            return targetBean;
+        }
+        BeanUtils.copyProperties(sourceBean, targetBean);
+        return targetBean;
+    }
+
+    /**
+     * 创建目标类型实例，并将 sourceBean 的属性拷贝到新实例上。
+     */
+    public static <T> T toTarget(Object sourceBean, Class<T> targetBeanClass) {
+        if (sourceBean == null) {
             return null;
         }
-        if (clazz == null) {
-            throw new IllegalArgumentException("clazz must not be null");
-        }
-        return copyProperties(source, newInstance(clazz));
+        return copyProperties(sourceBean, newInstance(targetBeanClass));
     }
 
-    public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> superClass) {
-        return GenericTypeResolver.resolveTypeArguments(clazz, superClass);
-    }
+
+    // ----------------------------------------------------------------------
+    // 方法引用（GetterReference）相关工具
+    // ----------------------------------------------------------------------
 
     /**
-     * 从可序列化的方法引用中提取 {@link SerializedLambda} 信息。
+     * 从可序列化的方法引用中提取 SerializedLambda 信息。
+     * <p>
+     * 使用 lambdaClass 为 key 做一层缓存，避免每次都反射调用 writeReplace。
      *
-     * @param getter 方法引用
-     * @return {@link SerializedLambda} 实例
+     * @param getter 方法引用，例如 User::getName
+     * @return SerializedLambda 实例
      */
     @SneakyThrows
-    private static <T, R> SerializedLambda getSerializedLambda(GetterReference<T, R> getter) {
-        Method writeReplaceMethod = getter.getClass().getDeclaredMethod("writeReplace");
+    private static <T, R> SerializedLambda resolveSerializedLambda(GetterReference<T, R> getter) {
+        Class<?> lambdaClass = getter.getClass();
+        SerializedLambda cached = LAMBDA_CACHE.get(lambdaClass);
+        if (cached != null) {
+            return cached;
+        }
+
+        Method writeReplaceMethod = lambdaClass.getDeclaredMethod("writeReplace");
         writeReplaceMethod.setAccessible(true);
-        return (SerializedLambda) writeReplaceMethod.invoke(getter);
+        SerializedLambda lambda = (SerializedLambda) writeReplaceMethod.invoke(getter);
+        LAMBDA_CACHE.put(lambdaClass, lambda);
+        return lambda;
     }
 
     /**
-     * 从方法引用中获取其声明所在的类的 {@link Class} 对象。
+     * 从方法引用中获取其声明所在的类的 Class 对象。
      *
      * @param getter 方法引用
-     * @return 声明该方法的类的 {@link Class} 对象
+     * @return 声明该方法的类
      */
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T, R> Class<T> getGetterClass(GetterReference<T, R> getter) {
-        SerializedLambda serializedLambda = getSerializedLambda(getter);
+    public static <T, R> Class<T> resolveGetterClass(GetterReference<T, R> getter) {
+        SerializedLambda serializedLambda = resolveSerializedLambda(getter);
         String className = serializedLambda.getImplClass().replace("/", ".");
         return (Class<T>) Class.forName(className);
     }
 
     /**
-     * 从方法引用中获取其对应的 {@link Method} 对象。
+     * 从方法引用中获取其对应的 Method 对象。
+     * <p>
+     * 这里不再对 Method 本身做额外缓存，调用频率一般不会高到需要再加一层。
      *
      * @param getter 方法引用
-     * @return {@link Method} 对象
+     * @return Method 对象
      */
     @SneakyThrows
-    public static <T, R> Method getGetterMethod(GetterReference<T, R> getter) {
-        SerializedLambda serializedLambda = getSerializedLambda(getter);
+    public static <T, R> Method resolveGetterMethod(GetterReference<T, R> getter) {
+        SerializedLambda serializedLambda = resolveSerializedLambda(getter);
         String implMethodName = serializedLambda.getImplMethodName();
-        Class<?> getterClass = getGetterClass(getter);
+        Class<?> getterClass = resolveGetterClass(getter);
         Method method = ReflectionUtils.findMethod(getterClass, implMethodName);
         if (method == null) {
-            throw new IllegalStateException("Could not find method " + implMethodName);
+            throw new IllegalStateException("Could not find method " + implMethodName +
+                    " on class " + getterClass.getName());
         }
         return method;
     }
@@ -174,23 +223,21 @@ public abstract class ReflectUtils {
     /**
      * 从 getter 方法引用中获取其对应的属性名。
      *
-     * @param getter 方法引用
-     * @return 属性名
+     * @param getter 方法引用，例如 User::getName
+     * @return 属性名，例如 "name"
      */
-    @SneakyThrows
-    public static <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
-        String name = getSerializedLambda(getter).getImplMethodName();
+    public static <T, R> String resolveGetterPropertyName(GetterReference<T, R> getter) {
+        String implMethodName = resolveSerializedLambda(getter).getImplMethodName();
+        String name = implMethodName;
+
         if (name.startsWith("is")) {
             name = name.substring(2);
         } else if (name.startsWith("get") || name.startsWith("set")) {
             name = name.substring(3);
         } else {
-            throw new IllegalArgumentException("Error parsing property name '" + name +
-                    "'.  Didn't start with 'is', 'get' or 'set'.");
+            throw new IllegalArgumentException("Error parsing property name '" + implMethodName +
+                    "'. Didn't start with 'is', 'get' or 'set'.");
         }
-        if (name.length() == 1 || name.length() > 1 && !Character.isUpperCase(name.charAt(1))) {
-            name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
-        }
-        return name;
+        return Introspector.decapitalize(name);
     }
 }
