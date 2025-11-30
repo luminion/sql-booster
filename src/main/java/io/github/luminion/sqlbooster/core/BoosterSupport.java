@@ -5,7 +5,8 @@ import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
+import io.github.luminion.sqlbooster.util.GenericTypeUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
 
@@ -29,7 +30,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         if (ObjectUtils.isEmpty(id)) {
             throw new NullPointerException("id can't be null");
         }
-        Class<T> clazz = TableMetaRegistry.getEntityClass(this);
+        Class<T> clazz = GenericTypeUtils.resolveBoosterEntityClass(this);
         String keyProperty = TableMetaRegistry.getIdPropertyName(clazz);
         if (ObjectUtils.isEmpty(keyProperty)) {
             throw new IllegalStateException("can't find id property");
@@ -46,7 +47,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         if (ObjectUtils.isEmpty(v)) {
             return null;
         }
-        return ReflectUtils.toTarget(v, targetType);
+        return BeanPropertyUtils.toTarget(v, targetType);
     }
 
     @Override
@@ -61,7 +62,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
 
     @Override
     default List<V> voListByIds(Collection<? extends Serializable> ids) {
-        Class<T> entityClass = TableMetaRegistry.getEntityClass(this);
+        Class<T> entityClass = GenericTypeUtils.resolveBoosterEntityClass(this);
         String idPropertyName = TableMetaRegistry.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getSymbol(), ids);
         SqlContext<T> sqlContext = new SqlContext<>();
@@ -73,7 +74,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     default <R> List<R> voListByIds(Collection<? extends Serializable> ids, Class<R> targetType) {
         List<V> vs = voListByIds(ids);
         return vs.stream()
-                .map(v -> ReflectUtils.toTarget(v, targetType))
+                .map(v -> BeanPropertyUtils.toTarget(v, targetType))
                 .collect(Collectors.toList());
     }
 
@@ -88,7 +89,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
 
     @Override
     default <R> R voFirst(SqlContext<T> sqlContext, Class<R> targetType) {
-        return ReflectUtils.toTarget(voFirst(sqlContext), targetType);
+        return BeanPropertyUtils.toTarget(voFirst(sqlContext), targetType);
     }
 
     @Override
@@ -115,7 +116,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
 
     @Override
     default <R> R voUnique(SqlContext<T> sqlContext, Class<R> targetType) {
-        return ReflectUtils.toTarget(voUnique(sqlContext), targetType);
+        return BeanPropertyUtils.toTarget(voUnique(sqlContext), targetType);
     }
 
     @Override
@@ -142,7 +143,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     default <R> List<R> voList(SqlContext<T> sqlContext, Class<R> targetType) {
         List<V> vs = voList(sqlContext);
         return vs.stream()
-                .map(v -> ReflectUtils.toTarget(v, targetType))
+                .map(v -> BeanPropertyUtils.toTarget(v, targetType))
                 .collect(Collectors.toList());
     }
 
@@ -165,7 +166,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     default <R> BPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType) {
         return voPage(sqlContext, pageNum, pageSize).convertRecords(targetType);
     }
-    
+
     @Override
     default SqlBuilderWrapper<T, V> sqlBuilder() {
         return new SqlBuilderWrapper<>(this);

@@ -1,7 +1,7 @@
 package com.example;
 
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ public class Test1 {
     
     @Test
     void test1(){
-        Map<String, Object> stringObjectMap = ReflectUtils.beanToMap(new SqlContext<>());
+        Map<String, Object> stringObjectMap = BeanPropertyUtils.toMap(new SqlContext<>());
         System.out.println(stringObjectMap);
     }
 }

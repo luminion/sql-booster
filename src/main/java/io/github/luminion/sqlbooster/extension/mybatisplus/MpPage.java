@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.github.luminion.sqlbooster.model.BPage;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class MpPage<T> implements BPage<T> {
 
     @Override
     public <R> BPage<R> convertRecords(Class<R> targetType) {
-        IPage<R> convert = pageInfo.convert(e -> ReflectUtils.toTarget(e, targetType));
+        IPage<R> convert = pageInfo.convert(e -> BeanPropertyUtils.toTarget(e, targetType));
         return new MpPage<>(convert);
     }
 

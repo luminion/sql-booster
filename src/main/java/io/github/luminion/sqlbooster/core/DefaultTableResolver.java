@@ -1,8 +1,9 @@
 package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.function.GetterReference;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
-import io.github.luminion.sqlbooster.util.StrUtils;
+import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
+import io.github.luminion.sqlbooster.util.SerializedLambdaUtils;
+import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +26,7 @@ public class DefaultTableResolver implements TableResolver {
 
     @Override
     public <T> String getTableName(Class<T> clazz) {
-        return StrUtils.pascalCaseToUnderscore(clazz.getSimpleName());
+        return StrConvertUtils.pascalCaseToUnderscore(clazz.getSimpleName());
     }
 
     @Override
@@ -41,7 +42,7 @@ public class DefaultTableResolver implements TableResolver {
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
         try {
-            return ReflectUtils.resolveGetterPropertyName(getter);
+            return SerializedLambdaUtils.resolveGetterPropertyName(getter);
         } catch (Exception e) {
             return null;
         }
@@ -49,10 +50,10 @@ public class DefaultTableResolver implements TableResolver {
 
     @Override
     public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
-        Set<String> beanPropertyNameSet = ReflectUtils.beanPropertyNameSet(clazz);
+        Set<String> beanPropertyNameSet = BeanPropertyUtils.getPropertyNames(clazz);
         return beanPropertyNameSet.stream().collect(Collectors.toMap(
-                e -> e, 
-                e -> String.format("a.%s", underscoreToCamelCase ? StrUtils.camelCaseToUnderscore(e) : e)
+                e -> e,
+                e -> String.format("a.%s", underscoreToCamelCase ? StrConvertUtils.camelCaseToUnderscore(e) : e)
         ));
     }
 

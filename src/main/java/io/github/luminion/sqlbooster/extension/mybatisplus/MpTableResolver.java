@@ -2,9 +2,9 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import io.github.luminion.sqlbooster.function.GetterReference;
 import io.github.luminion.sqlbooster.core.TableResolver;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.util.SerializedLambdaUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ public class MpTableResolver implements TableResolver {
 
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
-        return ReflectUtils.resolveGetterPropertyName(getter);
+        return SerializedLambdaUtils.resolveGetterPropertyName(getter);
     }
 
     @Override

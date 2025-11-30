@@ -1,7 +1,6 @@
 package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.function.GetterReference;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -43,16 +42,6 @@ public abstract class TableMetaRegistry {
             }
         }
         return count;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public static <T, V> Class<T> getEntityClass(Booster<T, V> booster) {
-        return (Class<T>) ReflectUtils.resolveTypeArguments(booster.getClass(), Booster.class)[0];
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public static <T, V> Class<V> getViewObjectClass(Booster<T, V> booster) {
-        return (Class<V>) ReflectUtils.resolveTypeArguments(booster.getClass(), Booster.class)[1];
     }
 
     /**

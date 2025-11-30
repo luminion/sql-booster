@@ -5,7 +5,7 @@ import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.ReflectUtils;
+import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -96,7 +96,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      */
     public S appendEqByJavaBean(Object bean) {
         if (bean != null){
-            Map<String, Object> stringObjectMap = ReflectUtils.beanToMap(bean);
+            Map<String, Object> stringObjectMap = BeanPropertyUtils.toMap(bean);
             this.appendEqByMap(stringObjectMap);
         }
         return (S) this;

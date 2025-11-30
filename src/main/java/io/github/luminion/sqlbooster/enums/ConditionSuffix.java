@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.enums;
 
-import io.github.luminion.sqlbooster.util.StrUtils;
+import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.Getter;
 
 /**
@@ -41,7 +41,7 @@ public enum ConditionSuffix {
         this.camelCase = camelCase;
         this.sqlKeyword = sqlKeyword;
         // 自动生成下划线风格: "NotLike" -> "_not_like"
-        this.underscore = StrUtils.camelCaseToUnderscore(camelCase);
+        this.underscore = StrConvertUtils.camelCaseToUnderscore(camelCase);
     }
 
     public String getSymbol() {

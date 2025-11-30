@@ -46,7 +46,7 @@ public abstract class MapperUtils {
      * @return 生成的 Mapper select 语句字符串
      */
     public static <T, V> String getMapperContent(Class<? extends Booster<T, V>> boostClass) {
-        Class<?>[] classes = ReflectUtils.resolveTypeArguments(boostClass, Booster.class);
+        Class<?>[] classes = GenericTypeUtils.resolveTypeArguments(boostClass, Booster.class);
         Class<?> entityClass = classes[0];
         Class<?> voClass = classes[1];
         return getMapperContent(entityClass, voClass);
@@ -76,7 +76,7 @@ public abstract class MapperUtils {
         try {
             tableName = TableMetaRegistry.getTableName(entityClass);
         } catch (IllegalStateException e) {
-            tableName = StrUtils.camelCaseToUnderscore(entityClass.getName());
+            tableName = StrConvertUtils.camelCaseToUnderscore(entityClass.getName());
             if (tableName.startsWith("_")) {
                 return tableName.substring(1);
             }

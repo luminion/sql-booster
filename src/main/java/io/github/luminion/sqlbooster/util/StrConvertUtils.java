@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.util;
 
-public class StrUtils {
+public class StrConvertUtils {
 
     public static String underscoreToCamelCase(String str) {
         StringBuilder sb = new StringBuilder();

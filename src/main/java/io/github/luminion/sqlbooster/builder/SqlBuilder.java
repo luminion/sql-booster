@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.TableMetaRegistry;
+import io.github.luminion.sqlbooster.util.GenericTypeUtils;
 
 /**
  * SQL查询构建器。提供了用于创建查询的静态工厂方法及多种链式调用。
@@ -16,7 +16,7 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     }
 
     public static <T> SqlBuilder<T> of(Booster<T, ?> booster) {
-        return new SqlBuilder<>(TableMetaRegistry.getEntityClass(booster));
+        return new SqlBuilder<>(GenericTypeUtils.resolveBoosterEntityClass(booster));
     }
 
     public SqlBuilder(Class<T> entityClass) {
