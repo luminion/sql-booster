@@ -20,19 +20,19 @@ public abstract class TableMetaRegistry {
 
     private static final ConcurrentSkipListSet<TableResolver> RESOLVERS = new ConcurrentSkipListSet<>();
 
-    public static List<TableResolver> checkoutProviders() {
+    public static List<TableResolver> checkoutTableResolver() {
         return new ArrayList<>(RESOLVERS);
     }
 
-    public static boolean registerProvider(TableResolver tableResolver) {
+    public static boolean addTableResolver(TableResolver tableResolver) {
         return RESOLVERS.add(tableResolver);
     }
 
-    public static boolean removeProvider(TableResolver tableResolver) {
+    public static boolean removeTableResolver(TableResolver tableResolver) {
         return RESOLVERS.remove(tableResolver);
     }
 
-    public static int removeProvider(Class<? extends TableResolver> tableResolverType) {
+    public static int removeTableResolver(Class<? extends TableResolver> tableResolverType) {
         int count = 0;
         for (TableResolver tableResolver : RESOLVERS) {
             if (tableResolver.getClass().equals(tableResolverType)) {

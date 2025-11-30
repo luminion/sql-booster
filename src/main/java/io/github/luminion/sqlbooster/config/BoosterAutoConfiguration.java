@@ -50,7 +50,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
         // 注册所有找到的 TableResolver
         Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
         for (TableResolver provider : providerMap.values()) {
-            TableMetaRegistry.registerProvider(provider);
+            TableMetaRegistry.addTableResolver(provider);
         }
         log.debug("{} boost providers registered", providerMap.size());
     }

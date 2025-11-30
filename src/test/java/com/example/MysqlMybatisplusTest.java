@@ -4,6 +4,8 @@ package com.example;
 import com.example.entity.SysUser;
 import com.example.mapper.SysUserMapper;
 import com.example.vo.SysUserVO;
+import io.github.luminion.sqlbooster.core.TableMetaRegistry;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
@@ -11,10 +13,7 @@ import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -45,6 +44,12 @@ public class MysqlMybatisplusTest {
 //        System.out.println(entityClass);
 //    }
 
+    @Test
+    @BeforeEach
+    void testBasic() {
+        TableMetaRegistry.removeTableResolver(MpTableResolver.class);
+    }
+    
     /**
      * 测试基本的VO查询功能
      */
