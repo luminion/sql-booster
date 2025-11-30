@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import io.github.luminion.sqlbooster.core.DefaultTableResolver;
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import io.github.luminion.sqlbooster.core.TableResolver;
+import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapperUtils;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
-import io.github.luminion.sqlbooster.util.MapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,7 +39,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
         for (Map.Entry<String, SqlSessionFactory> entry : sqlSessionFactoryMap.entrySet()) {
             String beanName = entry.getKey();
             SqlSessionFactory sqlSessionFactory = entry.getValue();
-            boolean success = MapperUtils.initSqlFragment(sqlSessionFactory);
+            boolean success = BoosterMapperUtils.initSqlFragment(sqlSessionFactory);
             if (success) {
                 log.debug("sqlFragments configured for SqlSessionFactory bean: {}", beanName);
             } else {

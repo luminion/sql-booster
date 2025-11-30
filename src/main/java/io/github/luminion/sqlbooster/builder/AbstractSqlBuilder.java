@@ -7,6 +7,7 @@ import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import io.github.luminion.sqlbooster.util.SqlContextUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
@@ -27,6 +28,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     /**
      * 关联的实体类, 用于 SQL 校验和处理。
      */
+    @Getter
     protected final Class<T> entityClass;
     /**
      * 存放条件的上下文。
@@ -94,7 +96,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      *
      * @param bean 包含查询值的实体对象
      */
-    public S appendEqByJavaBean(Object bean) {
+    public S appendEqByBean(Object bean) {
         if (bean != null){
             Map<String, Object> stringObjectMap = BeanPropertyUtils.toMap(bean);
             this.appendEqByMap(stringObjectMap);

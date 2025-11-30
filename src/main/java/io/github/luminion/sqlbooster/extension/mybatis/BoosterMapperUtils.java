@@ -1,7 +1,9 @@
-package io.github.luminion.sqlbooster.util;
+package io.github.luminion.sqlbooster.extension.mybatis;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
+import io.github.luminion.sqlbooster.util.GenericTypeUtils;
+import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.io.Resources;
@@ -17,7 +19,7 @@ import java.io.InputStream;
  * 提供 SQL 片段的初始化和动态 Mapper 内容的生成。
  */
 @Slf4j
-public abstract class MapperUtils {
+public abstract class BoosterMapperUtils {
 
     /**
      * 初始化核心 SQL 片段。
