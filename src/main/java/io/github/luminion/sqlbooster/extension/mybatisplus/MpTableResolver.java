@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import io.github.luminion.sqlbooster.core.TableResolver;
 import io.github.luminion.sqlbooster.function.GetterReference;
 import io.github.luminion.sqlbooster.util.SerializedLambdaUtils;
-import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
