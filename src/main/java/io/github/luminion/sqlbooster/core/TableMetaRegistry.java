@@ -110,6 +110,6 @@ public abstract class TableMetaRegistry {
             }
         }
         log.warn("No property to column alias map found in {} tableResolvers, class: {}", RESOLVERS.size(), entityClass.getName());
-        return Collections.emptyNavigableMap();
+        return Collections.emptyMap();
     }
 }

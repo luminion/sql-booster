@@ -41,11 +41,7 @@ public class DefaultTableResolver implements TableResolver {
 
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
-        try {
-            return SerializedLambdaUtils.resolveGetterPropertyName(getter);
-        } catch (Exception e) {
-            return null;
-        }
+        return SerializedLambdaUtils.resolveGetterPropertyName(getter);
     }
 
     @Override

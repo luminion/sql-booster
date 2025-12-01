@@ -28,7 +28,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     @Override
     default V voById(Serializable id) {
         if (ObjectUtils.isEmpty(id)) {
-            throw new NullPointerException("id can't be null");
+            throw new IllegalArgumentException("id can't be null");
         }
         Class<T> clazz = GenericTypeUtils.resolveBoosterEntityClass(this);
         String keyProperty = TableMetaRegistry.getIdPropertyName(clazz);
@@ -109,7 +109,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
             return null;
         }
         if (vs.size() > 1) {
-            throw new TooManyResultsException("error query => expected one but found 0" + vs.size());
+            throw new TooManyResultsException("error query => expected one but found " + vs.size());
         }
         return vs.get(0);
     }
