@@ -32,7 +32,9 @@ SQL Booster 是一个数据库查询设计的增强工具包，旨在简化和�
 </dependency>
 ```
 
-快照版本仓库地址
+迭代优化中,目前发布为快照版本, 可添加maven中央快照仓库(可能需网络代理)获取
+
+老版本地址: https://github.com/bootystar/mybatis-plus-enhancer
 
 ```xml
 
@@ -49,6 +51,15 @@ SQL Booster 是一个数据库查询设计的增强工具包，旨在简化和�
         </snapshots>
     </repository>
 </repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>io.github.luminion</groupId>
+        <artifactId>sql-booster</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+
 ```
 
 ---
