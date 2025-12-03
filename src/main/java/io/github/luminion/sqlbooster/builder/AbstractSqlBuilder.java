@@ -1,12 +1,11 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
-import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
-import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -40,10 +39,18 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      */
     protected abstract S newInstance();
 
+    /**
+     * 获取构建后存放的条件上下文信息。
+     */
     public SqlContext<T> build() {
-        return build(SqlContextUtils::build);
+        return build((clazz, sqlContext) -> sqlContext);
     }
 
+    /**
+     * 自定义构建 SQL 上下文的函数。
+     * <p>
+     * 允许用户在构建完成后对 SqlContext 进行自定义处理。
+     */
     public SqlContext<T> build(BiFunction<Class<T>, SqlContext<T>, SqlContext<T>> builder) {
         return builder.apply(this.entityClass, this.sqlContext);
     }
@@ -97,7 +104,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      * @param bean 包含查询值的实体对象
      */
     public S appendEqByBean(Object bean) {
-        if (bean != null){
+        if (bean != null) {
             Map<String, Object> stringObjectMap = BeanPropertyUtils.toMap(bean);
             this.appendEqByMap(stringObjectMap);
         }

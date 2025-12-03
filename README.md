@@ -206,7 +206,7 @@ public class SysUserController {
         // 使用SqlBuilder可链式调用,快速组合条件,执行查询 
         SqlContext<SysUser> sqlContext = SqlBuilder.of(sysUserMapper)
                 .appendEqByBean(dto) // 将DTO对象中的属性和值, 作为等于条件添加
-                .build(); // build 方法返回SqlContext, 在build的时候会严格对参数进行校验移除无效的参数
+                .build(); // build 方法返回SqlContext
         return sysUserMapper.voList(sqlContext);
     }
 
