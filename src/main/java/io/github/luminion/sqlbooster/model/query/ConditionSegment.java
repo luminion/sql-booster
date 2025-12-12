@@ -1,12 +1,14 @@
 package io.github.luminion.sqlbooster.model.query;
 
-import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.NoSuchElementException;
 
 /**
  * 条件组，用于封装一组以 AND 或 OR 连接的查询条件。

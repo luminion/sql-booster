@@ -4,7 +4,9 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub](https://img.shields.io/github/stars/luminion/sql-booster?style=social)](https://github.com/luminion/sql-booster)
 
-SQL Booster 是一个数据库查询设计的增强工具包，旨在简化和增强数据访问层的开发。提供了强大的动态SQL动态条件和后缀查询映射功能。
+SQL Booster 简化数据访问层的开发的增强工具包。提供了强大的动态SQL动态条件和后缀查询映射功能。
+
+旧版地址: https://github.com/bootystar/mybatis-plus-enhancer
 
 ## 功能特性
 
@@ -24,7 +26,6 @@ SQL Booster 是一个数据库查询设计的增强工具包，旨在简化和�
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.luminion/sql-booster)](https://mvnrepository.com/artifact/io.github.luminion/sql-booster)
 
 ```xml
-
 <dependency>
     <groupId>io.github.luminion</groupId>
     <artifactId>sql-booster</artifactId>
@@ -32,12 +33,9 @@ SQL Booster 是一个数据库查询设计的增强工具包，旨在简化和�
 </dependency>
 ```
 
-迭代优化中, 老版本地址: https://github.com/bootystar/mybatis-plus-enhancer
-
-目前发布为快照版本, 可添加maven中央快照仓库(可能需网络代理)获取
+可添加maven中央快照仓库(可能需网络代理)获取快照版本
 
 ```xml
-
 <repositories>
     <repository>
         <name>Central Portal Snapshots</name>
@@ -59,7 +57,6 @@ SQL Booster 是一个数据库查询设计的增强工具包，旨在简化和�
         <version>1.0.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
-
 ```
 
 ---
@@ -116,15 +113,15 @@ public static void main(String[] args) {
     sys_user a
     <where>
         <include refid="sqlbooster.conditions"/>
-        <!--此处编写自定义条件SQL, 未自动映射的条件可通过param1.extra获取, 编写时以AND开头以兼容自动映射的查询条件-->
+        <!--编写自定义条件SQL, 未自动映射的条件可通过param1.extra获取, 编写时以AND开头以兼容自动映射的查询条件-->
         AND a.deleted = 0
-        <if test="param1.extra.userDeptName != null">
+        <if test="param1.params.userDeptName != null">
             AND a.dept_id in (SELECT id FROM sys_department WHERE name = #{param1.extra.userDeptName})
         </if>
     </where>
     <trim prefix="ORDER BY" prefixOverrides=",">
         <include refid="sqlbooster.sorts"/>
-        <!--此处编写排序字段SQL, 编写时以,开头以兼容自动映射的排序-->
+        <!--编写排序字段SQL, 编写时以,开头以兼容自动映射的排序-->
         , a.created_time DESC , a.id DESC
     </trim>
 </select>
@@ -329,17 +326,17 @@ public class Test {
         map.put("_le", "<=");
         map.put("_not_eq", "<>");
 
-        // 1.设置默认后缀映射
+        // 方法1.设置默认后缀映射
         SqlContextUtils.refreshDefaultSuffixes(map);
 
-        // 2.构建时指定后缀映射, 使用构建后的SqlContext作为查询条件
+        // 方法2.构建时指定后缀映射, 使用构建后的SqlContext作为查询条件
         SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
                 .build(entityClass, sqlContext -> 
                         SqlContextUtils.buildWithSuffix(entityClass, sqlContext, map)
         );
         booster.voList(sqlContext);
         
-        // 3. 重写Booster的核心逻辑, 例如boosterMapper
+        // 方法3. 重写Booster的核心逻辑, 例如boosterMapper
         new BoosterMapper<>(){
             @Override
             public List<V> selectByBooster(SqlContext<T> boosterParam, Object page) {
