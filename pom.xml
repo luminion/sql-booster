@@ -31,7 +31,7 @@
     <scm>
         <connection>scm:git:git://github.com/luminion/sql-booster.git</connection>
         <developerConnection>scm:git:ssh://github.com:luminion/sql-booster.git</developerConnection>
-        <url>https://github.com/luminion/sql-booster/segment/master</url>
+        <url>https://github.com/luminion/sql-booster/tree/master</url>
     </scm>
     
     
