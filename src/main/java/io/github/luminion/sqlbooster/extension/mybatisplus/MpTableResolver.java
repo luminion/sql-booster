@@ -1,6 +1,7 @@
 package io.github.luminion.sqlbooster.extension.mybatisplus;
 
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import io.github.luminion.sqlbooster.core.TableResolver;
 import io.github.luminion.sqlbooster.function.GetterReference;
@@ -33,9 +34,12 @@ public class MpTableResolver implements TableResolver {
 
     @Override
     public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
-        return TableInfoHelper.getTableInfo(clazz).getFieldList().stream()
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
+        Map<String, String> map = tableInfo.getFieldList().stream()
                 .collect(Collectors.toMap(TableFieldInfo::getProperty,
                         e -> String.format("a.%s", e.getColumn())));
+        map.put(tableInfo.getKeyProperty(), String.format("a.%s", tableInfo.getKeyColumn()));
+        return map;
     }
 
     @Override
