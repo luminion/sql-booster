@@ -38,7 +38,10 @@ public class MpTableResolver implements TableResolver {
         Map<String, String> map = tableInfo.getFieldList().stream()
                 .collect(Collectors.toMap(TableFieldInfo::getProperty,
                         e -> String.format("a.%s", e.getColumn())));
-        map.put(tableInfo.getKeyProperty(), String.format("a.%s", tableInfo.getKeyColumn()));
+        String keyProperty = tableInfo.getKeyProperty();
+        if (keyProperty != null) {
+            map.put(tableInfo.getKeyProperty(), String.format("a.%s", tableInfo.getKeyColumn()));
+        }
         return map;
     }
 
