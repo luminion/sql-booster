@@ -56,7 +56,8 @@ public abstract class SqlContextUtils {
     /**
      * 执行基础构建，并使用自定义后缀规则解析。
      */
-    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source, Map<String, String> customSuffixMap) {
+    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source,
+            Map<String, String> customSuffixMap) {
         SqlContext<T> context = buildBase(entityClass, source);
         return resolveSuffixes(context, entityClass, customSuffixMap);
     }
@@ -64,7 +65,8 @@ public abstract class SqlContextUtils {
     // ==================== 核心步骤 1: 基础构建 ====================
 
     private static <T> SqlContext<T> buildBase(Class<T> entityClass, SqlContext<?> source) {
-        if (entityClass == null) throw new IllegalArgumentException("Entity class cannot be null");
+        if (entityClass == null)
+            throw new IllegalArgumentException("Entity class cannot be null");
 
         SqlContext<T> result = new SqlContext<>();
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
@@ -78,7 +80,7 @@ public abstract class SqlContextUtils {
                 String field = c.getField();
                 String column = columnMap.get(field);
                 // 兼容已转化的列
-                if (column==null && columns.contains(field)){
+                if (column == null && columns.contains(field)) {
                     column = field;
                 }
                 if (column != null) {
@@ -105,12 +107,51 @@ public abstract class SqlContextUtils {
         // 2. 处理排序
         processSorts(source.getSorts(), columnMap, result.getSorts());
 
+        // 3. 处理字段筛选
+        processColumns(source, columnMap, result);
+
         return result;
+    }
+
+    private static void processColumns(SqlContext<?> source, Map<String, String> columnMap, SqlContext<?> target) {
+        Set<String> includes = source.getIncludes();
+        Set<String> excludes = source.getExcludes();
+
+        if (includes.isEmpty() && excludes.isEmpty()) {
+            target.setSelectFields("a.*");
+            return;
+        }
+
+        List<String> finalColumns = new ArrayList<>();
+        if (!includes.isEmpty()) {
+            for (String field : includes) {
+                String column = columnMap.get(field);
+                if (column != null) {
+                    finalColumns.add(column);
+                } else if (columnMap.containsValue(field)) {
+                    finalColumns.add(field);
+                }
+            }
+        } else {
+            // 只有排除项
+            for (Map.Entry<String, String> entry : columnMap.entrySet()) {
+                if (!excludes.contains(entry.getKey()) && !excludes.contains(entry.getValue())) {
+                    finalColumns.add(entry.getValue());
+                }
+            }
+        }
+
+        if (finalColumns.isEmpty()) {
+            target.setSelectFields("a.*");
+        } else {
+            target.setSelectFields(String.join(", ", finalColumns));
+        }
     }
 
     // ==================== 核心步骤 2: 后缀解析 ====================
 
-    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass, Map<String, String> customSuffixMap) {
+    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass,
+            Map<String, String> customSuffixMap) {
         Map<String, Object> params = context.getParams();
         if (params.isEmpty()) {
             return context;
@@ -122,7 +163,6 @@ public abstract class SqlContextUtils {
         if (customSuffixMap != null) {
             suffixList.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
         }
-
 
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
 
@@ -177,7 +217,9 @@ public abstract class SqlContextUtils {
 
     /**
      * 根据操作符和值进行校验，并创建合法的 Condition 对象。
-     * <p>包含了所有内置操作符的严格类型检查规则。</p>
+     * <p>
+     * 包含了所有内置操作符的严格类型检查规则。
+     * </p>
      */
     private static Condition validateAndCreate(String column, String operatorStr, Object value) {
         SqlKeyword keyword;
@@ -209,7 +251,8 @@ public abstract class SqlContextUtils {
 
         // 规则: 位运算，值必须是整型
         if (keyword.isBitOperation()) {
-            if (!(value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte)) {
+            if (!(value instanceof Integer || value instanceof Long || value instanceof Short
+                    || value instanceof Byte)) {
                 return null;
             }
         }

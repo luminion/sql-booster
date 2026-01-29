@@ -354,6 +354,60 @@ public class Test {
 }
 ```
 
+### BoosterInterceptor 拦截器
+
+`BoosterInterceptor` 允许在查询执行前（`preHandle`）和执行后（`postHandle`）对查询上下文及结果集进行干预。这是实现 **全局逻辑删除**、**多租户隔离** 或 **数据权限控制** 的最佳位置。
+
+#### 接口定义
+
+```java
+public interface BoosterInterceptor<T, V> {
+    /**
+     * 查询执行前处理
+     * @param context 查询上下文（可动态修改条件、排序等）
+     */
+    default void preHandle(SqlContext<T> context) {}
+
+    /**
+     * 查询执行后处理
+     * @param context    查询上下文
+     * @param resultList 查询返回的结果集（已转 VO）
+     */
+    default void postHandle(SqlContext<T> context, List<V> resultList) {}
+}
+```
+
+#### 实战场景：逻辑删除与租户隔离
+
+通过拦截器，你可以将通用的查询约束（如 `deleted = 0`）横向注入到所有动态查询中，而无需在每个业务方法或前端入参中重复指定。
+
+```java
+@Service
+public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, SysUserVO> {
+
+    @Override
+    public void preHandle(SqlContext<SysUser> context) {
+        // 1. 自动追加逻辑删除约束：生成的 SQL 会自动带上 AND a.deleted = 0
+        context.getConditions().add(new Condition("deleted", "=", 0));
+        
+        // 2. 动态注入租户/用户隔离：非管理员只能查看自己的数据
+        if (!isAdmin()) {
+           context.getConditions().add(new Condition("createBy", "=",  UserUtils.getUserId()));
+        }
+    }
+    
+    @Override
+    public void postHandle(SqlContext<SysUser> context, List<V> resultList) {
+        // 3. 结果脱敏：查询结束后对敏感信息进行处理
+        resultList.forEach(vo -> {
+            if (vo.getPhone() != null) {
+                vo.setPhone(vo.getPhone().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2"));
+            }
+        });
+    }
+}
+```
+
 ### 动态条件组合SQL
 
 - 入参自由指定`查询条件`/`查询类型`/`查询值`

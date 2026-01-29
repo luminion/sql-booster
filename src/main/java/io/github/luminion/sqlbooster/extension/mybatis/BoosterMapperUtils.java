@@ -21,6 +21,19 @@ import java.io.InputStream;
 @Slf4j
 public abstract class BoosterMapperUtils {
 
+    public static boolean initSqlFragment(SqlSessionFactory sqlSessionFactory, String classPathResource) {
+        Configuration configuration = sqlSessionFactory.getConfiguration();
+        try (InputStream inputStream = Resources.getResourceAsStream(classPathResource)) {
+            XMLMapperBuilder mapperBuilder = new XMLMapperBuilder(inputStream, configuration, classPathResource,
+                    configuration.getSqlFragments());
+            mapperBuilder.parse();
+            return true;
+        } catch (IOException e) {
+            log.error("error creating sqlFragments", e);
+            return false;
+        }
+    }
+
     /**
      * 初始化核心 SQL 片段。
      * <p>
@@ -29,16 +42,8 @@ public abstract class BoosterMapperUtils {
      * @param sqlSessionFactory SQL 会话工厂
      */
     public static boolean initSqlFragment(SqlSessionFactory sqlSessionFactory) {
-        Configuration configuration = sqlSessionFactory.getConfiguration();
         String resource = "booster/sqlbooster.xml";
-        try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
-            XMLMapperBuilder mapperBuilder = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
-            mapperBuilder.parse();
-            return true;
-        } catch (IOException e) {
-            log.error("error creating sqlFragments", e);
-            return false;
-        }
+        return initSqlFragment(sqlSessionFactory, resource);
     }
 
     /**
