@@ -14,12 +14,12 @@ import java.util.Optional;
  *
  * <h3>方法命名约定:</h3>
  * <ul>
- *   <li>{@code voById} - 根据 ID 查询。</li>
- *   <li>{@code voByIds} - 根据 ID 集合批量查询。</li>
- *   <li>{@code voFirst} - 查询第一条记录（如果存在多条，返回第一条）。</li>
- *   <li>{@code voUnique} - 查询唯一记录（如果存在多条，会抛出异常）。</li>
- *   <li>{@code voList} - 查询记录列表。</li>
- *   <li>{@code voPage} - 分页查询记录列表。</li>
+ * <li>{@code voById} - 根据 ID 查询。</li>
+ * <li>{@code voByIds} - 根据 ID 集合批量查询。</li>
+ * <li>{@code voFirst} - 查询第一条记录（如果存在多条，返回第一条）。</li>
+ * <li>{@code voUnique} - 查询唯一记录（如果存在多条，会抛出异常）。</li>
+ * <li>{@code voList} - 查询记录列表。</li>
+ * <li>{@code voPage} - 分页查询记录列表。</li>
  * </ul>
  *
  * @param <T> 数据库实体类型
@@ -70,9 +70,20 @@ public interface Booster<T, V> {
     <R> BPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType);
 
     /**
-     * 获取一个 SQL 构建器实例。
+     * 获取一个 Lambda SQL 构建器实例。
      *
      * @return 用于链式调用的 SQL 构建器
      */
-    SqlBuilderWrapper<T, V> sqlBuilder();
+    SqlBuilderWrapper<T, V> lambdaBuilder();
+
+    /**
+     * 仅作兼容性处理, 
+     * 建议使用{@link #lambdaBuilder()}代替
+     */
+    @Deprecated
+    default SqlBuilderWrapper<T, V> sqlBuilder(){
+        return lambdaBuilder();
+    }
+    
+    
 }

@@ -168,7 +168,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
     }
 
     @Override
-    default SqlBuilderWrapper<T, V> sqlBuilder() {
+    default SqlBuilderWrapper<T, V> lambdaBuilder() {
         return new SqlBuilderWrapper<>(this);
     }
 

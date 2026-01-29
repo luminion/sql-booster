@@ -111,7 +111,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      * 将 Map 转换为多个 "等于" (EQ) 条件。
      * <p>
      * Map 的键作为字段名，值作为查询值。值为 null 的条目将被忽略。
-     * @deprecated 若配置了后缀映射, 映射的条件不一定为eq
+     * @deprecated 使用{@link #appendByMap(Map)}代替(若配置了后缀映射, 映射的条件不一定为eq)
      */
     @Deprecated
     public S appendEqByMap(Map<?, ?> map) {
@@ -123,7 +123,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
      * 将 JavaBean 对象的属性转换为多个 "等于" (EQ) 条件。
      * <p>
      * 属性值为 null 的将被忽略。
-     * @deprecated 若配置了后缀映射, 映射的条件不一定为eq
+     * @deprecated 使用{@link #appendByMap(Map)}代替(若配置了后缀映射, 映射的条件不一定为eq)
      */
     @Deprecated
     public S appendEqByBean(Object bean) {

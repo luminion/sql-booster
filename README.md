@@ -202,7 +202,7 @@ public class SysUserController {
     public List<SysUserVO> getUsersByDTO(@RequestBody SysUserDTO dto) {
         // 使用SqlBuilder可链式调用,快速组合条件,执行查询 
         SqlContext<SysUser> sqlContext = SqlBuilder.of(sysUserMapper)
-                .appendEqByBean(dto) // 将DTO对象中的属性和值, 作为等于条件添加
+                .appendByBean(dto) // 将DTO对象中的属性和值, 作为等于条件添加
                 .build(); // build 方法返回SqlContext
         return sysUserMapper.voList(sqlContext);
     }
@@ -210,9 +210,9 @@ public class SysUserController {
     // 通过map条件查询(支持后缀映射不同类型查询)
     @PostMapping("/map")
     public List<SysUserVO> getUsersByMap(@RequestBody Map<String, Object> params) {
-        // Booster提供sqlBuilder()方法支持链式调用, 可快速组合条件, 执行查询
-        return sysUserMapper.sqlBuilder() 
-                .appendEqByMap(params) // 添加Map条件
+        // Booster提供lambdaBuilder()方法支持链式调用, 可快速组合条件, 执行查询
+        return sysUserMapper.lambdaBuilder() 
+                .appendByMap(params) // 添加Map条件
                 .list();
     }
 
@@ -226,8 +226,8 @@ public class SysUserController {
     // lambda调用,添加必要条件, 例如权限角色等
     @PostMapping("/lambda")
     public List<SysUserVO> getUsersBySql(@RequestBody Map<String, Object> params) {
-        return sysUserMapper.sqlBuilder()
-                .appendEqByMap(params) // 合并Map条件
+        return sysUserMapper.lambdaBuilder()
+                .appendByMap(params) // 合并Map条件
                 .eq(SysUser::getState, 1) // state=1
                 .gte(SysUser::getAge, 18) // age>=18
                 .in(SysUser::getRoleId, Arrays.asList(1, 2))
@@ -240,8 +240,8 @@ public class SysUserController {
     public BPage<SysUserVO> getUserPage(@RequestBody Map<String, Object> params,
                                         @PathVariable("current") Long current,
                                         @PathVariable("size") Long size) {
-        return sysUserMapper.sqlBuilder()
-                .appendEqByMap(params)
+        return sysUserMapper.lambdaBuilder()
+                .appendByMap(params)
                 .page(current, size);
     }
 
