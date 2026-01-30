@@ -9,6 +9,7 @@ import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -72,10 +73,17 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
         @Bean
         @ConditionalOnMissingBean(TableResolver.class)
-        public TableResolver tableResolver(SqlSessionFactory sqlSessionFactory) {
-            boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
-            log.info("Using DefaultTableResolver (mapUnderscoreToCamelCase: {})", mapUnderscoreToCamelCase);
-            return new DefaultTableResolver(mapUnderscoreToCamelCase);
+        public TableResolver tableResolver(ObjectProvider<SqlSessionFactory> factoryProvider) {
+            boolean camelCase = true;
+            SqlSessionFactory factory = factoryProvider.stream().findFirst().orElse(null);
+            if (factory != null) {
+                try {
+                    camelCase = factory.getConfiguration().isMapUnderscoreToCamelCase();
+                } catch (Exception ignored) {
+                    
+                }
+            }
+            return new DefaultTableResolver(camelCase);
         }
     }
 
