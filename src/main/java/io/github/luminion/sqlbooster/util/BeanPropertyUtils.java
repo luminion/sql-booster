@@ -2,11 +2,14 @@ package io.github.luminion.sqlbooster.util;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 反射操作工具类。
@@ -15,11 +18,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class BeanPropertyUtils {
 
-    private static final Map<Class<?>, Map<String, PropertyDescriptor>> BEAN_PROPERTY_MAP_CACHE = new ConcurrentHashMap<>();
+    /**
+     * 使用 ClassValue 缓存 Bean 的属性描述符。
+     * ClassValue 是 JDK 提供的用于关联 Class 数据的标准方式，能自动处理弱引用和 GC。
+     */
+    private static final ClassValue<Map<String, PropertyDescriptor>> PD_CACHE = new ClassValue<Map<String, PropertyDescriptor>>() {
+        @Override
+        protected Map<String, PropertyDescriptor> computeValue(Class<?> clazz) {
+            PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(clazz);
+            Map<String, PropertyDescriptor> map = new LinkedHashMap<>(pds.length);
+            for (PropertyDescriptor pd : pds) {
+                if ("class".equals(pd.getName())) {
+                    continue;
+                }
+                map.put(pd.getName(), pd);
+            }
+            return Collections.unmodifiableMap(map);
+        }
+    };
 
     /**
      * 创建指定类型的实例。
-     * 使用 Spring BeanPropertyUtils.instantiateClass，内部已处理无参构造等细节。
      */
     public static <T> T newInstance(Class<T> clazz) {
         if (clazz == null) {
@@ -31,49 +50,31 @@ public abstract class BeanPropertyUtils {
     /**
      * 获取 Bean 的属性映射：propertyName -> PropertyDescriptor。
      * <p>
-     * Spring 的 BeanPropertyUtils.getPropertyDescriptors(beanClass) 已经做了 Class 级缓存，
-     * 这里在其基础上仅缓存我们封装的 Map，避免每次都 new HashMap+遍历。
+     * 结果已过滤 "class" 属性，且为不可变 Map。
      *
      * @param beanClass Bean 的 Class
-     * @return 属性名 -> PropertyDescriptor 的映射，未做防变更包装，按需自行 copy/unmodifiable。
+     * @return 属性名 -> PropertyDescriptor 的映射
      */
     public static Map<String, PropertyDescriptor> getPropertyMap(Class<?> beanClass) {
         if (beanClass == null) {
-            throw new IllegalArgumentException("beanClass must not be null");
+            return Collections.emptyMap();
         }
-
-        Map<String, PropertyDescriptor> cached = BEAN_PROPERTY_MAP_CACHE.get(beanClass);
-        if (cached != null) {
-            return cached;
-        }
-
-        PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(beanClass);
-        if (pds.length == 0) {
-            throw new IllegalStateException("Could not find any property of bean class: " + beanClass.getName());
-        }
-
-        Map<String, PropertyDescriptor> map = new HashMap<>(pds.length);
-        for (PropertyDescriptor pd : pds) {
-            // BeanPropertyUtils 已经过滤了 getClass()，这里正常加入即可
-            map.put(pd.getName(), pd);
-        }
-        map = Collections.unmodifiableMap(map);
-        BEAN_PROPERTY_MAP_CACHE.put(beanClass, map);
-        return map;
+        return PD_CACHE.get(beanClass);
     }
 
     /**
      * 获取 Bean 的所有属性名集合。
-     *
-     * @param beanClass Bean 的 Class
-     * @return 属性名集合（为简化性能，直接返回内部 Map 的 keySet 视图，外部请避免修改）
      */
     public static Set<String> getPropertyNames(Class<?> beanClass) {
-        return Collections.unmodifiableSet(getPropertyMap(beanClass).keySet());
+        return getPropertyMap(beanClass).keySet();
     }
 
     /**
-     * 属性复制。
+     * 属性复制 (浅拷贝)。
+     *
+     * @param sourceBean 源对象
+     * @param targetBean 目标对象
+     * @return 目标对象
      */
     public static <T> T copyProperties(Object sourceBean, T targetBean) {
         if (sourceBean == null || targetBean == null) {
@@ -96,7 +97,10 @@ public abstract class BeanPropertyUtils {
     /**
      * 将一个 JavaBean 对象转换为 Map。
      * <p>
-     * 使用 PropertyDescriptor 的 readMethod 读取属性值，忽略为 null 的属性。
+     * 规则：
+     * 1. 忽略值为 null 的属性。
+     * 2. 忽略 "class" 属性。
+     * 3. 确保私有类/方法的访问权限。
      *
      * @param bean 源对象
      * @return 转换后的 Map
@@ -106,21 +110,41 @@ public abstract class BeanPropertyUtils {
         if (bean == null) {
             return Collections.emptyMap();
         }
-        Map<String, PropertyDescriptor> propertyDescriptorMap = getPropertyMap(bean.getClass());
-        Map<String, Object> map = new HashMap<>(propertyDescriptorMap.size());
 
-        for (Map.Entry<String, PropertyDescriptor> entry : propertyDescriptorMap.entrySet()) {
-            PropertyDescriptor pd = entry.getValue();
+        Map<String, PropertyDescriptor> propertyDescriptorMap = getPropertyMap(bean.getClass());
+        Map<String, Object> map = new LinkedHashMap<>(propertyDescriptorMap.size());
+
+        for (PropertyDescriptor pd : propertyDescriptorMap.values()) {
             Method readMethod = pd.getReadMethod();
             if (readMethod == null) {
                 continue;
             }
+            ReflectionUtils.makeAccessible(readMethod);
             Object value = readMethod.invoke(bean);
             if (value != null) {
-                map.put(entry.getKey(), value);
+                map.put(pd.getName(), value);
             }
         }
         return map;
+    }
+
+    /**
+     * 获取单个属性的值
+     *
+     * @param bean 对象
+     * @param propertyName 属性名
+     * @return 属性值
+     */
+    @SneakyThrows
+    public static Object getProperty(Object bean, String propertyName) {
+        if (bean == null) return null;
+        PropertyDescriptor pd = getPropertyMap(bean.getClass()).get(propertyName);
+        if (pd == null || pd.getReadMethod() == null) {
+            return null;
+        }
+        Method readMethod = pd.getReadMethod();
+        ReflectionUtils.makeAccessible(readMethod);
+        return readMethod.invoke(bean);
     }
 
 }
