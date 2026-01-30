@@ -1,7 +1,6 @@
 package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import io.github.luminion.sqlbooster.core.DefaultTableResolver;
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import io.github.luminion.sqlbooster.core.TableResolver;
@@ -11,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -57,9 +55,8 @@ public class BoosterAutoConfiguration implements InitializingBean {
     }
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass({BaseMapper.class, SqlSessionFactory.class })
-    static class MyBatisPlusTableResolverConfiguration {
-
+    @ConditionalOnClass({BaseMapper.class, SqlSessionFactory.class})
+    static class MyBatisPlusConfiguration {
         @Bean
         @ConditionalOnMissingBean(TableResolver.class)
         public TableResolver tableResolver() {
@@ -71,11 +68,10 @@ public class BoosterAutoConfiguration implements InitializingBean {
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(SqlSessionFactory.class)
     @ConditionalOnMissingClass("com.baomidou.mybatisplus.core.mapper.BaseMapper")
-    static class MyBatisTableResolverConfiguration {
+    static class MyBatisConfiguration {
 
         @Bean
         @ConditionalOnMissingBean(TableResolver.class)
-        @ConditionalOnBean(SqlSessionFactory.class)
         public TableResolver tableResolver(SqlSessionFactory sqlSessionFactory) {
             boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
             log.info("Using DefaultTableResolver (mapUnderscoreToCamelCase: {})", mapUnderscoreToCamelCase);
