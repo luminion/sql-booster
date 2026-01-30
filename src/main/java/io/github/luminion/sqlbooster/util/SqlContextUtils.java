@@ -21,7 +21,7 @@ public abstract class SqlContextUtils {
 
     private static volatile List<Map.Entry<String, String>> defaultSuffixes;
 
-    static {
+    static {    
         Map<String, String> map = new HashMap<>();
         for (ConditionSuffix conditionSuffix : ConditionSuffix.values()) {
             map.put(conditionSuffix.getCamelCase(), conditionSuffix.getSymbol());
@@ -107,51 +107,12 @@ public abstract class SqlContextUtils {
         // 2. 处理排序
         processSorts(source.getSorts(), columnMap, result.getSorts());
 
-        // 3. 处理字段筛选
-        processColumns(source, columnMap, result);
-
         return result;
-    }
-
-    private static void processColumns(SqlContext<?> source, Map<String, String> columnMap, SqlContext<?> target) {
-        Set<String> includes = source.getIncludes();
-        Set<String> excludes = source.getExcludes();
-
-        if (includes.isEmpty() && excludes.isEmpty()) {
-            target.setSelectFields("a.*");
-            return;
-        }
-
-        List<String> finalColumns = new ArrayList<>();
-        if (!includes.isEmpty()) {
-            for (String field : includes) {
-                String column = columnMap.get(field);
-                if (column != null) {
-                    finalColumns.add(column);
-                } else if (columnMap.containsValue(field)) {
-                    finalColumns.add(field);
-                }
-            }
-        } else {
-            // 只有排除项
-            for (Map.Entry<String, String> entry : columnMap.entrySet()) {
-                if (!excludes.contains(entry.getKey()) && !excludes.contains(entry.getValue())) {
-                    finalColumns.add(entry.getValue());
-                }
-            }
-        }
-
-        if (finalColumns.isEmpty()) {
-            target.setSelectFields("a.*");
-        } else {
-            target.setSelectFields(String.join(", ", finalColumns));
-        }
     }
 
     // ==================== 核心步骤 2: 后缀解析 ====================
 
-    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass,
-            Map<String, String> customSuffixMap) {
+    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass, Map<String, String> customSuffixMap) {
         Map<String, Object> params = context.getParams();
         if (params.isEmpty()) {
             return context;
