@@ -3,45 +3,35 @@ package io.github.luminion.sqlbooster.core;
 import io.github.luminion.sqlbooster.function.GetterReference;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Booster 运行时核心元数据注册表。
  * <p>
- * 通过注册 {@link TableResolver} 扩展，为实体和VO提供元信息解析能力。
+ * 为实体和 VO 提供元信息解析能力。
  */
 @Slf4j
 public abstract class TableMetaRegistry {
+    /**
+     * 全局唯一的解析器实例。
+     * 默认为 {@link DefaultTableResolver}，策略为驼峰转下划线。
+     */
+    private static TableResolver tableResolver = new DefaultTableResolver(true);
 
-    private static final ConcurrentSkipListSet<TableResolver> RESOLVERS = new ConcurrentSkipListSet<>();
-
-    public static List<TableResolver> checkoutTableResolver() {
-        return new ArrayList<>(RESOLVERS);
-    }
-
-    public static boolean addTableResolver(TableResolver tableResolver) {
-        return RESOLVERS.add(tableResolver);
-    }
-
-    public static boolean removeTableResolver(TableResolver tableResolver) {
-        return RESOLVERS.remove(tableResolver);
-    }
-
-    public static int removeTableResolver(Class<? extends TableResolver> tableResolverType) {
-        int count = 0;
-        for (TableResolver tableResolver : RESOLVERS) {
-            if (tableResolver.getClass().equals(tableResolverType)) {
-                boolean remove = RESOLVERS.remove(tableResolver);
-                if (remove) {
-                    count++;
-                }
-            }
+    /**
+     * 注册（或替换）全局的元数据解析器。
+     * <p>
+     * 如果主要从 Spring 上下文初始化，可在此调用。
+     *
+     * @param resolver 新的解析器实例
+     */
+    public static void register(TableResolver resolver) {
+        if (resolver == null) {
+            throw new IllegalArgumentException("resolver can not be null");
         }
-        return count;
+        log.info("TableMetaRegistry switch resolver to: [{}]", resolver.getClass().getName());
+        tableResolver = resolver;
     }
 
     /**
@@ -49,16 +39,13 @@ public abstract class TableMetaRegistry {
      *
      * @param entityClass 实体类
      * @return 表名
-     * @throws IllegalStateException 如果没有找到对应的表名
      */
     public static String getTableName(Class<?> entityClass) {
-        for (TableResolver tableResolver : RESOLVERS) {
-            String tableName = tableResolver.getTableName(entityClass);
-            if (tableName != null) {
-                return tableName;
-            }
+        String tableName = tableResolver.getTableName(entityClass);
+        if (tableName == null) {
+            throw new IllegalStateException("No table name found for class: " + entityClass.getName());
         }
-        throw new IllegalStateException("No table name found in " + RESOLVERS.size() + " tableResolvers, class: " + entityClass.getName());
+        return tableName;
     }
 
     /**
@@ -66,16 +53,13 @@ public abstract class TableMetaRegistry {
      *
      * @param entityClass 实体类
      * @return 主键属性名
-     * @throws IllegalStateException 如果没有找到主键属性
      */
     public static String getIdPropertyName(Class<?> entityClass) {
-        for (TableResolver tableResolver : RESOLVERS) {
-            String idPropertyName = tableResolver.getIdPropertyName(entityClass);
-            if (idPropertyName != null) {
-                return idPropertyName;
-            }
+        String idPropertyName = tableResolver.getIdPropertyName(entityClass);
+        if (idPropertyName == null) {
+            throw new IllegalStateException("No IdProperty found for class: " + entityClass.getName());
         }
-        throw new IllegalStateException("No IdProperty found in " + RESOLVERS.size() + " tableResolvers, class: " + entityClass.getName());
+        return idPropertyName;
     }
 
     /**
@@ -83,16 +67,13 @@ public abstract class TableMetaRegistry {
      *
      * @param getter getter 方法引用
      * @return 属性名
-     * @throws IllegalStateException 如果没有找到对应的属性名
      */
     public static <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
-        for (TableResolver tableResolver : RESOLVERS) {
-            String propertyName = tableResolver.getGetterPropertyName(getter);
-            if (propertyName != null) {
-                return propertyName;
-            }
+        String propertyName = tableResolver.getGetterPropertyName(getter);
+        if (propertyName == null) {
+            throw new IllegalStateException("No property name found for getter: " + getter);
         }
-        throw new IllegalStateException("No property name found in " + RESOLVERS.size() + " tableResolvers, getter: " + getter);
+        return propertyName;
     }
 
     /**
@@ -102,14 +83,10 @@ public abstract class TableMetaRegistry {
      * @return 属性到列别名的映射 Map
      */
     public static Map<String, String> getPropertyToColumnAliasMap(Class<?> entityClass) {
-        for (TableResolver tableResolver : RESOLVERS) {
-            Map<String, String> contributedMap = tableResolver.getPropertyToColumnAliasMap(entityClass);
-            if (contributedMap != null && !contributedMap.isEmpty()) {
-                log.debug("found alias map tableResolver: [{}], class: [{}]", tableResolver.getClass().getName(), entityClass.getName());
-                return contributedMap;
-            }
+        Map<String, String> map = tableResolver.getPropertyToColumnAliasMap(entityClass);
+        if (map == null) {
+            return Collections.emptyMap();
         }
-        log.warn("No property to column alias map found in {} tableResolvers, class: {}", RESOLVERS.size(), entityClass.getName());
-        return Collections.emptyMap();
+        return map;
     }
 }

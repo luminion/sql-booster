@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class DefaultTableResolver implements TableResolver {
 
     private final boolean underscoreToCamelCase;
-    private final int priority;
 
     @Override
     public <T> String getTableName(Class<T> clazz) {
@@ -51,11 +50,6 @@ public class DefaultTableResolver implements TableResolver {
                 e -> e,
                 e -> String.format("a.%s", underscoreToCamelCase ? StrConvertUtils.camelCaseToUnderscore(e) : e)
         ));
-    }
-
-    @Override
-    public int getPriority() {
-        return priority;
     }
 
 }

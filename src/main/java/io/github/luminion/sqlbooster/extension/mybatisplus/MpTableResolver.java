@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class MpTableResolver implements TableResolver {
-    private final int priority;
 
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
@@ -50,8 +49,4 @@ public class MpTableResolver implements TableResolver {
         return TableInfoHelper.getTableInfo(clazz).getTableName();
     }
 
-    @Override
-    public int getPriority() {
-        return priority;
-    }
 }
