@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author luminion
  * @since 1.0.0
  */
-public abstract class SerializedLambdaUtils {
+public abstract class LambdaUtils {
     private static final Map<Class<?>, SerializedLambda> LAMBDA_CACHE = new ConcurrentHashMap<>();
 
     /**

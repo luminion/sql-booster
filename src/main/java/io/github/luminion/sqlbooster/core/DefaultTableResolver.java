@@ -2,7 +2,7 @@ package io.github.luminion.sqlbooster.core;
 
 import io.github.luminion.sqlbooster.function.GetterReference;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
-import io.github.luminion.sqlbooster.util.SerializedLambdaUtils;
+import io.github.luminion.sqlbooster.util.LambdaUtils;
 import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class DefaultTableResolver implements TableResolver {
 
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
-        return SerializedLambdaUtils.resolveGetterPropertyName(getter);
+        return LambdaUtils.resolveGetterPropertyName(getter);
     }
 
     @Override
