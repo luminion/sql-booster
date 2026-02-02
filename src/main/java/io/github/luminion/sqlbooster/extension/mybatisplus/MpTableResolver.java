@@ -9,6 +9,7 @@ import io.github.luminion.sqlbooster.util.LambdaUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class MpTableResolver implements TableResolver {
+    private final int priority;
 
     @Override
     public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
@@ -28,13 +30,24 @@ public class MpTableResolver implements TableResolver {
 
     @Override
     public <T> String getIdPropertyName(Class<T> clazz) {
-        return TableInfoHelper.getTableInfo(clazz).getKeyProperty();
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
+        if (tableInfo == null){
+            return null;
+        }
+        return tableInfo.getKeyProperty();
     }
 
     @Override
     public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
         TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
-        Map<String, String> map = tableInfo.getFieldList().stream()
+        if (tableInfo == null) {
+            return null;
+        }
+        List<TableFieldInfo> fieldList = tableInfo.getFieldList();
+        if (fieldList == null || fieldList.isEmpty()) {
+            return null;
+        }
+        Map<String, String> map = fieldList.stream()
                 .collect(Collectors.toMap(TableFieldInfo::getProperty,
                         e -> String.format("a.%s", e.getColumn())));
         String keyProperty = tableInfo.getKeyProperty();
@@ -46,7 +59,16 @@ public class MpTableResolver implements TableResolver {
 
     @Override
     public <T> String getTableName(Class<T> clazz) {
-        return TableInfoHelper.getTableInfo(clazz).getTableName();
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
+        if (tableInfo == null){
+            return null;
+        }
+        return tableInfo.getTableName();
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
     }
 
 }

@@ -11,6 +11,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -51,39 +52,41 @@ public class BoosterAutoConfiguration implements InitializingBean {
                         beanName);
             }
         }
-        TableResolver resolver = applicationContext.getBean(TableResolver.class);
-        TableMetaRegistry.register(resolver);
+        // 注册所有找到的 TableResolver
+        Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
+        for (TableResolver provider : providerMap.values()) {
+            TableMetaRegistry.addTableResolver(provider);
+        }
+        log.debug("{} TableResolver registered", providerMap.size());
     }
 
+    /**
+     * 当检测到 Mybatis-Plus 时，自动配置 MpTableResolver。
+     */
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass({BaseMapper.class, SqlSessionFactory.class})
-    static class MyBatisPlusConfiguration {
+    @ConditionalOnClass(BaseMapper.class)
+    static class MybatisPlusConfiguration {
+
         @Bean
-        @ConditionalOnMissingBean(TableResolver.class)
-        public TableResolver tableResolver() {
-            log.info("Using MpTableResolver");
-            return new MpTableResolver();
+        public TableResolver mybatisPlusProvider() {
+            log.debug("MpTableResolver configured");
+            return new MpTableResolver(Integer.MAX_VALUE - 100);
         }
     }
 
+    /**
+     * 当检测到原生 Mybatis 时，自动配置 DefaultTableResolver。
+     */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(SqlSessionFactory.class)
-    @ConditionalOnMissingClass("com.baomidou.mybatisplus.core.mapper.BaseMapper")
-    static class MyBatisConfiguration {
+    static class MybatisConfiguration {
 
         @Bean
-        @ConditionalOnMissingBean(TableResolver.class)
-        public TableResolver tableResolver(ObjectProvider<SqlSessionFactory> factoryProvider) {
-            boolean camelCase = true;
-            SqlSessionFactory factory = factoryProvider.stream().findFirst().orElse(null);
-            if (factory != null) {
-                try {
-                    camelCase = factory.getConfiguration().isMapUnderscoreToCamelCase();
-                } catch (Exception ignored) {
-                    
-                }
-            }
-            return new DefaultTableResolver(camelCase);
+        @ConditionalOnBean(SqlSessionFactory.class)
+        public TableResolver mybatisProvider(SqlSessionFactory sqlSessionFactory) {
+            boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
+            log.debug("DefaultTableResolver for mybatis configured");
+            return new DefaultTableResolver(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
         }
     }
 
