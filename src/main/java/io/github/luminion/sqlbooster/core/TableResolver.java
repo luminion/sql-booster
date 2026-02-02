@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 
 import java.util.Map;
 
@@ -60,7 +60,7 @@ public interface TableResolver extends Comparable<TableResolver> {
     /**
      * 从 getter 方法引用中获取属性名。
      */
-    <T, R> String getGetterPropertyName(GetterReference<T, R> getter);
+    <T, R> String getGetterPropertyName(SFunc<T, R> getter);
     
     /**
      * 获取实体类的属性到数据库列名(或别名)的映射。

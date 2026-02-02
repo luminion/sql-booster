@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
-import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.Sort;
@@ -24,12 +24,12 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         super(entityClass);
     }
 
-    public S orderByAsc(GetterReference<T, ?> getter) {
+    public S orderByAsc(SFunc<T, ?> getter) {
         this.sqlContext.getSorts().add(new Sort(TableMetaRegistry.getGetterPropertyName(getter), true));
         return (S) this;
     }
 
-    public S orderByDesc(GetterReference<T, ?> getter) {
+    public S orderByDesc(SFunc<T, ?> getter) {
         this.sqlContext.getSorts().add(new Sort(TableMetaRegistry.getGetterPropertyName(getter), false));
         return (S) this;
     }
@@ -45,7 +45,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S eq(GetterReference<T, R> getter, R value) {
+    public <R> S eq(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -53,7 +53,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S ne(GetterReference<T, R> getter, R value) {
+    public <R> S ne(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -61,7 +61,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S gt(GetterReference<T, R> getter, R value) {
+    public <R> S gt(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -69,7 +69,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S gte(GetterReference<T, R> getter, R value) {
+    public <R> S gte(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -77,7 +77,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S lt(GetterReference<T, R> getter, R value) {
+    public <R> S lt(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -85,7 +85,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S lte(GetterReference<T, R> getter, R value) {
+    public <R> S lte(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -93,7 +93,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S like(GetterReference<T, R> getter, R value) {
+    public <R> S like(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -101,7 +101,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S notLike(GetterReference<T, R> getter, R value) {
+    public <R> S notLike(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -109,7 +109,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S in(GetterReference<T, R> getter, Collection<? extends R> value) {
+    public <R> S in(SFunc<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
@@ -117,7 +117,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public <R> S notIn(GetterReference<T, R> getter, Collection<? extends R> value) {
+    public <R> S notIn(SFunc<T, R> getter, Collection<? extends R> value) {
         if (value == null) {
             return (S) this;
         }
@@ -125,12 +125,12 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return (S) this;
     }
 
-    public S isNull(GetterReference<T, ?> getter) {
+    public S isNull(SFunc<T, ?> getter) {
         this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.IS_NULL.getSymbol(), true));
         return (S) this;
     }
 
-    public S isNotNull(GetterReference<T, ?> getter) {
+    public S isNotNull(SFunc<T, ?> getter) {
         this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.IS_NOT_NULL.getSymbol(), true));
         return (S) this;
     }
@@ -140,7 +140,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      * <p>相当于 SQL: {@code (column & value) > 0}</p>
      * 只要 value 中任意一个为 1 的位，在数据库字段中也为 1，即符合条件。
      */
-    public <R> S bitAny(GetterReference<T, R> getter, R value) {
+    public <R> S bitAny(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -153,7 +153,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      * <p>相当于 SQL: {@code (column & value) = value}</p>
      * value 中所有为 1 的位，在数据库字段中必须都为 1，才符合条件。
      */
-    public <R> S bitAll(GetterReference<T, R> getter, R value) {
+    public <R> S bitAll(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
@@ -166,7 +166,7 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      * <p>相当于 SQL: {@code (column & value) = 0}</p>
      * value 中所有为 1 的位，在数据库字段中必须都为 0，才符合条件。
      */
-    public <R> S bitNone(GetterReference<T, R> getter, R value) {
+    public <R> S bitNone(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }

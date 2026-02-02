@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.util;
 
-import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 import lombok.SneakyThrows;
 import org.springframework.util.ReflectionUtils;
 
@@ -26,7 +26,7 @@ public abstract class LambdaUtils {
      * @return SerializedLambda 实例
      */
     @SneakyThrows
-    private static <T, R> SerializedLambda resolveSerializedLambda(GetterReference<T, R> getter) {
+    private static <T, R> SerializedLambda resolveSerializedLambda(SFunc<T, R> getter) {
         Class<?> lambdaClass = getter.getClass();
         SerializedLambda cached = LAMBDA_CACHE.get(lambdaClass);
         if (cached != null) {
@@ -48,7 +48,7 @@ public abstract class LambdaUtils {
      */
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T, R> Class<T> resolveGetterClass(GetterReference<T, R> getter) {
+    public static <T, R> Class<T> resolveGetterClass(SFunc<T, R> getter) {
         SerializedLambda serializedLambda = resolveSerializedLambda(getter);
         String className = serializedLambda.getImplClass().replace("/", ".");
         return (Class<T>) Class.forName(className);
@@ -63,7 +63,7 @@ public abstract class LambdaUtils {
      * @return Method 对象
      */
     @SneakyThrows
-    public static <T, R> Method resolveGetterMethod(GetterReference<T, R> getter) {
+    public static <T, R> Method resolveGetterMethod(SFunc<T, R> getter) {
         SerializedLambda serializedLambda = resolveSerializedLambda(getter);
         String implMethodName = serializedLambda.getImplMethodName();
         Class<?> getterClass = resolveGetterClass(getter);
@@ -81,7 +81,7 @@ public abstract class LambdaUtils {
      * @param getter 方法引用，例如 User::getName
      * @return 属性名，例如 "name"
      */
-    public static <T, R> String resolveGetterPropertyName(GetterReference<T, R> getter) {
+    public static <T, R> String resolveGetterPropertyName(SFunc<T, R> getter) {
         String implMethodName = resolveSerializedLambda(getter).getImplMethodName();
         String name = implMethodName;
 

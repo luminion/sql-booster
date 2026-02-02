@@ -12,6 +12,6 @@ import java.util.function.Function;
  * @param <R> 返回类型
  */
 @FunctionalInterface
-public interface GetterReference<T, R> extends Function<T, R>, Serializable {
+public interface SFunc<T, R> extends Function<T, R>, Serializable {
 
 }

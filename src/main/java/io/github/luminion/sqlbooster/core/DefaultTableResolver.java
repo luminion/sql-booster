@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.function.GetterReference;
+import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import io.github.luminion.sqlbooster.util.LambdaUtils;
 import io.github.luminion.sqlbooster.util.StrConvertUtils;
@@ -40,7 +40,7 @@ public class DefaultTableResolver implements TableResolver {
     }
 
     @Override
-    public <T, R> String getGetterPropertyName(GetterReference<T, R> getter) {
+    public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
         return LambdaUtils.resolveGetterPropertyName(getter);
     }
 
