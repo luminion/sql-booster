@@ -202,7 +202,7 @@ public class SysUserController {
     public List<SysUserVO> getUsersByDTO(@RequestBody SysUserDTO dto) {
         // 使用SqlBuilder可链式调用,快速组合条件,执行查询 
         SqlContext<SysUser> sqlContext = SqlBuilder.of(sysUserMapper)
-                .appendByBean(dto) // 将DTO对象中的属性和值, 作为等于条件添加
+                .appendByBean(dto) // 将DTO对象中的属性和值, 自动映射为条件添加
                 .build(); // build 方法返回SqlContext
         return sysUserMapper.voList(sqlContext);
     }
@@ -220,6 +220,7 @@ public class SysUserController {
     @PostMapping("/sql")
     public List<SysUserVO> getUsersBySql(@RequestBody SqlContext<SysUser> sqlContext) {
         // SqlContext允许前端自定义条件和排序, 灵活性Max
+        // 无需担心sql注入, 实际运行时会严格校验实体类字段, 确保安全
         return sysUserMapper.voList(sqlContext);
     }
 
@@ -415,6 +416,7 @@ public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, Sy
 - 支持嵌套`子条件`和`or`条件
 - 自动验证参数, 防止`SQL注入`
 - 支持复杂条件自由组合
+- 参数会经过字段对比及预编译处理, 防止`SQL注入`
 
 #### 入参格式
 
@@ -589,7 +591,7 @@ public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, Sy
 {
   "conditions": [],
   "sorts": [],
-  "child": {
+  "next": {
     "conditions": [],
     "and": false,
     "next": {
