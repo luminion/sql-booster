@@ -203,9 +203,15 @@ public abstract class SqlContextUtils {
             return null;
         }
 
-        // 规则: IN / NOT IN，值必须是有效的集合
+        // 规则: IN / NOT IN，值必须是有效的集合或数组
         if (keyword.isIn()) {
-            if (!(value instanceof Iterable) || !((Iterable<?>) value).iterator().hasNext()) {
+            boolean isValid = false;
+            if (value instanceof Iterable) {
+                isValid = ((Iterable<?>) value).iterator().hasNext();
+            } else if (value.getClass().isArray()) {
+                isValid = java.lang.reflect.Array.getLength(value) > 0;
+            }
+            if (!isValid) {
                 return null;
             }
         }
@@ -225,7 +231,7 @@ public abstract class SqlContextUtils {
             }
         }
 
-        // 规则: LIKE，如果值不包含 '%'，自动添加 '%%'
+        // 规则: LIKE，如果值不包含 '%'，自动包裹为模糊匹配
         if (keyword.isLike()) {
             String s = value.toString();
             if (!s.contains("%")) {
