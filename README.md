@@ -414,7 +414,6 @@ public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, Sy
 - 入参自由指定`查询条件`/`查询类型`/`查询值`
 - 入参自由指定`排序条件`和`升降序`
 - 支持嵌套`子条件`和`or`条件
-- 自动验证参数, 防止`SQL注入`
 - 支持复杂条件自由组合
 - 参数会经过字段对比及预编译处理, 防止`SQL注入`
 
