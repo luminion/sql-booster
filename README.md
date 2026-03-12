@@ -210,8 +210,8 @@ public class SysUserController {
     // 通过map条件查询(支持后缀映射不同类型查询)
     @PostMapping("/map")
     public List<SysUserVO> getUsersByMap(@RequestBody Map<String, Object> params) {
-        // Booster提供lambdaBuilder()方法支持链式调用, 可快速组合条件, 执行查询
-        return sysUserMapper.lambdaBuilder() 
+        // Booster提供链式方法调用, 可快速组合条件, 执行查询
+        return sysUserMapper.lambdaBooster() 
                 .appendByMap(params) // 添加Map条件
                 .list();
     }
@@ -227,7 +227,7 @@ public class SysUserController {
     // lambda调用,添加必要条件, 例如权限角色等
     @PostMapping("/lambda")
     public List<SysUserVO> getUsersBySql(@RequestBody Map<String, Object> params) {
-        return sysUserMapper.lambdaBuilder()
+        return sysUserMapper.lambdaBooster()
                 .appendByMap(params) // 合并Map条件
                 .eq(SysUser::getState, 1) // state=1
                 .gte(SysUser::getAge, 18) // age>=18
@@ -241,7 +241,7 @@ public class SysUserController {
     public BPage<SysUserVO> getUserPage(@RequestBody Map<String, Object> params,
                                         @PathVariable("current") Long current,
                                         @PathVariable("size") Long size) {
-        return sysUserMapper.lambdaBuilder()
+        return sysUserMapper.lambdaBooster()
                 .appendByMap(params)
                 .page(current, size);
     }

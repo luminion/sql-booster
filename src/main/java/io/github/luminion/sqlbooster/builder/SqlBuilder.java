@@ -32,9 +32,9 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
      * 将当前构建的条件与一个 Booster 实例关联，并返回一个可以执行查询的包装器。
      *
      * @param booster Booster 实例
-     * @return 用于执行查询的 SqlBuilderWrapper
+     * @return 用于执行查询的 LambdaBooster
      */
-    public <V, P> SqlBuilderWrapper<T, V> boost(Booster<T, V> booster) {
-        return new SqlBuilderWrapper<>(booster, this.sqlContext);
+    public <V, P> LambdaBooster<T, V> boost(Booster<T, V> booster) {
+        return new LambdaBooster<>(booster, this.sqlContext);
     }
 }

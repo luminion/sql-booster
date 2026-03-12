@@ -1,6 +1,5 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.builder.SqlBuilderWrapper;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;

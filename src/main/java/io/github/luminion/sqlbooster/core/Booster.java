@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.builder.SqlBuilderWrapper;
+import io.github.luminion.sqlbooster.builder.LambdaBooster;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 
@@ -70,21 +70,34 @@ public interface Booster<T, V> {
     <R> BPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType);
 
     /**
-     * 获取一个 Lambda SQL 构建器实例。
+     * 开启一个基于 Lambda 语法的增强查询链。
+     * <p>
+     * 通过返回的 {@link LambdaBooster} 对象，你可以安全、优雅地链式拼接动态 SQL 条件，
+     * 并在链条末端直接执行查询，获取实体或对应的 VO 结果。
+     * </p>
      *
-     * @return 用于链式调用的 SQL 构建器
+     * @return 支持链式调用和终端查询执行的 {@code LambdaBooster} 实例
      */
-    default SqlBuilderWrapper<T, V> lambdaBuilder() {
-        return new SqlBuilderWrapper<>(this);
+    default LambdaBooster<T, V> lambdaBooster() {
+        return new LambdaBooster<>(this);
     }
 
     /**
      * 仅作兼容性处理, 
-     * 建议使用{@link #lambdaBuilder()}代替
+     * @deprecated 使用{@link #lambdaBooster()}代替
      */
     @Deprecated
-    default SqlBuilderWrapper<T, V> sqlBuilder(){
-        return lambdaBuilder();
+    default LambdaBooster<T, V> lambdaBuilder() {
+        return lambdaBooster();
+    }
+
+    /**
+     * 仅作兼容性处理, 
+     * @deprecated 使用{@link #lambdaBooster()}代替
+     */
+    @Deprecated
+    default LambdaBooster<T, V> sqlBuilder(){
+        return lambdaBooster();
     }
     
     

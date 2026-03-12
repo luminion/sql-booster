@@ -9,31 +9,46 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 一个可执行查询的 SQL 构建器包装类。
+ * 基于 Lambda 语法的增强查询执行链。
  * <p>
- * 提供了 {@code first()}, {@code list()}, {@code page()} 等终端操作来立即执行查询。
+ * 该类继承了底层的动态 SQL 拼接能力，并融合了 {@link Booster} 的核心执行引擎。
+ * 开发者可通过极其流畅的链式 API (Fluent API) 动态组合查询条件，
+ * 并最终通过 {@code first()}, {@code list()}, {@code page()} 等终端操作直接触发数据库查询，
+ * 自动将结果映射为指定的 VO 类型。
+ * </p>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * List<SysUserVO> list = mapper.lambdaBooster()
+ *     .eq(SysUser::getState, 1)
+ *     .like(SysUser::getName, "mike")
+ *     .list();
+ * }</pre>
+ *
+ * @param <T> 数据库实体类型
+ * @param <V> 查询结果的 VO 类型
  *
  * @param <T> 实体类型
  * @param <V> VO 类型
  */
 @SuppressWarnings("unused")
-public class SqlBuilderWrapper<T, V> extends LambdaSqlBuilder<T, SqlBuilderWrapper<T, V>> {
+public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>> {
     private final Booster<T, V> booster;
 
-    public SqlBuilderWrapper(Booster<T, V> booster) {
+    public LambdaBooster(Booster<T, V> booster) {
         super(GenericTypeUtils.resolveBoosterEntityClass(booster));
         this.booster = booster;
     }
 
-    public SqlBuilderWrapper(Booster<T, V> booster, SqlContext<T> sqlContext) {
+    public LambdaBooster(Booster<T, V> booster, SqlContext<T> sqlContext) {
         super(GenericTypeUtils.resolveBoosterEntityClass(booster));
         this.booster = booster;
         this.sqlContext.merge(sqlContext);
     }
 
     @Override
-    protected SqlBuilderWrapper<T, V> newInstance() {
-        return new SqlBuilderWrapper<>(booster);
+    protected LambdaBooster<T, V> newInstance() {
+        return new LambdaBooster<>(booster);
     }
 
     public V first() {
