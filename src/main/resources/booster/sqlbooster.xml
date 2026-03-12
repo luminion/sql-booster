@@ -26,7 +26,7 @@
                                     ${item.field} ${item.operator}
                                 </when>
                                 <when test='item.operator == "BIT ANY"'>
-                                    (${item.field} &amp; #{item.value}) &gt; 0
+                                    (${item.field} &amp; #{item.value}) != 0
                                 </when>
                                 <when test='item.operator == "BIT ALL"'>
                                     (${item.field} &amp; #{item.value}) = #{item.value}
