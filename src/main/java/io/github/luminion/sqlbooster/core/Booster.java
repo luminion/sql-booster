@@ -74,7 +74,9 @@ public interface Booster<T, V> {
      *
      * @return 用于链式调用的 SQL 构建器
      */
-    SqlBuilderWrapper<T, V> lambdaBuilder();
+    default SqlBuilderWrapper<T, V> lambdaBuilder() {
+        return new SqlBuilderWrapper<>(this);
+    }
 
     /**
      * 仅作兼容性处理, 

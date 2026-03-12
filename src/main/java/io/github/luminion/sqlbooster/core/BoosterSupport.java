@@ -167,11 +167,6 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         return voPage(sqlContext, pageNum, pageSize).convertRecords(targetType);
     }
 
-    @Override
-    default SqlBuilderWrapper<T, V> lambdaBuilder() {
-        return new SqlBuilderWrapper<>(this);
-    }
-
     /**
      * 最终执行查询的方法，由具体实现类提供。
      *
