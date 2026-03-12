@@ -28,8 +28,6 @@ import java.util.Optional;
  * @param <T> 数据库实体类型
  * @param <V> 查询结果的 VO 类型
  *
- * @param <T> 实体类型
- * @param <V> VO 类型
  */
 @SuppressWarnings("unused")
 public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>> {
