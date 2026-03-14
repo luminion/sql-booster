@@ -263,23 +263,23 @@ public class SysUserController {
 
 #### 动态后缀映射表
 
-| sql操作符号        | W操作说明      | 后缀           | 示例 (JSON Key)             | 值类型                         |
-|----------------|------------|--------------|---------------------------|-----------------------------|
-| `=`            | 等于         | (无)          | `"name": "mike"`          | String, Number, Boolean     |
-| `<>`           | 不等于        | `Ne`         | `"ageNe": 18`             | String, Number, Boolean     |
-| `<`            | 小于         | `Lt`         | `"ageLt": 18`             | Number, Date                |
-| `<=`           | 小于等于       | `Lte`        | `"ageLte": 18`            | Number, Date                |
-| `>`            | 大于         | `Gt`         | `"ageGt": 18`             | Number, Date                |
-| `>=`           | 大于等于       | `Gte`        | `"ageGte": 18`            | Number, Date                |
-| `LIKE`         | 模糊匹配       | `Like`       | `"nameLike": "mike"`      | String                      |
-| `NOT LIKE`     | 反模糊匹配      | `NotLike`    | `"nameNotLike": "mike"`   | String                      |
-| `IN`           | IN 查询      | `In`         | `"stateIn": [1, 2, 3]`    | List/Array (String, Number) |
-| `NOT IN`       | NOT IN 查询  | `NotIn`      | `"stateNotIn": [1, 2, 3]` | List/Array (String, Number) |
-| `IS NULL`      | 为空         | `IsNull`     | `"nameIsNull": true`      | Boolean (true)              |
-| `IS NOT NULL`  | 不为空        | `IsNotNull`  | `"nameIsNotNull": true`   | Boolean (true)              |
-| `HAS ANY BITS` | 包含任意指定bit位 | `HasAnyBits` | `"roleHasAnyBits": 4`     | Number                      |
-| `HAS ALL BITS` | 包含所有指定bit位 | `HasAllBits` | `"roleHasAllBits": 4`     | Number                      |
-| `HAS NO BITS`  | 不包含指定bit位  | `HasNoBits`  | `"roleHasNoBits": 4`      | Number                      |
+| 操作说明       | 后缀           | 示例（JSON Key）              | 值类型                |
+|------------|--------------|---------------------------|--------------------|
+| 等于         | (无)          | `"name": "mike"`          | 字符串、数值、布尔值         |
+| 不等于        | `Ne`         | `"ageNe": 18`             | 字符串、数值、布尔值         |
+| 小于         | `Lt`         | `"ageLt": 18`             | 数值、日期              |
+| 小于等于       | `Lte`        | `"ageLte": 18`            | 数值、日期              |
+| 大于         | `Gt`         | `"ageGt": 18`             | 数值、日期              |
+| 大于等于       | `Gte`        | `"ageGte": 18`            | 数值、日期              |
+| 模糊匹配       | `Like`       | `"nameLike": "mike"`      | 字符串                |
+| 反模糊匹配      | `NotLike`    | `"nameNotLike": "mike"`   | 字符串                |
+| IN 查询      | `In`         | `"stateIn": [1, 2, 3]`    | 列表 / 数组（元素为字符串或数值） |
+| NOT IN 查询  | `NotIn`      | `"stateNotIn": [1, 2, 3]` | 列表 / 数组（元素为字符串或数值） |
+| 为空         | `IsNull`     | `"nameIsNull": true`      | 布尔值（固定为 `true`）    |
+| 不为空        | `IsNotNull`  | `"nameIsNotNull": true`   | 布尔值（固定为 `true`）    |
+| 包含任意指定bit位 | `HasAnyBits` | `"roleHasAnyBits": 4`     | 整数                 |
+| 包含所有指定bit位 | `HasAllBits` | `"roleHasAllBits": 4`     | 整数                 |
+| 不包含指定bit位  | `HasNoBits`  | `"roleHasNoBits": 4`      | 整数                 |
 
 #### 入参示例
 
@@ -460,25 +460,25 @@ public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, Sy
     * `field`指定需要排序的字段
     * `asc`指定是否升序, `true`为升序,`false`为降序, 不传递时默认为`false`
 
-#### 查询类型映射表
+#### operator查询类型映射表
 
-| sql操作符号       | 说明         | operator参数值                  | 值类型                         |
-|:--------------|:-----------|:-----------------------------|:----------------------------|
-| `=`           | 等于         | 无需传参                         | Any                         |
-| `<>`          | 不等于        | `<>`, `!=`, `ne`             | Any                         |
-| `>`           | 大于         | `>`, `gt`                    | Number, Date                |
-| `>=`          | 大于等于       | `>=`, `gte`                  | Number, Date                |
-| `<`           | 小于         | `<`, `lt`                    | Number, Date                |
-| `<=`          | 小于等于       | `<=`, `lte`                  | Number, Date                |
-| `LIKE`        | 模糊匹配       | `like`                       | String                      |
-| `NOT LIKE`    | 反模糊匹配      | `not_like`, `not like`       | String                      |
-| `IN`          | 在指定列表中     | `in`                         | List/Array (String, Number) |
-| `NOT IN`      | 不在指定列表中    | `not_in`, `not in`           | List/Array (String, Number) |
-| `IS NULL`     | 为空         | `is_null`, `is null`         | Boolean (true)              |
-| `IS NOT NULL` | 不为空        | `is_not_null`, `is not null` | Boolean (true)              |
-| `& ? > 0`     | 包含任意指定bit位 | `bit_any`, `bit any`         | Number                      |
-| `& ? = ?`     | 包含所有指定bit位 | `bit_all`, `bit all`         | Number                      |
-| `& ? = 0`     | 不包含指定bit位  | `bit_none`, `bit none`       | Number                      |
+| 说明         | operator 参数值       | 值类型                         |
+|:-----------|:-------------------|:----------------------------|
+| 等于         | 无需传参、`=`、`==`、`eq` | Any                         |
+| 不等于        | `<>`、`!=`、`ne`     | Any                         |
+| 小于         | `<`、`lt`           | Number, Date                |
+| 小于等于       | `<=`、`le`、`lte`    | Number, Date                |
+| 大于         | `>`、`gt`           | Number, Date                |
+| 大于等于       | `>=`、`ge`、`gte`    | Number, Date                |
+| 模糊匹配       | `like`             | String                      |
+| 反模糊匹配      | `not like`         | String                      |
+| 在指定列表中     | `in`               | List/Array (String, Number) |
+| 不在指定列表中    | `not in`           | List/Array (String, Number) |
+| 为空         | `is null`          | Boolean (true)              |
+| 不为空        | `is not null`      | Boolean (true)              |
+| 包含任意指定bit位 | `has any bits`     | Number                      |
+| 包含所有指定bit位 | `has all bits`     | Number                      |
+| 不包含指定bit位  | `has no bits`      | Number                      |
 
 > **提示: 其中 `=` 为默认值, 当查询的类型为`=`时无需传递operator参数**
 
@@ -500,7 +500,7 @@ public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, Sy
     },
     {
       "field": "state",
-      "operator": "IN",
+      "operator": "in",
       "value": [
         1,
         2,
