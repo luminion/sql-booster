@@ -140,12 +140,17 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      * <p>相当于 SQL: {@code (column & value) > 0}</p>
      * 只要 value 中任意一个为 1 的位，在数据库字段中也为 1，即符合条件。
      */
-    public <R> S bitAny(SFunc<T, R> getter, R value) {
+    public <R> S hasAnyBits(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.BIT_ANY.getSymbol(), value));
+        this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.HAS_ANY_BITS.getSymbol(), value));
         return (S) this;
+    }
+    
+    @Deprecated
+    public <R> S bitAny(SFunc<T, R> getter, R value) {
+        return hasAnyBits(getter,value);
     }
 
     /**
@@ -153,12 +158,17 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      * <p>相当于 SQL: {@code (column & value) = value}</p>
      * value 中所有为 1 的位，在数据库字段中必须都为 1，才符合条件。
      */
-    public <R> S bitAll(SFunc<T, R> getter, R value) {
+    public <R> S hasAllBits(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.BIT_ALL.getSymbol(), value));
+        this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.HAS_ALL_BITS.getSymbol(), value));
         return (S) this;
+    }
+    
+    @Deprecated
+    public <R> S bitAll(SFunc<T, R> getter, R value) {
+        return hasAllBits(getter,value);
     }
 
     /**
@@ -166,12 +176,17 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
      * <p>相当于 SQL: {@code (column & value) = 0}</p>
      * value 中所有为 1 的位，在数据库字段中必须都为 0，才符合条件。
      */
-    public <R> S bitNone(SFunc<T, R> getter, R value) {
+    public <R> S hasNoBits(SFunc<T, R> getter, R value) {
         if (value == null) {
             return (S) this;
         }
-        this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.BIT_NONE.getSymbol(), value));
+        this.sqlContext.getConditions().add(new Condition(TableMetaRegistry.getGetterPropertyName(getter), SqlKeyword.HAS_NO_BITS.getSymbol(), value));
         return (S) this;
+    }
+    
+    @Deprecated
+    public <R> S bitNone(SFunc<T, R> getter, R value) {
+        return hasNoBits(getter,value);
     }
 
 }

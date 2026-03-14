@@ -38,9 +38,9 @@ public enum SqlKeyword {
     IS_NOT_NULL("IS NOT NULL", "IS NOT NULL", "IS_NOT_NULL"),
 
     // ==================== 位运算 (XML特有) ====================
-    BIT_ANY("BIT ANY", "BIT ANY", "BIT_ANY"),
-    BIT_ALL("BIT ALL", "BIT ALL", "BIT_ALL"),
-    BIT_NONE("BIT NONE", "BIT NONE", "BIT_NONE");
+    HAS_ANY_BITS("HAS ANY BITS", "HAS ANY BITS", "HAS_ANY_BITS", "BIT ANY", "BIT_ANY"),
+    HAS_ALL_BITS("HAS ALL BITS", "HAS ALL BITS", "HAS_ALL_BITS", "BIT ALL", "BIT_ALL"),
+    HAS_NO_BITS("HAS NO BITS", "HAS NO BITS", "HAS_NO_BITS", "BIT NONE", "BIT_NONE");
 
     private final String symbol;
     private final String[] aliases;
@@ -116,6 +116,6 @@ public enum SqlKeyword {
     }
 
     public boolean isBitOperation() {
-        return this == BIT_ANY || this == BIT_ALL || this == BIT_NONE;
+        return this == HAS_ANY_BITS || this == HAS_ALL_BITS || this == HAS_NO_BITS;
     }
 }

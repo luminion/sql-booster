@@ -1,7 +1,6 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
-import io.github.luminion.sqlbooster.enums.ConditionSuffix;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
@@ -21,12 +20,48 @@ public abstract class SqlContextUtils {
 
     private static volatile List<Map.Entry<String, String>> defaultSuffixes;
 
-    static {    
+    static {
         Map<String, String> map = new HashMap<>();
-        for (ConditionSuffix conditionSuffix : ConditionSuffix.values()) {
-            map.put(conditionSuffix.getCamelCase(), conditionSuffix.getSymbol());
-            map.put(conditionSuffix.getUnderscore(), conditionSuffix.getSymbol());
-        }
+        // 比较运算符
+        map.put("Ne", "=");
+        map.put("_ne", "=");
+        map.put("Lt", "<");
+        map.put("_lt", "<");
+        map.put("Lte", "<=");
+        map.put("_lte", "<=");
+        map.put("Gt", ">");
+        map.put("_gt", ">");
+        map.put("Gte", ">=");
+        map.put("_gte", ">=");
+        // 模糊匹配
+        map.put("Like", "LIKE");
+        map.put("_like", "LIKE");
+        map.put("NotLike", "NOT LIKE");
+        map.put("_not_like", "NOT LIKE");
+        // 集合查询
+        map.put("In", "IN");
+        map.put("_in", "IN");
+        map.put("NotIn", "NOT IN");
+        map.put("_not_in", "NOT IN");
+        // Null 判断
+        map.put("IsNull", "IS NULL");
+        map.put("_is_null", "IS NULL");
+        map.put("IsNotNull", "IS NOT NULL");
+        map.put("_is_not_null", "IS NOT NULL");
+        // 位运算
+        map.put("HasAnyBits", SqlKeyword.HAS_ANY_BITS.getSymbol());
+        map.put("_has_any_bits", SqlKeyword.HAS_ANY_BITS.getSymbol());
+        map.put("HasAllBits", SqlKeyword.HAS_ALL_BITS.getSymbol());
+        map.put("_has_all_bits", SqlKeyword.HAS_ALL_BITS.getSymbol());
+        map.put("HasNoBits", SqlKeyword.HAS_NO_BITS.getSymbol());
+        map.put("_has_no_bits", SqlKeyword.HAS_NO_BITS.getSymbol());
+        // 兼容旧后缀
+        map.put("BitAny", SqlKeyword.HAS_ANY_BITS.getSymbol());
+        map.put("_bit_any", SqlKeyword.HAS_ANY_BITS.getSymbol());
+        map.put("BitAll", SqlKeyword.HAS_ALL_BITS.getSymbol());
+        map.put("_bit_all", SqlKeyword.HAS_ALL_BITS.getSymbol());
+        map.put("BitNone", SqlKeyword.HAS_NO_BITS.getSymbol());
+        map.put("_bit_none", SqlKeyword.HAS_NO_BITS.getSymbol());
         refreshDefaultSuffixes(map);
     }
 
@@ -57,7 +92,7 @@ public abstract class SqlContextUtils {
      * 执行基础构建，并使用自定义后缀规则解析。
      */
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source,
-            Map<String, String> customSuffixMap) {
+                                                    Map<String, String> customSuffixMap) {
         SqlContext<T> context = buildBase(entityClass, source);
         return resolveSuffixes(context, entityClass, customSuffixMap);
     }
