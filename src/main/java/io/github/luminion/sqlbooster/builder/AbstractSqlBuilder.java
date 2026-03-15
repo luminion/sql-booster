@@ -105,7 +105,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
         }
         return (S) this;
     }
-    
+
 
     /**
      * 将 Map 转换为多个 "等于" (EQ) 条件。
