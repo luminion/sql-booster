@@ -10,7 +10,7 @@ import java.util.List;
  * @param <T> 实体类型
  * @param <V> 视图对象类型
  * @author luminion
- * @since 1.0.0
+ * @since 1.1.0
  */
 public interface BoosterInterceptor<T, V> {
 

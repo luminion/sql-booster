@@ -79,6 +79,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     /**
      * 根据map生成条件
      * Map 的键作为字段名，值作为查询值。值为 null 的条目将被忽略。
+     * @since 1.1.0
      */
     public S appendByMap(Map<?, ?> map) {
         if (map != null) {
@@ -97,6 +98,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     /**
      * 根据 JavaBean 生成条件
      * JavaBean 的属性作为字段名，属性值作为查询值。属性值为 null 的将被忽略。
+     * @since 1.1.0
      */
     public S appendByBean(Object bean) {
         if (bean != null) {

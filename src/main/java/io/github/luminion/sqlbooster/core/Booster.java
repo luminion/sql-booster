@@ -76,6 +76,7 @@ public interface Booster<T, V> {
      * 并在链条末端直接执行查询，获取实体或对应的 VO 结果。
      * </p>
      *
+     * @since 1.2.0
      * @return 支持链式调用和终端查询执行的 {@code LambdaBooster} 实例
      */
     default LambdaBooster<T, V> lambdaBooster() {
@@ -85,6 +86,7 @@ public interface Booster<T, V> {
     /**
      * 仅作兼容性处理, 
      * @deprecated 使用{@link #lambdaBooster()}代替
+     * @since 1.1.0
      */
     @Deprecated
     default LambdaBooster<T, V> lambdaBuilder() {

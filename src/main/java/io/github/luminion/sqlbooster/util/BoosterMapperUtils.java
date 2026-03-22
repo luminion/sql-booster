@@ -1,9 +1,7 @@
-package io.github.luminion.sqlbooster.extension.mybatis;
+package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
-import io.github.luminion.sqlbooster.util.GenericTypeUtils;
-import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.io.Resources;
