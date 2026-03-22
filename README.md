@@ -81,7 +81,7 @@ public interface SysUserMapper extends MpMapper<SysUser, SysUserVO> {
 ```xml
 <mapper namespace="com.example.mapper.SysUserMapper">
 
-    <select id="selectByCondition" resultType="com.example.vo.SysUserVO">
+    <select id="selectByXml" resultType="com.example.vo.SysUserVO">
         SELECT a.* FROM sys_user a
         <where>
             <include refid="sqlbooster.conditions"/>
