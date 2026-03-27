@@ -23,11 +23,6 @@ public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>
         this.booster = booster;
     }
 
-    public LambdaBooster(Booster<T, V> booster, SqlContext<T> sqlContext) {
-        this(booster);
-        this.sqlContext.merge(SqlContextUtils.normalize(booster.entityClass(), sqlContext));
-    }
-
     @Override
     protected LambdaBooster<T, V> newInstance() {
         return new LambdaBooster<>(booster);

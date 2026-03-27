@@ -33,6 +33,6 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     }
 
     public <V> LambdaBooster<T, V> boost(Booster<T, V> booster) {
-        return new LambdaBooster<>(booster, this.toSqlContext());
+        return new LambdaBooster<>(booster).mergeSegment( this.toSqlContext());
     }
 }
