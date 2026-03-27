@@ -1,12 +1,12 @@
 package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
+import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
 import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
 import io.github.luminion.sqlbooster.metadata.DefaultTableResolver;
 import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.metadata.TableResolver;
-import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
-import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
 import io.github.luminion.sqlbooster.util.BoosterMapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -58,7 +58,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
         Map<String, BoosterMapper> mapperMap = applicationContext.getBeansOfType(BoosterMapper.class);
         for (Map.Entry<String, BoosterMapper> entry : mapperMap.entrySet()) {
-            BoosterRegistry.registerDefault(entry.getKey(), entry.getValue());
+            BoosterRegistry.registerBooster(entry.getKey(), entry.getValue());
         }
         log.debug("{} BoosterMapper registered", mapperMap.size());
     }

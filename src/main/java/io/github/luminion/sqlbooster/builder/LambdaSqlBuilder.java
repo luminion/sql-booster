@@ -1,8 +1,8 @@
 package io.github.luminion.sqlbooster.builder;
 
-import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.function.SFunc;
+import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.Sort;
 
@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 /**
- * 使用 Lambda 表达式构建 SQL 的 Builder。
+ * 使用 Lambda 表达式构建 SQL 的基类。
  *
  * @param <T> 实体类型
  * @param <S> 用于链式调用的返回类型
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 @SuppressWarnings({"unchecked", "unused"})
 public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> extends AbstractSqlBuilder<T, S> {
 
-    public LambdaSqlBuilder(Class<T> entityClass) {
+    protected LambdaSqlBuilder(Class<T> entityClass) {
         super(entityClass);
     }
 

@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * Base class for SQL builders.
+ * SQL 构建器基类。
  *
- * @param <T> entity type
- * @param <S> builder type
+ * @param <T> 实体类型
+ * @param <S> 构建器类型
  */
 @SuppressWarnings({"unused", "unchecked"})
 public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> {
@@ -34,29 +34,28 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
 
     protected abstract S newInstance();
 
-
     /**
-     * 建造
+     * 构建查询上下文。
      *
-     * @deprecated use {@link #toSqlContext()} instead
+     * @deprecated 请使用 {@link #toSqlContext()}
      */
+    @Deprecated
     public SqlContext<T> build() {
         return toSqlContext();
     }
 
     /**
-     * 建造
+     * 构建查询上下文。
      *
-     * @deprecated use {@link #toSqlContext()} instead
+     * @deprecated 请使用 {@link #toSqlContext()}
      */
+    @Deprecated
     public SqlContext<T> build(BiFunction<Class<T>, SqlContext<T>, SqlContext<T>> builder) {
         return builder.apply(this.entityClass, toSqlContext());
     }
 
     /**
-     * 转化为SqlContext
-     *
-     * @since 1.2.0
+     * 转换为独立的 SqlContext 副本。
      */
     public SqlContext<T> toSqlContext() {
         return SqlContextUtils.copy(this.sqlContext);
@@ -121,22 +120,10 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
         return append(conditionSegment, customSuffixMap);
     }
 
-    /**
-     * add map key-value as conditions
-     *
-     * @since 1.2
-     *
-     */
     public S fromMap(Map<?, ?> map) {
         return fromMap(map, null);
     }
 
-    /**
-     * add map key-value as conditions
-     *
-     * @since 1.2
-     *
-     */
     public S fromMap(Map<?, ?> map, Map<String, String> customSuffixMap) {
         if (map != null && !map.isEmpty()) {
             mergeMapInput(map, customSuffixMap);
@@ -144,22 +131,10 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
         return (S) this;
     }
 
-    /**
-     * add bean properties as conditions
-     *
-     * @since 1.2
-     *
-     */
     public S fromBean(Object bean) {
         return fromBean(bean, null);
     }
 
-    /**
-     * add bean properties as conditions
-     *
-     * @since 1.2
-     *
-     */
     public S fromBean(Object bean, Map<String, String> customSuffixMap) {
         if (bean != null) {
             mergeMapInput(BeanPropertyUtils.toMap(bean), customSuffixMap);
@@ -168,8 +143,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     }
 
     /**
-     * @since 1.1
-     * @deprecated use {@link #fromMap(Map)} instead
+     * @deprecated 请使用 {@link #fromMap(Map)}
      */
     @Deprecated
     public S appendByMap(Map<?, ?> map) {
@@ -177,8 +151,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     }
 
     /**
-     * @since 1.1
-     * @deprecated use {@link #fromMap(Map, Map)} instead
+     * @deprecated 请使用 {@link #fromMap(Map, Map)}
      */
     @Deprecated
     public S appendByMap(Map<?, ?> map, Map<String, String> customSuffixMap) {
@@ -186,8 +159,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     }
 
     /**
-     * @since 1.1
-     * @deprecated use {@link #fromBean(Object)} instead
+     * @deprecated 请使用 {@link #fromBean(Object)}
      */
     @Deprecated
     public S appendByBean(Object bean) {
@@ -195,8 +167,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     }
 
     /**
-     * @since 1.1
-     * @deprecated use {@link #fromBean(Object, Map)} instead
+     * @deprecated 请使用 {@link #fromBean(Object, Map)}
      */
     @Deprecated
     public S appendByBean(Object bean, Map<String, String> customSuffixMap) {
@@ -204,7 +175,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     }
 
     /**
-     * @deprecated use {@link #fromMap(Map)} instead
+     * @deprecated 请使用 {@link #fromMap(Map)}
      */
     @Deprecated
     public S appendEqByMap(Map<?, ?> map) {
@@ -212,7 +183,7 @@ public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> 
     }
 
     /**
-     * @deprecated use {@link #fromBean(Object)} instead
+     * @deprecated 请使用 {@link #fromBean(Object)}
      */
     @Deprecated
     public S appendEqByBean(Object bean) {

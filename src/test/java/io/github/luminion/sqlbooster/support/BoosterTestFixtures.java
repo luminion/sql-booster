@@ -1,11 +1,12 @@
 package io.github.luminion.sqlbooster.support;
 
-import io.github.luminion.sqlbooster.core.BoosterModel;
-import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
+import io.github.luminion.sqlbooster.core.BoosterEntity;
+import io.github.luminion.sqlbooster.core.BoosterService;
 import io.github.luminion.sqlbooster.core.BoosterSupport;
+import io.github.luminion.sqlbooster.function.SFunc;
+import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
 import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.metadata.TableResolver;
-import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.LambdaUtils;
 
@@ -26,7 +27,7 @@ public abstract class BoosterTestFixtures {
         BoosterRegistry.clear();
     }
 
-    public static class TestEntity implements BoosterModel<TestEntity, TestView> {
+    public static class TestEntity implements BoosterEntity<TestEntity, TestView> {
         private Long id;
         private String name;
         private Integer age;
@@ -129,12 +130,12 @@ public abstract class BoosterTestFixtures {
         private SqlContext<TestEntity> lastContext;
 
         @Override
-        public Class<TestEntity> entityClass() {
+        public Class<TestEntity> boosterEntityClass() {
             return TestEntity.class;
         }
 
         @Override
-        public Class<TestView> resultClass() {
+        public Class<TestView> boosterResultClass() {
             return TestView.class;
         }
 
@@ -143,7 +144,7 @@ public abstract class BoosterTestFixtures {
         }
 
         @Override
-        public List<TestView> selectByBooster(SqlContext<TestEntity> sqlContext, Object page) {
+        public List<TestView> doFetch(SqlContext<TestEntity> sqlContext, Object page) {
             this.lastContext = sqlContext;
             return Collections.singletonList(sampleView());
         }
@@ -155,6 +156,9 @@ public abstract class BoosterTestFixtures {
             view.setState(1);
             return view;
         }
+    }
+
+    public static class TestService implements BoosterService<TestEntity, TestView> {
     }
 
     public static class TestTableResolver implements TableResolver {

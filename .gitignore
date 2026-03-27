@@ -30,3 +30,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+.claude
+AGENTS.md
+CLAUDE.md
+/plans/*

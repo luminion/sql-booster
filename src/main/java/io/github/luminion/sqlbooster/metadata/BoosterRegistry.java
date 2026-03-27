@@ -1,13 +1,12 @@
 package io.github.luminion.sqlbooster.metadata;
 
-import io.github.luminion.sqlbooster.core.LambdaBooster;
 import io.github.luminion.sqlbooster.core.Booster;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Registry for default boosters.
+ * Booster 默认实现注册表。
  */
 public abstract class BoosterRegistry {
 
@@ -17,12 +16,12 @@ public abstract class BoosterRegistry {
         DEFAULT_BOOSTERS.clear();
     }
 
-    public static <T, V> void registerDefault(Booster<T, V> booster) {
-        registerDefault(null, booster);
+    public static <T, V> void registerBooster(Booster<T, V> booster) {
+        registerBooster(null, booster);
     }
 
-    public static <T, V> void registerDefault(String sourceName, Booster<T, V> booster) {
-        Registration<T> registration = new Registration<>(booster.entityClass(), booster.resultClass(), booster,
+    public static <T, V> void registerBooster(String sourceName, Booster<T, V> booster) {
+        Registration<T> registration = new Registration<>(booster.boosterEntityClass(), booster.boosterResultClass(), booster,
                 sourceName);
         Registration<?> existing = DEFAULT_BOOSTERS.putIfAbsent(registration.entityClass, registration);
         if (existing != null && existing.booster != booster) {
@@ -33,32 +32,17 @@ public abstract class BoosterRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, V> Booster<T, V> getRequiredDefault(Class<T> entityClass) {
-        return (Booster<T, V>) getRequiredRegistration(entityClass).booster;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T, V> Booster<T, V> getRequired(Class<T> entityClass, Class<V> targetType) {
-        Registration<T> registration = getRequiredRegistration(entityClass);
-        if (registration.resultClass.equals(targetType)) {
-            return (Booster<T, V>) registration.booster;
-        }
-        throw new IllegalStateException("No default booster registered for entity " + entityClass.getName()
-                + " and result type " + targetType.getName() + ", registered result type is "
-                + registration.resultClass.getName());
-    }
-
-    public static <T, V> LambdaBooster<T, V> lambda(Class<T> entityClass, Class<V> targetType) {
-        return getRequired(entityClass, targetType).lambdaBooster();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Registration<T> getRequiredRegistration(Class<T> entityClass) {
+    public static <T, V> Booster<T, V> getRequiredBooster(Class<T> entityClass, Class<V> resultClass) {
         Registration<?> registration = DEFAULT_BOOSTERS.get(entityClass);
         if (registration == null) {
             throw new IllegalStateException("No default booster registered for entity " + entityClass.getName());
         }
-        return (Registration<T>) registration;
+        if (registration.resultClass.equals(resultClass)) {
+            return (Booster<T, V>) registration.booster;
+        }
+        throw new IllegalStateException("No default booster registered for entity " + entityClass.getName()
+                + " and result type " + resultClass.getName() + ", registered result type is "
+                + registration.resultClass.getName());
     }
 
     private static final class Registration<T> {

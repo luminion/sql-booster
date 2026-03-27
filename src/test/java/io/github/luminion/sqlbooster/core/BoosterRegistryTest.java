@@ -20,7 +20,7 @@ public class BoosterRegistryTest {
     public void setUp() {
         BoosterTestFixtures.registerTestResolver();
         booster = new BoosterTestFixtures.TestBooster();
-        BoosterRegistry.registerDefault("testBooster", booster);
+        BoosterRegistry.registerBooster("testBooster", booster);
     }
 
     @After
@@ -32,27 +32,19 @@ public class BoosterRegistryTest {
     public void entityInterfaceShouldResolveDefaultBooster() {
         BoosterTestFixtures.TestEntity entity = new BoosterTestFixtures.TestEntity();
 
-        BoosterTestFixtures.TestView view = entity.booster().voById(1L);
+        BoosterTestFixtures.TestView view = entity.lambdaBooster().eq(BoosterTestFixtures.TestEntity::getId, 1L).unique();
         assertEquals("tom", view.getName());
     }
 
     @Test
     public void staticRegistryLambdaShouldResolveDefaultResultType() {
-        List<BoosterTestFixtures.TestView> views = BoosterRegistry.lambda(BoosterTestFixtures.TestEntity.class,
-                BoosterTestFixtures.TestView.class).list();
+        List<BoosterTestFixtures.TestView> views = BoosterRegistry
+                .getRequiredBooster(BoosterTestFixtures.TestEntity.class, BoosterTestFixtures.TestView.class)
+                .lambdaBooster()
+                .list();
 
         assertEquals(1, views.size());
         assertEquals("tom", views.get(0).getName());
-    }
-
-    @Test
-    public void lambdaBoosterShouldStillSupportExplicitConversion() {
-        List<BoosterTestFixtures.TestDto> dtos = BoosterRegistry.lambda(BoosterTestFixtures.TestEntity.class,
-                BoosterTestFixtures.TestView.class).list(BoosterTestFixtures.TestDto.class);
-
-        assertEquals(1, dtos.size());
-        assertEquals("tom", dtos.get(0).getName());
-        assertEquals(Integer.valueOf(1), dtos.get(0).getState());
     }
 
     @Test
@@ -65,8 +57,19 @@ public class BoosterRegistryTest {
         assertEquals(1, lastContext.getConditions().size());
     }
 
+    @Test
+    public void serviceShouldDelegateToDefaultBooster() {
+        BoosterTestFixtures.TestService service = new BoosterTestFixtures.TestService();
+
+        BoosterTestFixtures.TestView view = service.voById(1L);
+
+        assertEquals("tom", view.getName());
+        assertNotNull(booster.getLastContext());
+        assertEquals(1, booster.getLastContext().getConditions().size());
+    }
+
     @Test(expected = IllegalStateException.class)
     public void duplicateDefaultBoosterRegistrationShouldFailFast() {
-        BoosterRegistry.registerDefault("anotherTestBooster", new BoosterTestFixtures.TestBooster());
+        BoosterRegistry.registerBooster("anotherTestBooster", new BoosterTestFixtures.TestBooster());
     }
 }

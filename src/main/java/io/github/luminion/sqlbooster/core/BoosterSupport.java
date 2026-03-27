@@ -5,165 +5,50 @@ import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
-import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * {@link Booster} 接口的默认实现集合。
+ * Booster 的核心支撑接口。
+ * 提供三个核心查询方法的默认实现。
  *
- * @param <T> 数据库实体的类型
- * @param <V> 要返回的目标对象类型
+ * @param <T> 实体类型
+ * @param <V> 默认结果类型
  */
-public interface BoosterSupport<T, V> extends Booster<T, V> {
+public interface BoosterSupport<T, V> extends BoosterOperations<T, V> {
 
     @Override
     default V voById(Serializable id) {
         if (ObjectUtils.isEmpty(id)) {
             throw new IllegalArgumentException("id can't be null");
         }
-        Class<T> clazz = entityClass();
-        String keyProperty = TableMetaRegistry.getIdPropertyName(clazz);
-        if (ObjectUtils.isEmpty(keyProperty)) {
+        String idPropertyName = TableMetaRegistry.getIdPropertyName(boosterEntityClass());
+        if (ObjectUtils.isEmpty(idPropertyName)) {
             throw new IllegalStateException("can't find id property");
         }
-        Condition condition = new Condition(keyProperty, SqlKeyword.EQ.getSymbol(), id);
         SqlContext<T> sqlContext = new SqlContext<>();
-        sqlContext.getConditions().add(condition);
+        sqlContext.getConditions().add(new Condition(idPropertyName, SqlKeyword.EQ.getSymbol(), id));
         return voUnique(sqlContext);
     }
 
     @Override
-    default <R> R voById(Serializable id, Class<R> targetType) {
-        V v = voById(id);
-        if (ObjectUtils.isEmpty(v)) {
-            return null;
-        }
-        return BeanPropertyUtils.toTarget(v, targetType);
-    }
-
-    @Override
-    default Optional<V> voByIdOpt(Serializable id) {
-        return Optional.ofNullable(voById(id));
-    }
-
-    @Override
-    default <R> Optional<R> voByIdOpt(Serializable id, Class<R> targetType) {
-        return Optional.ofNullable(voById(id, targetType));
-    }
-
-    @Override
-    default List<V> voListByIds(Collection<? extends Serializable> ids) {
-        Class<T> entityClass = entityClass();
-        String idPropertyName = TableMetaRegistry.getIdPropertyName(entityClass);
-        Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getSymbol(), ids);
-        SqlContext<T> sqlContext = new SqlContext<>();
-        sqlContext.getConditions().add(condition);
-        return voList(sqlContext);
-    }
-
-    @Override
-    default <R> List<R> voListByIds(Collection<? extends Serializable> ids, Class<R> targetType) {
-        List<V> vs = voListByIds(ids);
-        return vs.stream()
-                .map(v -> BeanPropertyUtils.toTarget(v, targetType))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    default V voFirst(SqlContext<T> sqlContext) {
-        List<V> vs = voList(sqlContext);
-        if (vs.isEmpty()) {
-            return null;
-        }
-        return vs.get(0);
-    }
-
-    @Override
-    default <R> R voFirst(SqlContext<T> sqlContext, Class<R> targetType) {
-        return BeanPropertyUtils.toTarget(voFirst(sqlContext), targetType);
-    }
-
-    @Override
-    default Optional<V> voFirstOpt(SqlContext<T> sqlContext) {
-        return Optional.ofNullable(voFirst(sqlContext));
-    }
-
-    @Override
-    default <R> Optional<R> voFirstOpt(SqlContext<T> sqlContext, Class<R> targetType) {
-        return Optional.ofNullable(voFirst(sqlContext, targetType));
-    }
-
-    @Override
-    default V voUnique(SqlContext<T> sqlContext) {
-        List<V> vs = voList(sqlContext);
-        if (vs.isEmpty()) {
-            return null;
-        }
-        if (vs.size() > 1) {
-            throw new TooManyResultsException("error query => expected one but found " + vs.size());
-        }
-        return vs.get(0);
-    }
-
-    @Override
-    default <R> R voUnique(SqlContext<T> sqlContext, Class<R> targetType) {
-        return BeanPropertyUtils.toTarget(voUnique(sqlContext), targetType);
-    }
-
-    @Override
-    default Optional<V> voUniqueOpt(SqlContext<T> sqlContext) {
-        return Optional.ofNullable(voUnique(sqlContext));
-    }
-
-    @Override
-    default <R> Optional<R> voUniqueOpt(SqlContext<T> sqlContext, Class<R> targetType) {
-        return Optional.ofNullable(voUnique(sqlContext, targetType));
-    }
-
-    @Override
-    default List<V> voList() {
-        return voList(null);
-    }
-
-    @Override
     default List<V> voList(SqlContext<T> sqlContext) {
-        return selectByBooster(sqlContext, null);
-    }
-
-    @Override
-    default <R> List<R> voList(SqlContext<T> sqlContext, Class<R> targetType) {
-        List<V> vs = voList(sqlContext);
-        return vs.stream()
-                .map(v -> BeanPropertyUtils.toTarget(v, targetType))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    default BPage<V> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize) {
-        return voPage(sqlContext, (long) pageNum, pageSize);
+        return doFetch(sqlContext, null);
     }
 
     @Override
     default BPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
-        throw new UnsupportedOperationException("Not implemented.");
+        throw new UnsupportedOperationException("Current booster does not support paging.");
     }
 
-    @Override
-    default <R> BPage<R> voPage(SqlContext<T> sqlContext, int pageNum, int pageSize, Class<R> targetType) {
-        return voPage(sqlContext, (long) pageNum, pageSize, targetType);
-    }
-
-    @Override
-    default <R> BPage<R> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize, Class<R> targetType) {
-        return voPage(sqlContext, pageNum, pageSize).convertRecords(targetType);
-    }
-
-    List<V> selectByBooster(SqlContext<T> sqlContext, Object page);
+    /**
+     * 执行实际查询。
+     *
+     * @param sqlContext 查询上下文
+     * @param page 分页插件对象，可为 null
+     * @return 查询结果列表
+     */
+    List<V> doFetch(SqlContext<T> sqlContext, Object page);
 }

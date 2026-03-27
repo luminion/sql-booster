@@ -13,16 +13,16 @@ import java.util.List;
 public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
 
     @Override
-    default List<V> selectByBooster(SqlContext<T> boosterParam, Object page) {
-        SqlContext<T> sqlContext = SqlContextUtils.normalize(entityClass(), boosterParam);
-        return selectByXml(sqlContext, page);
+    default List<V> doFetch(SqlContext<T> sqlContext, Object page) {
+        SqlContext<T> normalize = SqlContextUtils.normalize(boosterEntityClass(), sqlContext);
+        return selectByXml(normalize, page);
     }
 
     /**
      * 该方法需要由对应的 Mapper XML 文件实现。
      *
      * @param sqlContext 经过解析和校验的 SQL 上下文
-     * @param page       分页插件对象，可为 null
+     * @param page 分页插件对象，可为 null
      * @return 查询结果列表
      */
     List<V> selectByXml(SqlContext<T> sqlContext, Object page);

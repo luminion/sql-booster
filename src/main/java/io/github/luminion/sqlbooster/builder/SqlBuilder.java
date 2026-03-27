@@ -16,7 +16,7 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     }
 
     public static <T> SqlBuilder<T> of(Booster<T, ?> booster) {
-        return new SqlBuilder<>(booster.entityClass());
+        return new SqlBuilder<>(booster.boosterEntityClass());
     }
 
     public SqlBuilder(Class<T> entityClass) {
@@ -29,6 +29,6 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     }
 
     public <V> LambdaBooster<T, V> boost(Booster<T, V> booster) {
-        return new LambdaBooster<>(booster).mergeSegment( this.toSqlContext());
+        return new LambdaBooster<>(booster).append(this.toSqlContext());
     }
 }

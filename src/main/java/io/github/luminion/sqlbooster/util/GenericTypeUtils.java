@@ -1,8 +1,10 @@
 package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.core.BoosterModel;
+import io.github.luminion.sqlbooster.core.BoosterEntity;
+import io.github.luminion.sqlbooster.core.BoosterService;
 import org.springframework.core.ResolvableType;
+import org.springframework.util.ClassUtils;
 
 public abstract class GenericTypeUtils {
 
@@ -21,17 +23,26 @@ public abstract class GenericTypeUtils {
 
     @SuppressWarnings("unchecked")
     public static <T, V> Class<T> resolveBoosterEntityClass(Booster<T, V> booster) {
-        return (Class<T>) resolveRequiredTypeArgument(booster.getClass(), Booster.class, 0, "booster entity");
+        return (Class<T>) resolveRequiredTypeArgument(ClassUtils.getUserClass(booster.getClass()), Booster.class, 0,
+                "booster entity");
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, V> Class<V> resolveBoosterVoClass(Booster<T, V> booster) {
-        return (Class<V>) resolveRequiredTypeArgument(booster.getClass(), Booster.class, 1, "booster result");
+    public static <T, V> Class<V> resolveBoosterResultClass(Booster<T, V> booster) {
+        return (Class<V>) resolveRequiredTypeArgument(ClassUtils.getUserClass(booster.getClass()), Booster.class, 1,
+                "booster result");
     }
 
     @SuppressWarnings("unchecked")
-    public static <V> Class<V> resolveBoosterModelResultClass(Class<?> entityClass) {
-        return (Class<V>) resolveRequiredTypeArgument(entityClass, BoosterModel.class, 1, "booster model result");
+    public static <T extends BoosterEntity<T, V>, V> Class<T> resolveBoosterHolderEntityClass(BoosterEntity<T, V> entity) {
+        return (Class<T>) resolveRequiredTypeArgument(ClassUtils.getUserClass(entity.getClass()), BoosterEntity.class, 0,
+                "booster holder entity");
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends BoosterEntity<T, V>, V> Class<V> resolveBoosterHolderResultClass(BoosterEntity<T, V> entity) {
+        return (Class<V>) resolveRequiredTypeArgument(ClassUtils.getUserClass(entity.getClass()), BoosterEntity.class, 1,
+                "booster holder result");
     }
 
     private static Class<?> resolveRequiredTypeArgument(Class<?> sourceClass, Class<?> genericIfc, int index,
