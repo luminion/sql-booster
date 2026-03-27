@@ -1,6 +1,6 @@
 package io.github.luminion.sqlbooster.builder;
 
-import io.github.luminion.sqlbooster.core.TableMetaRegistry;
+import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.model.query.Condition;

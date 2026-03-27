@@ -3,7 +3,7 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import io.github.luminion.sqlbooster.core.TableResolver;
+import io.github.luminion.sqlbooster.metadata.TableResolver;
 import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.util.LambdaUtils;
 import lombok.EqualsAndHashCode;

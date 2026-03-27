@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.core.Booster;
-import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.core.LambdaBooster;
 
 /**
  * SQL 查询构建器。
@@ -26,10 +26,6 @@ public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
     @Override
     protected SqlBuilder<T> newInstance() {
         return new SqlBuilder<>(this.entityClass);
-    }
-
-    public SqlContext<T> toSqlContext() {
-        return super.toSqlContext();
     }
 
     public <V> LambdaBooster<T, V> boost(Booster<T, V> booster) {

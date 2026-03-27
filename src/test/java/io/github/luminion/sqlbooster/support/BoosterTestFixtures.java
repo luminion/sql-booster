@@ -1,10 +1,10 @@
 package io.github.luminion.sqlbooster.support;
 
 import io.github.luminion.sqlbooster.core.BoosterModel;
-import io.github.luminion.sqlbooster.core.BoosterRegistry;
+import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
 import io.github.luminion.sqlbooster.core.BoosterSupport;
-import io.github.luminion.sqlbooster.core.TableMetaRegistry;
-import io.github.luminion.sqlbooster.core.TableResolver;
+import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
+import io.github.luminion.sqlbooster.metadata.TableResolver;
 import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.util.LambdaUtils;

@@ -1,15 +1,18 @@
 package io.github.luminion.sqlbooster.core;
 
+import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.support.BoosterTestFixtures;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class EntityBoostersTest {
+public class BoosterRegistryTest {
 
     private BoosterTestFixtures.TestBooster booster;
 
@@ -26,22 +29,30 @@ public class EntityBoostersTest {
     }
 
     @Test
-    public void entityInterfaceShouldResolveDefaultResultType() {
-        Booster<BoosterTestFixtures.TestEntity, BoosterTestFixtures.TestView> resolved = EntityBoosters.booster(
-                BoosterTestFixtures.TestEntity.class);
+    public void entityInterfaceShouldResolveDefaultBooster() {
+        BoosterTestFixtures.TestEntity entity = new BoosterTestFixtures.TestEntity();
 
-        BoosterTestFixtures.TestView view = resolved.voById(1L);
+        BoosterTestFixtures.TestView view = entity.booster().voById(1L);
         assertEquals("tom", view.getName());
     }
 
     @Test
-    public void explicitTargetTypeShouldUseAdapter() {
-        Booster<BoosterTestFixtures.TestEntity, BoosterTestFixtures.TestDto> resolved = EntityBoosters.booster(
-                BoosterTestFixtures.TestEntity.class, BoosterTestFixtures.TestDto.class);
+    public void staticRegistryLambdaShouldResolveDefaultResultType() {
+        List<BoosterTestFixtures.TestView> views = BoosterRegistry.lambda(BoosterTestFixtures.TestEntity.class,
+                BoosterTestFixtures.TestView.class).list();
 
-        BoosterTestFixtures.TestDto dto = resolved.voById(1L);
-        assertEquals("tom", dto.getName());
-        assertEquals(Integer.valueOf(1), dto.getState());
+        assertEquals(1, views.size());
+        assertEquals("tom", views.get(0).getName());
+    }
+
+    @Test
+    public void lambdaBoosterShouldStillSupportExplicitConversion() {
+        List<BoosterTestFixtures.TestDto> dtos = BoosterRegistry.lambda(BoosterTestFixtures.TestEntity.class,
+                BoosterTestFixtures.TestView.class).list(BoosterTestFixtures.TestDto.class);
+
+        assertEquals(1, dtos.size());
+        assertEquals("tom", dtos.get(0).getName());
+        assertEquals(Integer.valueOf(1), dtos.get(0).getState());
     }
 
     @Test

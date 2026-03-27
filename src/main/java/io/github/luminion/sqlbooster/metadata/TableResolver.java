@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.core;
+package io.github.luminion.sqlbooster.metadata;
 
 import io.github.luminion.sqlbooster.function.SFunc;
 

@@ -1,9 +1,7 @@
-package io.github.luminion.sqlbooster.builder;
+package io.github.luminion.sqlbooster.core;
 
-import io.github.luminion.sqlbooster.core.Booster;
+import io.github.luminion.sqlbooster.builder.LambdaSqlBuilder;
 import io.github.luminion.sqlbooster.model.BPage;
-import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.SqlContextUtils;
 
 import java.util.List;
 import java.util.Optional;

@@ -131,7 +131,6 @@ List<SysUserVO> list = user.lambdaBooster()
 | `MpService` | 基于 MyBatis-Plus `IService` 增强 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
 | `MpServiceImpl` | 基于 MyBatis-Plus `ServiceImpl` 增强 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
 | `BoosterModel` | 实体默认 Booster 入口 | `io.github.luminion.sqlbooster.core` |
-| `EntityBoosters` | 实体 / 目标类型 Booster 工具类 | `io.github.luminion.sqlbooster.core` |
 | `BoosterSupport` | 基础实现类，提供核心逻辑默认实现 | `io.github.luminion.sqlbooster.core` |
 
 ---
@@ -214,23 +213,20 @@ List<SysUserVO> list = new SysUser().lambdaBooster()
         .list();
 ```
 
-### 3. 使用 `EntityBoosters`
+### 3. 使用 `BoosterRegistry`
 
-`EntityBoosters` 支持两种场景：
-
-- 实体已实现 `BoosterModel<T, V>`，可直接按实体类获取默认 `V`
-- 显式指定目标类型，按 `T + R` 获取适配后的 Booster
+`BoosterRegistry` 提供了按实体类和默认结果类型获取 `LambdaBooster` 的静态入口。
 
 ```java
-import io.github.luminion.sqlbooster.core.EntityBoosters;
+import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
 
-List<SysUserVO> voList = EntityBoosters.lambda(SysUser.class)
+List<SysUserVO> voList = BoosterRegistry.lambda(SysUser.class, SysUserVO.class)
         .eq(SysUser::getState, 1)
         .list();
 
-List<SysUserDTO> dtoList = EntityBoosters.lambda(SysUser.class, SysUserDTO.class)
+List<SysUserDTO> dtoList = BoosterRegistry.lambda(SysUser.class, SysUserVO.class)
         .eq(SysUser::getState, 1)
-        .list();
+        .list(SysUserDTO.class);
 ```
 
 ### 4. 自定义 Mapper 直接接 `SqlContext`

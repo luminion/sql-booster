@@ -1,10 +1,13 @@
-package io.github.luminion.sqlbooster.core;
+package io.github.luminion.sqlbooster.metadata;
+
+import io.github.luminion.sqlbooster.core.LambdaBooster;
+import io.github.luminion.sqlbooster.core.Booster;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 默认 Booster 注册中心。
+ * Registry for default boosters.
  */
 public abstract class BoosterRegistry {
 
@@ -30,17 +33,23 @@ public abstract class BoosterRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Booster<T, ?> getRequiredDefault(Class<T> entityClass) {
-        return (Booster<T, ?>) getRequiredRegistration(entityClass).booster;
+    public static <T, V> Booster<T, V> getRequiredDefault(Class<T> entityClass) {
+        return (Booster<T, V>) getRequiredRegistration(entityClass).booster;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, R> Booster<T, R> getRequired(Class<T> entityClass, Class<R> targetType) {
+    public static <T, V> Booster<T, V> getRequired(Class<T> entityClass, Class<V> targetType) {
         Registration<T> registration = getRequiredRegistration(entityClass);
         if (registration.resultClass.equals(targetType)) {
-            return (Booster<T, R>) registration.booster;
+            return (Booster<T, V>) registration.booster;
         }
-        return new TargetTypeBooster<>(entityClass, targetType, registration.booster);
+        throw new IllegalStateException("No default booster registered for entity " + entityClass.getName()
+                + " and result type " + targetType.getName() + ", registered result type is "
+                + registration.resultClass.getName());
+    }
+
+    public static <T, V> LambdaBooster<T, V> lambda(Class<T> entityClass, Class<V> targetType) {
+        return getRequired(entityClass, targetType).lambdaBooster();
     }
 
     @SuppressWarnings("unchecked")
