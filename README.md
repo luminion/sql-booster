@@ -4,68 +4,42 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/luminion/sql-booster?style=social)](https://github.com/luminion/sql-booster)
 
-SQL Booster 是一个数据访问层（DAO）增强工具包，主要提供动态后缀映射、多层级条件拼装、Lambda 条件构造和目标类型转换能力。
+SQL Booster 是面向 MyBatis / MyBatis-Plus 的查询增强工具包。
+框架以 `SqlContext<T>` 作为统一查询模型，提供 `voById`、`voList`、`voPage` 和 `lambdaBooster()` 等查询入口，用于组织动态 SQL 条件、排序和分页查询。
 
-> 历史版本: [mybatis-plus-enhancer](https://github.com/bootystar/mybatis-plus-enhancer)
+> 历史项目：[mybatis-plus-enhancer](https://github.com/bootystar/mybatis-plus-enhancer)
 
 ## 功能特性
 
-- **后缀映射查询**：支持 `字段名 + 后缀` 自动映射成不同 SQL 条件。
-- **Builder 默认安全**：`SqlBuilder.build()` / `toSqlContext()` 默认返回可直接交给 mapper 的安全 `SqlContext`。
-- **Lambda 严格校验**：Lambda 链式条件在追加阶段立即校验，非法字段或非法值直接抛错。
-- **Map / Bean 宽松模式**：未知字段可继续落入 `params`，方便 XML 自定义条件扩展。
-- **目标类型转换**：默认 mapper 可继续查询 `VO`，也可显式转成任意 `DTO / VO` 类型。
-- **实体直连 Booster**：实体可实现 `BoosterModel<T, V>`，直接使用 `entity.lambdaBooster()`。
-- **自定义 Mapper 友好**：可通过 `toSqlContext()` 把构造器结果直接作为 mapper 入参复用 `conditions` / `sorts` 片段。
-- **基础查询扩展**：内置 `voById`、`voList`、`voPage` 等常用单表查询方法。
+- 统一的 `SqlContext<T>` 查询模型，适配动态 SQL 条件拼装场景
+- 提供 `voById`、`voList`、`voPage` 三个核心查询入口
+- 提供 `voByIds`、`voFirst`、`voUnique` 派生查询方法
+- 支持 `lambdaBooster()` 链式构造条件、排序和分页参数
+- 支持 Map / Bean 到 `SqlContext<T>` 的统一转换
+- 支持原生 MyBatis、MyBatis-Plus、PageHelper 三类接入方式
+- Mapper XML 可直接复用 `sqlbooster.conditions`、`sqlbooster.sorts` 片段
 
 ---
 
 ## Maven 依赖
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.luminion/sql-booster)](https://mvnrepository.com/artifact/io.github.luminion/sql-booster)
-
 ```xml
 <dependency>
     <groupId>io.github.luminion</groupId>
     <artifactId>sql-booster</artifactId>
-    <version>latest</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
-<details>
-<summary><b>获取 Snapshot 快照版本</b></summary>
-
-添加 Maven 中央快照仓库：
-
-```xml
-<repositories>
-    <repository>
-        <id>central-portal-snapshots</id>
-        <name>Central Portal Snapshots</name>
-        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        <releases><enabled>false</enabled></releases>
-        <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-</repositories>
-
-<dependencies>
-    <dependency>
-        <groupId>io.github.luminion</groupId>
-        <artifactId>sql-booster</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-</dependencies>
-```
-</details>
+当前仓库源码如未发布，请按实际分支版本调整依赖版本。
 
 ---
 
 ## 快速开始
 
-配套的 [code-generator](https://github.com/luminion/code-generator) 代码生成器已适配本框架，支持生成相关结构代码。
-
 ### 1. Mapper 继承接口
+
+MyBatis-Plus：
 
 ```java
 import io.github.luminion.sqlbooster.extension.mybatisplus.MpMapper;
@@ -74,16 +48,26 @@ public interface SysUserMapper extends MpMapper<SysUser, SysUserVO> {
 }
 ```
 
+原生 MyBatis：
+
+```java
+import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
+
+public interface SysUserMapper extends BoosterMapper<SysUser, SysUserVO> {
+}
+```
+
 ### 2. XML 引入 `sqlbooster` 片段
 
-- `sqlbooster.conditions` 会自动根据查询参数生成查询条件。
-- `sqlbooster.sorts` 会自动根据查询参数生成排序条件。
+`BoosterMapper` 通过 `selectByXml(SqlContext<T> sqlContext, Object page)` 执行实际查询。
+`SqlContext<T>` 为统一查询入参，XML 可直接复用内置动态片段：
 
 ```xml
 <mapper namespace="com.example.mapper.SysUserMapper">
 
     <select id="selectByXml" resultType="com.example.vo.SysUserVO">
-        SELECT a.* FROM sys_user a
+        SELECT a.*
+        FROM sys_user a
         <where>
             <include refid="sqlbooster.conditions"/>
         </where>
@@ -96,26 +80,61 @@ public interface SysUserMapper extends MpMapper<SysUser, SysUserVO> {
 </mapper>
 ```
 
-可通过 [BoosterMapperUtils](src/main/java/io/github/luminion/sqlbooster/util/BoosterMapperUtils.java) 传入 mapper 类一键获取完整 XML 内容。
+### 3. 调用核心方法
 
-### 3. 可选：实体实现默认 Booster 接口
-
-如果你希望实体直接使用 Booster，可让实体实现 `BoosterModel<T, V>`：
+列表查询和分页查询统一通过 `SqlContext<T>` 传入动态条件。
 
 ```java
-import io.github.luminion.sqlbooster.core.BoosterModel;
+@RestController
+@RequestMapping("/user")
+public class SysUserController {
 
-public class SysUser implements BoosterModel<SysUser, SysUserVO> {
+    @Resource
+    private SysUserMapper sysUserMapper;
+
+    @GetMapping("/{id}")
+    public SysUserVO detail(@PathVariable Long id) {
+        return sysUserMapper.voById(id);
+    }
+
+    @PostMapping("/list")
+    public List<SysUserVO> list(@RequestBody SysUserQuery query) {
+        SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
+                .fromBean(query)
+                .toSqlContext();
+        return sysUserMapper.voList(sqlContext);
+    }
+
+    @PostMapping("/page/{pageNum}/{pageSize}")
+    public BPage<SysUserVO> page(@RequestBody SysUserQuery query,
+                                 @PathVariable Long pageNum,
+                                 @PathVariable Long pageSize) {
+        SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
+                .fromBean(query)
+                .toSqlContext();
+        return sysUserMapper.voPage(sqlContext, pageNum, pageSize);
+    }
 }
 ```
 
-这样可以直接：
+### 4. 实体实现默认 Booster 入口
+
+实体可实现 `BoosterEntity<T, V>` 获取默认查询入口：
+
+```java
+import io.github.luminion.sqlbooster.core.BoosterEntity;
+
+public class SysUser implements BoosterEntity<SysUser, SysUserVO> {
+}
+```
 
 ```java
 SysUser user = new SysUser();
+
+SysUserVO detail = user.booster().voById(1L);
+
 List<SysUserVO> list = user.lambdaBooster()
         .eq(SysUser::getState, 1)
-        .like(SysUser::getUserName, "tom")
         .list();
 ```
 
@@ -123,15 +142,19 @@ List<SysUserVO> list = user.lambdaBooster()
 
 ## 可用扩展接口
 
-| 接口 / 类名 | 适用范围 | 所在包路径 |
+| 接口 / 类型 | 说明 | 包路径 |
 |---|---|---|
-| `BoosterMapper` | MyBatis Mapper 增强 (不含分页) | `io.github.luminion.sqlbooster.extension.mybatis` |
-| `PhMapper` | 基于 PageHelper 的 Mapper 增强 | `io.github.luminion.sqlbooster.extension.pagehelper` |
-| `MpMapper` | 基于 MyBatis-Plus `BaseMapper` 增强 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
-| `MpService` | 基于 MyBatis-Plus `IService` 增强 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
-| `MpServiceImpl` | 基于 MyBatis-Plus `ServiceImpl` 增强 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
-| `BoosterModel` | 实体默认 Booster 入口 | `io.github.luminion.sqlbooster.core` |
-| `BoosterSupport` | 基础实现类，提供核心逻辑默认实现 | `io.github.luminion.sqlbooster.core` |
+| `Booster` | 核心查询契约 | `io.github.luminion.sqlbooster.core` |
+| `BoosterEntity` | 实体侧默认查询入口 | `io.github.luminion.sqlbooster.core` |
+| `BoosterService` | Service 侧默认查询入口 | `io.github.luminion.sqlbooster.core` |
+| `BoosterMapper` | 原生 MyBatis Mapper 扩展，不含分页实现 | `io.github.luminion.sqlbooster.extension.mybatis` |
+| `MpMapper` | MyBatis-Plus Mapper 扩展，内置分页实现 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
+| `MpService` | MyBatis-Plus Service 扩展接口 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
+| `MpServiceImpl` | MyBatis-Plus Service 扩展基类 | `io.github.luminion.sqlbooster.extension.mybatisplus` |
+| `PhMapper` | PageHelper Mapper 扩展，内置分页实现 | `io.github.luminion.sqlbooster.extension.pagehelper` |
+| `SqlBuilder` | `SqlContext<T>` 构造器 | `io.github.luminion.sqlbooster.builder` |
+| `LambdaBooster` | Lambda 链式查询器 | `io.github.luminion.sqlbooster.core` |
+| `BoosterRegistry` | 默认 Booster 注册表 | `io.github.luminion.sqlbooster.metadata` |
 
 ---
 
@@ -141,71 +164,31 @@ List<SysUserVO> list = user.lambdaBooster()
 
 ```java
 import io.github.luminion.sqlbooster.builder.SqlBuilder;
-import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
+        .fromMap(params)
+        .eq(SysUser::getState, 1)
+        .orderByDesc(SysUser::getId)
+        .toSqlContext();
 
-@RestController
-@RequestMapping("/user")
-public class SysUserController {
+SysUserVO detail = sysUserMapper.voById(1L);
+List<SysUserVO> list = sysUserMapper.voList(sqlContext);
+BPage<SysUserVO> page = sysUserMapper.voPage(sqlContext, 1L, 20L);
 
-    @Autowired
-    private BoosterMapper<SysUser, SysUserVO> sysUserMapper;
-
-    @GetMapping("/{id}")
-    public SysUserVO getUserById(@PathVariable Long id) {
-        return sysUserMapper.voById(id);
-    }
-
-    @PostMapping("/dto")
-    public List<SysUserVO> getUsersByDTO(@RequestBody SysUserDTO dto) {
-        SqlContext<SysUser> sqlContext = SqlBuilder.of(sysUserMapper)
-                .fromBean(dto)
-                .build();
-        return sysUserMapper.voList(sqlContext);
-    }
-
-    @PostMapping("/map")
-    public List<SysUserVO> getUsersByMap(@RequestBody Map<String, Object> params) {
-        return sysUserMapper.lambdaBooster()
-                .fromMap(params)
-                .list();
-    }
-
-    @PostMapping("/lambda")
-    public List<SysUserVO> getByLambda(@RequestBody Map<String, Object> params) {
-        return sysUserMapper.lambdaBooster()
-                .fromMap(params)
-                .eq(SysUser::getState, 1)
-                .gte(SysUser::getAge, 18)
-                .in(SysUser::getRoleId, Arrays.asList(1, 2))
-                .like(SysUser::getUserName, "tom")
-                .list();
-    }
-
-    @PostMapping("/page/{current}/{size}")
-    public BPage<SysUserVO> getUserPage(@RequestBody Map<String, Object> params,
-                                        @PathVariable Long current,
-                                        @PathVariable Long size) {
-        return sysUserMapper.lambdaBooster()
-                .fromMap(params)
-                .page(current, size);
-    }
-}
+List<SysUserVO> lambdaList = sysUserMapper.lambdaBooster()
+        .eq(SysUser::getState, 1)
+        .like(SysUser::getUserName, "tom")
+        .list();
 ```
 
 ### 2. 实体直连 Booster
 
 ```java
-import io.github.luminion.sqlbooster.core.BoosterModel;
+import io.github.luminion.sqlbooster.core.BoosterEntity;
 
-public class SysUser implements BoosterModel<SysUser, SysUserVO> {
+public class SysUser implements BoosterEntity<SysUser, SysUserVO> {
 }
 
 List<SysUserVO> list = new SysUser().lambdaBooster()
@@ -215,23 +198,22 @@ List<SysUserVO> list = new SysUser().lambdaBooster()
 
 ### 3. 使用 `BoosterRegistry`
 
-`BoosterRegistry` 提供了按实体类和默认结果类型获取 `LambdaBooster` 的静态入口。
+`BoosterRegistry` 提供默认 Booster 的注册与获取能力。
 
 ```java
+import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
 
-List<SysUserVO> voList = BoosterRegistry.lambda(SysUser.class, SysUserVO.class)
+Booster<SysUser, SysUserVO> booster = BoosterRegistry.getRequiredBooster(SysUser.class, SysUserVO.class);
+
+List<SysUserVO> list = booster.lambdaBooster()
         .eq(SysUser::getState, 1)
         .list();
-
-List<SysUserDTO> dtoList = BoosterRegistry.lambda(SysUser.class, SysUserVO.class)
-        .eq(SysUser::getState, 1)
-        .list(SysUserDTO.class);
 ```
 
-### 4. 自定义 Mapper 直接接 `SqlContext`
+### 4. 自定义 Mapper 直接接收 `SqlContext`
 
-现在 `SqlBuilder.build()` / `toSqlContext()` 默认就会完成字段映射、后缀解析和合法性处理，可以直接作为 mapper 入参：
+`SqlBuilder.toSqlContext()` 的结果可直接作为自定义 Mapper 入参：
 
 ```java
 public interface SysUserCustomMapper {
@@ -250,7 +232,7 @@ SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
 List<SysUserLiteVO> list = sysUserCustomMapper.selectLite(sqlContext);
 ```
 
-对应 XML 可以直接复用内置片段：
+对应 XML：
 
 ```xml
 <select id="selectLite" resultType="com.example.vo.SysUserLiteVO">
@@ -267,17 +249,34 @@ List<SysUserLiteVO> list = sysUserCustomMapper.selectLite(sqlContext);
 
 ---
 
-## 核心功能详解
+## 核心功能说明
 
-### 1. 动态后缀映射
+### 1. `SqlContext<T>`
 
-当参数名称携带指定后缀时，将自动映射为对应的 SQL 查询类型。无后缀默认映射为 `=` 查询。
+`SqlContext<T>` 是统一查询模型，用于承载：
 
-#### 后缀规则表
+- 查询条件
+- 排序规则
+- 动态参数
+- 供 Mapper XML 直接消费的上下文数据
 
-| 操作说明 | 后缀 | 示例（JSON Key） | 值类型 |
+核心查询方法均围绕 `SqlContext<T>` 工作：
+
+- `voById(id)`：主键查询
+- `voList(sqlContext)`：列表查询
+- `voPage(sqlContext, pageNum, pageSize)`：分页查询
+- `selectByXml(sqlContext, page)`：Mapper XML 查询入口
+
+适用场景包括前端条件透传、服务端动态条件拼装和 XML 统一消费。
+
+### 2. 动态后缀映射
+
+`fromMap` / `fromBean` 支持按字段后缀映射 SQL 操作符。
+无后缀时默认按等值条件处理。
+
+| 操作说明 | 后缀 | 示例 | 值类型 |
 |---|---|---|---|
-| 等于 | (无) | `"name": "mike"` | String, Number, Boolean |
+| 等于 | 无 | `"name": "mike"` | String, Number, Boolean |
 | 不等于 | `Ne` | `"ageNe": 18` | String, Number, Boolean |
 | 小于 | `Lt` | `"ageLt": 18` | Number, Date |
 | 小于等于 | `Lte` | `"ageLte": 18` | Number, Date |
@@ -285,15 +284,15 @@ List<SysUserLiteVO> list = sysUserCustomMapper.selectLite(sqlContext);
 | 大于等于 | `Gte` | `"ageGte": 18` | Number, Date |
 | 模糊匹配 | `Like` | `"nameLike": "mike"` | String |
 | 反模糊匹配 | `NotLike` | `"nameNotLike": "mike"` | String |
-| IN 查询 | `In` | `"stateIn": [1, 2, 3]` | List/Array (String, Number) |
-| NOT IN 查询 | `NotIn` | `"stateNotIn": [1, 2, 3]` | List/Array (String, Number) |
-| 为空 | `IsNull` | `"nameIsNull": true` | Boolean (true) |
-| 不为空 | `IsNotNull` | `"nameIsNotNull": true` | Boolean (true) |
-| 包含任意指定 bit 位 | `HasAnyBits` | `"roleHasAnyBits": 4` | Number |
-| 包含所有指定 bit 位 | `HasAllBits` | `"roleHasAllBits": 4` | Number |
-| 不包含指定 bit 位 | `HasNoBits` | `"roleHasNoBits": 4` | Number |
+| IN | `In` | `"stateIn": [1, 2, 3]` | List / Array |
+| NOT IN | `NotIn` | `"stateNotIn": [1, 2, 3]` | List / Array |
+| 为空 | `IsNull` | `"nameIsNull": true` | Boolean |
+| 不为空 | `IsNotNull` | `"nameIsNotNull": true` | Boolean |
+| 包含任意位 | `HasAnyBits` | `"roleHasAnyBits": 4` | Number |
+| 包含全部位 | `HasAllBits` | `"roleHasAllBits": 4` | Number |
+| 不包含位 | `HasNoBits` | `"roleHasNoBits": 4` | Number |
 
-#### 入参示例
+入参示例：
 
 ```json
 {
@@ -305,96 +304,33 @@ List<SysUserLiteVO> list = sysUserCustomMapper.selectLite(sqlContext);
 }
 ```
 
-#### 自定义映射规则
+### 3. `SqlBuilder`
 
-支持调整或替换默认的后缀映射规则：
+`SqlBuilder` 用于构造标准化 `SqlContext<T>`，常用入口包括：
 
-```java
-import io.github.luminion.sqlbooster.builder.SqlBuilder;
-import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.SqlContextUtils;
+- `fromMap(map)`
+- `fromBean(bean)`
+- `eq / ne / gt / gte / lt / lte`
+- `like / notLike`
+- `in / notIn`
+- `isNull / isNotNull`
+- `orderByAsc / orderByDesc`
+- `toSqlContext()`
 
-HashMap<String, String> customMap = new HashMap<>();
-customMap.put("_like", "LIKE");
-customMap.put("_ge", ">=");
-
-// 1. 全局替换默认后缀映射
-SqlContextUtils.refreshDefaultSuffixes(customMap);
-
-// 2. 局部指定后缀映射
-SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
-        .fromMap(params)
-        .toSqlContext(customMap);
-```
-
-### 2. Builder 安全策略
-
-当前版本的构造器默认策略如下：
-
-- `fromMap` / `fromBean`：宽松模式。未知字段仍会保留到 `params`。
-- 兼容保留的 `appendByMap` / `appendByBean` 仍走同一套宽松规则，但已不再推荐作为主入口。
-- Lambda 链式条件：严格模式。字段不存在、值类型不合法、空集合 `in/notIn` 等情况会立即抛错。
-- `build()` 和 `toSqlContext()`：默认返回已经标准化的 `SqlContext`，可以直接给 mapper 使用。
+示例：
 
 ```java
 SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
         .fromMap(params)
         .eq(SysUser::getState, 1)
-        .build();
+        .gte(SysUser::getAge, 18)
+        .orderByDesc(SysUser::getId)
+        .toSqlContext();
 ```
 
-### 3. BoosterInterceptor 拦截器
+### 4. `SqlContext` 结构
 
-`BoosterInterceptor` 暴露了 `preHandle` 和 `postHandle` 方法，允许在查询执行前后对上下文及结果集进行干预。适用于逻辑删除、多租户隔离、数据脱敏等横切逻辑。
-
-```java
-@Service
-public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, SysUserVO> {
-
-    @Override
-    public void preHandle(SqlContext<SysUser> context) {
-        context.getConditions().add(new Condition("deleted", "=", 0));
-        if (!isAdmin()) {
-            context.getConditions().add(new Condition("createBy", "=", UserUtils.getUserId()));
-        }
-    }
-
-    @Override
-    public void postHandle(SqlContext<SysUser> context, List<SysUserVO> resultList) {
-        resultList.forEach(vo -> {
-            if (vo.getPhone() != null) {
-                vo.setPhone(vo.getPhone().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2"));
-            }
-        });
-    }
-}
-```
-
-### 4. SqlContext 结构解析
-
-`SqlContext` 为底层统一数据结构，支持前端以 JSON 格式提交多层级组合条件。解析时会依据实体类进行字段合法性匹配。
-
-#### 操作符对照表 (operator)
-
-| 说明 | operator 参数值 | 值类型 |
-|:---|:---|:---|
-| 等于 | 无需传参、`=`、`==`、`eq` | Any |
-| 不等于 | `<>`、`!=`、`ne` | Any |
-| 小于 | `<`、`lt` | Number, Date |
-| 小于等于 | `<=`、`le`、`lte` | Number, Date |
-| 大于 | `>`、`gt` | Number, Date |
-| 大于等于 | `>=`、`ge`、`gte` | Number, Date |
-| 模糊匹配 | `like` | String |
-| 反模糊匹配 | `not like` | String |
-| 在指定列表中 | `in` | List/Array (String, Number) |
-| 不在指定列表中 | `not in` | List/Array (String, Number) |
-| 为空 | `is null` | Boolean (true) |
-| 不为空 | `is not null` | Boolean (true) |
-| 包含任意指定 bit 位 | `has any bits` | Number |
-| 包含所有指定 bit 位 | `has all bits` | Number |
-| 不包含指定 bit 位 | `has no bits` | Number |
-
-#### 基础条件与排序
+基础结构：
 
 ```json
 {
@@ -409,24 +345,7 @@ public class SysUserServiceImpl extends MpServiceImpl<SysUserMapper, SysUser, Sy
 }
 ```
 
-#### 条件层级嵌套
-
-`SqlContext` 包含以下核心节点：
-
-- `conditions`: 当前层级的条件节点数组
-- `and`: `true` 表示 `AND`，`false` 表示 `OR`
-- `next`: 子级嵌套结构
-- `sorts`: 排序规则，仅首层传递
-
-目标 SQL：
-
-```sql
-WHERE (country = 'china' AND mobile IS NOT NULL)
-  AND (name = 'mike' OR name = 'john')
-  AND (age < 18 OR age > 60)
-```
-
-对应 JSON：
+多层条件嵌套：
 
 ```json
 {
@@ -450,3 +369,11 @@ WHERE (country = 'china' AND mobile IS NOT NULL)
   }
 }
 ```
+
+---
+
+## 兼容说明
+
+- 当前推荐入口为 `lambdaBooster()`，`lambdaBuilder()` 与 `sqlBuilder()` 仅保留为兼容方法
+- `SqlBuilder` 推荐使用 `toSqlContext()`，`build()` 为兼容保留方法
+- 查询方法统一使用 `voById`、`voList`、`voPage`
