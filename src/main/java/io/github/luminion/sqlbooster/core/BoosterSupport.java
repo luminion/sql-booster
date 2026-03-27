@@ -5,7 +5,6 @@ import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
-import io.github.luminion.sqlbooster.util.GenericTypeUtils;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
 
@@ -17,10 +16,9 @@ import java.util.stream.Collectors;
 
 /**
  * {@link Booster} 接口的默认实现集合。
- * 提供了 VO 查询能力的大部分默认实现
  *
  * @param <T> 数据库实体的类型
- * @param <V> 要返回的视图对象 (VO) 的类型
+ * @param <V> 要返回的目标对象类型
  */
 public interface BoosterSupport<T, V> extends Booster<T, V> {
 
@@ -29,7 +27,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         if (ObjectUtils.isEmpty(id)) {
             throw new IllegalArgumentException("id can't be null");
         }
-        Class<T> clazz = GenericTypeUtils.resolveBoosterEntityClass(this);
+        Class<T> clazz = entityClass();
         String keyProperty = TableMetaRegistry.getIdPropertyName(clazz);
         if (ObjectUtils.isEmpty(keyProperty)) {
             throw new IllegalStateException("can't find id property");
@@ -61,7 +59,7 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
 
     @Override
     default List<V> voListByIds(Collection<? extends Serializable> ids) {
-        Class<T> entityClass = GenericTypeUtils.resolveBoosterEntityClass(this);
+        Class<T> entityClass = entityClass();
         String idPropertyName = TableMetaRegistry.getIdPropertyName(entityClass);
         Condition condition = new Condition(idPropertyName, SqlKeyword.IN.getSymbol(), ids);
         SqlContext<T> sqlContext = new SqlContext<>();
@@ -166,12 +164,5 @@ public interface BoosterSupport<T, V> extends Booster<T, V> {
         return voPage(sqlContext, pageNum, pageSize).convertRecords(targetType);
     }
 
-    /**
-     * 最终执行查询的方法，由具体实现类提供。
-     *
-     * @param sqlContext 查询条件
-     * @param page       分页对象，可为 null
-     * @return 查询结果列表
-     */
     List<V> selectByBooster(SqlContext<T> sqlContext, Object page);
 }

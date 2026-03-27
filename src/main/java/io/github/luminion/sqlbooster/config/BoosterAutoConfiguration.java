@@ -1,11 +1,13 @@
 package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.github.luminion.sqlbooster.core.BoosterRegistry;
 import io.github.luminion.sqlbooster.core.DefaultTableResolver;
 import io.github.luminion.sqlbooster.core.TableMetaRegistry;
 import io.github.luminion.sqlbooster.core.TableResolver;
-import io.github.luminion.sqlbooster.util.BoosterMapperUtils;
+import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
+import io.github.luminion.sqlbooster.util.BoosterMapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,9 +35,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        // 初始化 SQL 片段
-        Map<String, SqlSessionFactory> sqlSessionFactoryMap = applicationContext
-                .getBeansOfType(SqlSessionFactory.class);
+        Map<String, SqlSessionFactory> sqlSessionFactoryMap = applicationContext.getBeansOfType(SqlSessionFactory.class);
         log.info("Found {} SqlSessionFactory bean(s), starting to configure sqlFragments...",
                 sqlSessionFactoryMap.size());
         for (Map.Entry<String, SqlSessionFactory> entry : sqlSessionFactoryMap.entrySet()) {
@@ -49,17 +49,20 @@ public class BoosterAutoConfiguration implements InitializingBean {
                         beanName);
             }
         }
-        // 注册所有找到的 TableResolver
+
         Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
         for (TableResolver provider : providerMap.values()) {
             TableMetaRegistry.addTableResolver(provider);
         }
         log.debug("{} TableResolver registered", providerMap.size());
+
+        Map<String, BoosterMapper> mapperMap = applicationContext.getBeansOfType(BoosterMapper.class);
+        for (Map.Entry<String, BoosterMapper> entry : mapperMap.entrySet()) {
+            BoosterRegistry.registerDefault(entry.getKey(), entry.getValue());
+        }
+        log.debug("{} BoosterMapper registered", mapperMap.size());
     }
 
-    /**
-     * 当检测到 Mybatis-Plus 时，自动配置 MpTableResolver。
-     */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(BaseMapper.class)
     static class MybatisPlusConfiguration {
@@ -71,9 +74,6 @@ public class BoosterAutoConfiguration implements InitializingBean {
         }
     }
 
-    /**
-     * 当检测到原生 Mybatis 时，自动配置 DefaultTableResolver。
-     */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(SqlSessionFactory.class)
     static class MybatisConfiguration {
@@ -86,5 +86,4 @@ public class BoosterAutoConfiguration implements InitializingBean {
             return new DefaultTableResolver(mapUnderscoreToCamelCase, Integer.MAX_VALUE);
         }
     }
-
 }

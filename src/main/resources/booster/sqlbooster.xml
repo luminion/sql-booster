@@ -25,13 +25,13 @@
                                 <when test='item.operator == "IS NULL" or item.operator == "IS NOT NULL"'>
                                     ${item.field} ${item.operator}
                                 </when>
-                                <when test='item.operator == "BIT ANY"'>
+                                <when test='item.operator == "HAS ANY BITS" or item.operator == "BIT ANY"'>
                                     (${item.field} &amp; #{item.value}) != 0
                                 </when>
-                                <when test='item.operator == "BIT ALL"'>
+                                <when test='item.operator == "HAS ALL BITS" or item.operator == "BIT ALL"'>
                                     (${item.field} &amp; #{item.value}) = #{item.value}
                                 </when>
-                                <when test='item.operator == "BIT NONE"'>
+                                <when test='item.operator == "HAS NO BITS" or item.operator == "BIT NONE"'>
                                     (${item.field} &amp; #{item.value}) = 0
                                 </when>
                                 <otherwise>

@@ -3,45 +3,29 @@ package io.github.luminion.sqlbooster.builder;
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.GenericTypeUtils;
+import io.github.luminion.sqlbooster.util.SqlContextUtils;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * 基于 Lambda 语法的增强查询执行链。
- * <p>
- * 该类继承了底层的动态 SQL 拼接能力，并融合了 {@link Booster} 的核心执行引擎。
- * 开发者可通过极其流畅的链式 API (Fluent API) 动态组合查询条件，
- * 并最终通过 {@code first()}, {@code list()}, {@code page()} 等终端操作直接触发数据库查询，
- * 自动将结果映射为指定的 VO 类型。
- * </p>
- *
- * <p>使用示例：</p>
- * <pre>{@code
- * List<SysUserVO> list = mapper.lambdaBooster()
- *     .eq(SysUser::getState, 1)
- *     .like(SysUser::getName, "mike")
- *     .list();
- * }</pre>
  *
  * @param <T> 数据库实体类型
- * @param <V> 查询结果的 VO 类型
- *
+ * @param <V> 查询结果的目标类型
  */
 @SuppressWarnings("unused")
 public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>> {
     private final Booster<T, V> booster;
 
     public LambdaBooster(Booster<T, V> booster) {
-        super(GenericTypeUtils.resolveBoosterEntityClass(booster));
+        super(booster.entityClass());
         this.booster = booster;
     }
 
     public LambdaBooster(Booster<T, V> booster, SqlContext<T> sqlContext) {
-        super(GenericTypeUtils.resolveBoosterEntityClass(booster));
-        this.booster = booster;
-        this.sqlContext.merge(sqlContext);
+        this(booster);
+        this.sqlContext.merge(SqlContextUtils.normalize(booster.entityClass(), sqlContext));
     }
 
     @Override
@@ -104,5 +88,4 @@ public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>
     public <R> BPage<R> page(long pageNum, long pageSize, Class<R> targetType) {
         return booster.voPage(this.sqlContext, pageNum, pageSize, targetType);
     }
-
 }

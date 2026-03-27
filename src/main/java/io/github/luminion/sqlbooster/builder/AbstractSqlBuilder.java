@@ -6,130 +6,218 @@ import io.github.luminion.sqlbooster.model.query.Condition;
 import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
+import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * SQL 构建器的抽象基类。
- * <p>
- * 提供了 SQL 构建的基本功能，包括条件添加、排序设置等，并通过泛型支持链式调用。
+ * Base class for SQL builders.
  *
- * @param <T> 实体类型
- * @param <S> 返回类型 (用于支持链式调用)
+ * @param <T> entity type
+ * @param <S> builder type
  */
 @SuppressWarnings({"unused", "unchecked"})
-@RequiredArgsConstructor
 public abstract class AbstractSqlBuilder<T, S extends AbstractSqlBuilder<T, S>> {
 
-    /**
-     * 关联的实体类, 用于 SQL 校验和处理。
-     */
     @Getter
     protected final Class<T> entityClass;
-    /**
-     * 存放条件的上下文。
-     */
     protected final SqlContext<T> sqlContext = new SqlContext<>();
 
-    /**
-     * 创建一个新的自身实例，用于实现链式调用中的内部构建。
-     */
-    protected abstract S newInstance();
-
-    /**
-     * 获取构建后存放的条件上下文信息。
-     */
-    public SqlContext<T> build() {
-        return build((clazz, sqlContext) -> sqlContext);
+    protected AbstractSqlBuilder(Class<T> entityClass) {
+        if (entityClass == null) {
+            throw new IllegalArgumentException("entityClass cannot be null");
+        }
+        this.entityClass = entityClass;
     }
 
-    /**
-     * 自定义构建 SQL 上下文的函数。
-     * <p>
-     * 允许用户在构建完成后对 SqlContext 进行自定义处理。
-     */
+    protected abstract S newInstance();
+
+    public SqlContext<T> build() {
+        return toSqlContext();
+    }
+
     public SqlContext<T> build(BiFunction<Class<T>, SqlContext<T>, SqlContext<T>> builder) {
-        return builder.apply(this.entityClass, this.sqlContext);
+        return builder.apply(this.entityClass, toSqlContext());
+    }
+
+    public SqlContext<T> toSqlContext() {
+        return SqlContextUtils.copy(this.sqlContext);
+    }
+
+    protected S addCondition(Condition condition) {
+        mergeCondition(condition, null);
+        return (S) this;
+    }
+
+    protected S addSort(Sort sort) {
+        if (sort != null) {
+            SqlContextUtils.appendSort(this.entityClass, this.sqlContext, sort, false);
+        }
+        return (S) this;
+    }
+
+    protected S mergeSegment(ConditionSegment conditionSegment) {
+        mergeConditionSegment(conditionSegment, null);
+        return (S) this;
     }
 
     public S append(Condition condition) {
-        if (condition != null) {
-            this.sqlContext.getConditions().add(condition);
-        }
+        return addCondition(condition);
+    }
+
+    public S append(Condition condition, Map<String, String> customSuffixMap) {
+        mergeCondition(condition, customSuffixMap);
         return (S) this;
     }
 
     public S append(Sort sort) {
-        if (sort != null) {
-            this.sqlContext.getSorts().add(sort);
-        }
-        return (S) this;
+        return addSort(sort);
     }
 
     public S append(ConditionSegment conditionSegment) {
-        if (conditionSegment != null) {
-            this.sqlContext.merge(conditionSegment);
+        return mergeSegment(conditionSegment);
+    }
+
+    public S append(ConditionSegment conditionSegment, Map<String, String> customSuffixMap) {
+        mergeConditionSegment(conditionSegment, customSuffixMap);
+        return (S) this;
+    }
+
+    public S where(Condition condition) {
+        return addCondition(condition);
+    }
+
+    public S where(Condition condition, Map<String, String> customSuffixMap) {
+        return append(condition, customSuffixMap);
+    }
+
+    public S orderBy(Sort sort) {
+        return addSort(sort);
+    }
+
+    public S where(ConditionSegment conditionSegment) {
+        return mergeSegment(conditionSegment);
+    }
+
+    public S where(ConditionSegment conditionSegment, Map<String, String> customSuffixMap) {
+        return append(conditionSegment, customSuffixMap);
+    }
+
+    /**
+     * add map key-value as conditions
+     *
+     * @since 1.2
+     *
+     */
+    public S fromMap(Map<?, ?> map) {
+        return fromMap(map, null);
+    }
+
+    public S fromMap(Map<?, ?> map, Map<String, String> customSuffixMap) {
+        if (map != null && !map.isEmpty()) {
+            mergeMapInput(map, customSuffixMap);
         }
         return (S) this;
     }
 
     /**
-     * 根据map生成条件
-     * Map 的键作为字段名，值作为查询值。值为 null 的条目将被忽略。
-     * @since 1.1.0
+     * add bean properties as conditions
+     *
+     * @since 1.2
+     * 
      */
-    public S appendByMap(Map<?, ?> map) {
-        if (map != null) {
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                Object key = entry.getKey();
-                Object value = entry.getValue();
-                if (value != null) {
-                    Condition condition = new Condition(key.toString(), SqlKeyword.EQ.getSymbol(), value);
-                    this.sqlContext.getConditions().add(condition);
-                }
-            }
-        }
-        return (S) this;
+    public S fromBean(Object bean) {
+        return fromBean(bean, null);
     }
 
-    /**
-     * 根据 JavaBean 生成条件
-     * JavaBean 的属性作为字段名，属性值作为查询值。属性值为 null 的将被忽略。
-     * @since 1.1.0
-     */
-    public S appendByBean(Object bean) {
+    public S fromBean(Object bean, Map<String, String> customSuffixMap) {
         if (bean != null) {
-            Map<String, Object> stringObjectMap = BeanPropertyUtils.toMap(bean);
-            this.appendEqByMap(stringObjectMap);
+            mergeMapInput(BeanPropertyUtils.toMap(bean), customSuffixMap);
         }
         return (S) this;
     }
 
+    /**
+     * @deprecated use {@link #fromMap(Map)} instead
+     * @since 1.1
+     */
+    @Deprecated
+    public S appendByMap(Map<?, ?> map) {
+        return fromMap(map);
+    }
 
     /**
-     * 将 Map 转换为多个 "等于" (EQ) 条件。
-     * <p>
-     * Map 的键作为字段名，值作为查询值。值为 null 的条目将被忽略。
-     * @deprecated 使用{@link #appendByMap(Map)}代替(若配置了后缀映射, 映射的条件不一定为eq)
+     * @deprecated use {@link #fromMap(Map, Map)} instead
+     * @since 1.2
+     */
+    @Deprecated
+    public S appendByMap(Map<?, ?> map, Map<String, String> customSuffixMap) {
+        return fromMap(map, customSuffixMap);
+    }
+
+    /**
+     * @deprecated use {@link #fromBean(Object)} instead
+     * @since 1.1
+     */
+    @Deprecated
+    public S appendByBean(Object bean) {
+        return fromBean(bean);
+    }
+
+    /**
+     * @deprecated use {@link #fromBean(Object, Map)} instead
+     * @since 1.2
+     */
+    @Deprecated
+    public S appendByBean(Object bean, Map<String, String> customSuffixMap) {
+        return fromBean(bean, customSuffixMap);
+    }
+
+    /**
+     * @deprecated use {@link #fromMap(Map)} instead
      */
     @Deprecated
     public S appendEqByMap(Map<?, ?> map) {
-        return appendByMap(map);
+        return fromMap(map);
     }
 
-
     /**
-     * 将 JavaBean 对象的属性转换为多个 "等于" (EQ) 条件。
-     * <p>
-     * 属性值为 null 的将被忽略。
-     * @deprecated 使用{@link #appendByMap(Map)}代替(若配置了后缀映射, 映射的条件不一定为eq)
+     * @deprecated use {@link #fromBean(Object)} instead
      */
     @Deprecated
     public S appendEqByBean(Object bean) {
-        return appendByBean(bean);
+        return fromBean(bean);
     }
 
+    private void mergeMapInput(Map<?, ?> map, Map<String, String> customSuffixMap) {
+        SqlContext<T> source = new SqlContext<>();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (key != null && value != null) {
+                source.getConditions().add(new Condition(key.toString(), SqlKeyword.EQ.getSymbol(), value));
+            }
+        }
+        this.sqlContext.merge(SqlContextUtils.buildWithSuffix(this.entityClass, source, customSuffixMap));
+    }
+
+    private void mergeCondition(Condition condition, Map<String, String> customSuffixMap) {
+        if (condition == null) {
+            return;
+        }
+        SqlContext<T> source = new SqlContext<>();
+        source.getConditions().add(new Condition(condition.getField(), condition.getOperator(), condition.getValue()));
+        this.sqlContext.merge(SqlContextUtils.buildWithSuffix(this.entityClass, source, customSuffixMap));
+    }
+
+    private void mergeConditionSegment(ConditionSegment conditionSegment, Map<String, String> customSuffixMap) {
+        if (conditionSegment == null) {
+            return;
+        }
+        SqlContext<T> source = new SqlContext<>();
+        source.merge(conditionSegment);
+        this.sqlContext.merge(SqlContextUtils.buildWithSuffix(this.entityClass, source, customSuffixMap));
+    }
 }

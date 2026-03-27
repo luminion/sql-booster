@@ -8,12 +8,16 @@ import io.github.luminion.sqlbooster.model.query.ConditionSegment;
 import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * SQL 上下文构建工具。
- * <p>
- * 负责将原始的 SqlContext 转换为包含数据库列名、经过严格校验的标准 SqlContext。
  */
 @Slf4j
 public abstract class SqlContextUtils {
@@ -23,31 +27,31 @@ public abstract class SqlContextUtils {
     static {
         Map<String, String> map = new HashMap<>();
         // 比较运算符
-        map.put("Ne", "=");
-        map.put("_ne", "=");
-        map.put("Lt", "<");
-        map.put("_lt", "<");
-        map.put("Lte", "<=");
-        map.put("_lte", "<=");
-        map.put("Gt", ">");
-        map.put("_gt", ">");
-        map.put("Gte", ">=");
-        map.put("_gte", ">=");
+        map.put("Ne", SqlKeyword.NE.getSymbol());
+        map.put("_ne", SqlKeyword.NE.getSymbol());
+        map.put("Lt", SqlKeyword.LT.getSymbol());
+        map.put("_lt", SqlKeyword.LT.getSymbol());
+        map.put("Lte", SqlKeyword.LTE.getSymbol());
+        map.put("_lte", SqlKeyword.LTE.getSymbol());
+        map.put("Gt", SqlKeyword.GT.getSymbol());
+        map.put("_gt", SqlKeyword.GT.getSymbol());
+        map.put("Gte", SqlKeyword.GTE.getSymbol());
+        map.put("_gte", SqlKeyword.GTE.getSymbol());
         // 模糊匹配
-        map.put("Like", "LIKE");
-        map.put("_like", "LIKE");
-        map.put("NotLike", "NOT LIKE");
-        map.put("_not_like", "NOT LIKE");
+        map.put("Like", SqlKeyword.LIKE.getSymbol());
+        map.put("_like", SqlKeyword.LIKE.getSymbol());
+        map.put("NotLike", SqlKeyword.NOT_LIKE.getSymbol());
+        map.put("_not_like", SqlKeyword.NOT_LIKE.getSymbol());
         // 集合查询
-        map.put("In", "IN");
-        map.put("_in", "IN");
-        map.put("NotIn", "NOT IN");
-        map.put("_not_in", "NOT IN");
+        map.put("In", SqlKeyword.IN.getSymbol());
+        map.put("_in", SqlKeyword.IN.getSymbol());
+        map.put("NotIn", SqlKeyword.NOT_IN.getSymbol());
+        map.put("_not_in", SqlKeyword.NOT_IN.getSymbol());
         // Null 判断
-        map.put("IsNull", "IS NULL");
-        map.put("_is_null", "IS NULL");
-        map.put("IsNotNull", "IS NOT NULL");
-        map.put("_is_not_null", "IS NOT NULL");
+        map.put("IsNull", SqlKeyword.IS_NULL.getSymbol());
+        map.put("_is_null", SqlKeyword.IS_NULL.getSymbol());
+        map.put("IsNotNull", SqlKeyword.IS_NOT_NULL.getSymbol());
+        map.put("_is_not_null", SqlKeyword.IS_NOT_NULL.getSymbol());
         // 位运算
         map.put("HasAnyBits", SqlKeyword.HAS_ANY_BITS.getSymbol());
         map.put("_has_any_bits", SqlKeyword.HAS_ANY_BITS.getSymbol());
@@ -67,70 +71,183 @@ public abstract class SqlContextUtils {
 
     public static void refreshDefaultSuffixes(Map<String, String> suffixToOperatorMap) {
         List<Map.Entry<String, String>> list = new ArrayList<>(suffixToOperatorMap.entrySet());
-        // 按长度倒序，防止短后缀（如 "In"）优先匹配长后缀（如 "NotIn"）
         list.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
         defaultSuffixes = list;
     }
 
-    // ==================== 公开构建入口 ====================
+    public static <T> SqlContext<T> copy(SqlContext<?> source) {
+        SqlContext<T> result = new SqlContext<>();
+        if (source == null) {
+            return result;
+        }
+        result.getParams().putAll(source.getParams());
+        for (Sort sort : source.getSorts()) {
+            result.getSorts().add(new Sort(sort.getField(), sort.isAsc()));
+        }
+        ConditionSegment target = result;
+        boolean first = true;
+        for (ConditionSegment node : source) {
+            if (!first) {
+                ConditionSegment next = new ConditionSegment();
+                target.setNext(next);
+                target = next;
+            }
+            target.setAnd(node.isAnd());
+            for (Condition condition : node.getConditions()) {
+                target.getConditions().add(new Condition(condition.getField(), condition.getOperator(),
+                        condition.getValue()));
+            }
+            first = false;
+        }
+        return result;
+    }
 
-    /**
-     * 仅执行基础构建 (映射已知字段，其余放入 params)。
-     */
     public static <T> SqlContext<T> build(Class<T> entityClass, SqlContext<?> source) {
         return buildBase(entityClass, source);
     }
 
-    /**
-     * 执行基础构建，并使用默认规则解析字段后缀。
-     */
+    public static <T> SqlContext<T> normalize(Class<T> entityClass, SqlContext<?> source) {
+        return buildWithSuffix(entityClass, source, null);
+    }
+
+    public static <T> SqlContext<T> normalize(Class<T> entityClass, SqlContext<?> source,
+                                              Map<String, String> customSuffixMap) {
+        return buildWithSuffix(entityClass, source, customSuffixMap);
+    }
+
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source) {
         return buildWithSuffix(entityClass, source, null);
     }
 
-    /**
-     * 执行基础构建，并使用自定义后缀规则解析。
-     */
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source,
                                                     Map<String, String> customSuffixMap) {
         SqlContext<T> context = buildBase(entityClass, source);
         return resolveSuffixes(context, entityClass, customSuffixMap);
     }
 
-    // ==================== 核心步骤 1: 基础构建 ====================
+    public static <T> SqlContext<T> appendByMap(Class<T> entityClass, SqlContext<T> target, Map<?, ?> map) {
+        if (target == null || map == null || map.isEmpty()) {
+            return target;
+        }
+        SqlContext<T> source = new SqlContext<>();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (key != null && value != null) {
+                source.getConditions().add(new Condition(key.toString(), SqlKeyword.EQ.getSymbol(), value));
+            }
+        }
+        target.merge(buildWithSuffix(entityClass, source));
+        return target;
+    }
+
+    public static <T> SqlContext<T> appendByBean(Class<T> entityClass, SqlContext<T> target, Object bean) {
+        if (bean == null) {
+            return target;
+        }
+        return appendByMap(entityClass, target, BeanPropertyUtils.toMap(bean));
+    }
+
+    public static <T> SqlContext<T> appendCondition(Class<T> entityClass, SqlContext<T> target, Condition condition,
+                                                    boolean strict) {
+        if (target == null || condition == null) {
+            return target;
+        }
+        SqlContext<T> source = new SqlContext<>();
+        source.getConditions().add(new Condition(condition.getField(), condition.getOperator(), condition.getValue()));
+        SqlContext<T> normalized = buildWithSuffix(entityClass, source);
+        return mergeValidated(entityClass, target, source, normalized, strict, "condition");
+    }
+
+    public static <T> SqlContext<T> appendSort(Class<T> entityClass, SqlContext<T> target, Sort sort,
+                                               boolean strict) {
+        if (target == null || sort == null) {
+            return target;
+        }
+        SqlContext<T> source = new SqlContext<>();
+        source.getSorts().add(new Sort(sort.getField(), sort.isAsc()));
+        SqlContext<T> normalized = buildBase(entityClass, source);
+        return mergeValidated(entityClass, target, source, normalized, strict, "sort");
+    }
+
+    public static <T> SqlContext<T> appendSegment(Class<T> entityClass, SqlContext<T> target,
+                                                  ConditionSegment conditionSegment, boolean strict) {
+        if (target == null || conditionSegment == null) {
+            return target;
+        }
+        SqlContext<T> source = new SqlContext<>();
+        source.merge(conditionSegment);
+        SqlContext<T> normalized = buildWithSuffix(entityClass, source);
+        return mergeValidated(entityClass, target, source, normalized, strict, "segment");
+    }
+
+    private static <T> SqlContext<T> mergeValidated(Class<T> entityClass, SqlContext<T> target, SqlContext<T> source,
+                                                    SqlContext<T> normalized, boolean strict, String label) {
+        if (!strict) {
+            target.merge(normalized);
+            return target;
+        }
+        int sourceConditionCount = countConditions(source);
+        int normalizedConditionCount = countConditions(normalized);
+        if (normalizedConditionCount != sourceConditionCount
+                || normalized.getSorts().size() != source.getSorts().size()
+                || !normalized.getParams().isEmpty()) {
+            throw new IllegalArgumentException("Illegal " + label + " for entity [" + entityClass.getName()
+                    + "], unresolved fields: " + normalized.getParams().keySet());
+        }
+        target.merge(normalized);
+        return target;
+    }
+
+    private static int countConditions(ConditionSegment segment) {
+        if (segment == null) {
+            return 0;
+        }
+        int count = 0;
+        for (ConditionSegment node : segment) {
+            count += node.getConditions().size();
+        }
+        return count;
+    }
 
     private static <T> SqlContext<T> buildBase(Class<T> entityClass, SqlContext<?> source) {
-        if (entityClass == null)
+        if (entityClass == null) {
             throw new IllegalArgumentException("Entity class cannot be null");
+        }
 
         SqlContext<T> result = new SqlContext<>();
+        if (source == null) {
+            return result;
+        }
+
+        result.getParams().putAll(source.getParams());
+
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> params = result.getParams();
         Collection<String> columns = columnMap.values();
-        // 1. 处理条件
+
         for (ConditionSegment conditionSegment : source) {
             LinkedHashSet<Condition> validConditions = new LinkedHashSet<>();
 
-            for (Condition c : conditionSegment.getConditions()) {
-                String field = c.getField();
+            for (Condition condition : conditionSegment.getConditions()) {
+                String field = condition.getField();
+                if (field == null || field.isEmpty()) {
+                    continue;
+                }
                 String column = columnMap.get(field);
-                // 兼容已转化的列
                 if (column == null && columns.contains(field)) {
                     column = field;
                 }
                 if (column != null) {
-                    // 字段在实体中存在，进行校验
-                    Condition finalC = validateAndCreate(column, c.getOperator(), c.getValue());
-                    if (finalC != null) {
-                        validConditions.add(finalC);
+                    Condition finalCondition = validateAndCreate(column, condition.getOperator(), condition.getValue());
+                    if (finalCondition != null) {
+                        validConditions.add(finalCondition);
                     } else {
-                        // 校验失败，保留为动态参数供 XML 使用
                         log.debug("Direct condition field [{}] ignored: validation failed.", field);
-                        params.put(field, c.getValue());
+                        params.putIfAbsent(field, condition.getValue());
                     }
                 } else {
-                    // 字段在实体中不存在，直接放入 params
-                    params.putIfAbsent(field, c.getValue());
+                    params.putIfAbsent(field, condition.getValue());
                 }
             }
 
@@ -139,15 +256,12 @@ public abstract class SqlContextUtils {
             }
         }
 
-        // 2. 处理排序
         processSorts(source.getSorts(), columnMap, result.getSorts());
-
         return result;
     }
 
-    // ==================== 核心步骤 2: 后缀解析 ====================
-
-    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass, Map<String, String> customSuffixMap) {
+    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass,
+                                                     Map<String, String> customSuffixMap) {
         Map<String, Object> params = context.getParams();
         if (params.isEmpty()) {
             return context;
@@ -156,13 +270,11 @@ public abstract class SqlContextUtils {
         List<Map.Entry<String, String>> suffixList = (customSuffixMap != null && !customSuffixMap.isEmpty())
                 ? new ArrayList<>(customSuffixMap.entrySet())
                 : defaultSuffixes;
-        if (customSuffixMap != null) {
+        if (customSuffixMap != null && !customSuffixMap.isEmpty()) {
             suffixList.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
         }
 
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
-
-        // 使用迭代器遍历并安全移除已解析的参数
         Iterator<Map.Entry<String, Object>> it = params.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> entry = it.next();
@@ -171,19 +283,15 @@ public abstract class SqlContextUtils {
 
             for (Map.Entry<String, String> suffixEntry : suffixList) {
                 String suffix = suffixEntry.getKey();
-
                 if (field.endsWith(suffix) && field.length() > suffix.length()) {
                     String realField = field.substring(0, field.length() - suffix.length());
                     String realColumn = columnMap.get(realField);
                     if (realColumn != null) {
-                        String operator = suffixEntry.getValue();
-                        Condition finalC = validateAndCreate(realColumn, operator, value);
-                        if (finalC != null) {
-                            // 匹配成功且校验通过 -> 移入 conditions
-                            context.getConditions().add(finalC);
+                        Condition finalCondition = validateAndCreate(realColumn, suffixEntry.getValue(), value);
+                        if (finalCondition != null) {
+                            context.getConditions().add(finalCondition);
                             it.remove();
                         }
-                        // 只要匹配到后缀，无论校验是否成功，都停止对当前字段匹配其他后缀
                         break;
                     }
                 }
@@ -192,14 +300,12 @@ public abstract class SqlContextUtils {
         return context;
     }
 
-    // ==================== 辅助方法 ====================
-
-    private static void processSorts(Set<Sort> sourceSorts, Map<String, String> columnMap, Set<Sort> targetSorts) {
+    private static void processSorts(Collection<Sort> sourceSorts, Map<String, String> columnMap,
+                                     Collection<Sort> targetSorts) {
         Collection<String> columns = columnMap.values();
         for (Sort sort : sourceSorts) {
             String field = sort.getField();
             String column = columnMap.get(field);
-            // 兼容已转化的列
             if (column == null && columns.contains(field)) {
                 column = field;
             }
@@ -211,34 +317,24 @@ public abstract class SqlContextUtils {
         }
     }
 
-    /**
-     * 根据操作符和值进行校验，并创建合法的 Condition 对象。
-     * <p>
-     * 包含了所有内置操作符的严格类型检查规则。
-     * </p>
-     */
     private static Condition validateAndCreate(String column, String operatorStr, Object value) {
         SqlKeyword keyword;
         try {
             keyword = SqlKeyword.resolve(operatorStr);
         } catch (IllegalArgumentException e) {
-            return null; // 无法识别的操作符
+            return null;
         }
 
-        // 规则: IS NULL / IS NOT NULL
         if (keyword.isNullCheck()) {
-            // 只有当值为 true 时才生效
             return (value instanceof Boolean && (Boolean) value)
                     ? new Condition(column, keyword.getSymbol(), true)
                     : null;
         }
 
-        // 规则: 其他所有操作符，值都不能为 null
         if (value == null) {
             return null;
         }
 
-        // 规则: IN / NOT IN，值必须是有效的集合或数组
         if (keyword.isIn()) {
             boolean isValid = false;
             if (value instanceof Iterable) {
@@ -251,7 +347,6 @@ public abstract class SqlContextUtils {
             }
         }
 
-        // 规则: 位运算，值必须是整型
         if (keyword.isBitOperation()) {
             if (!(value instanceof Integer || value instanceof Long || value instanceof Short
                     || value instanceof Byte)) {
@@ -259,14 +354,12 @@ public abstract class SqlContextUtils {
             }
         }
 
-        // 规则: 大小比较，值必须可比较
         if (keyword.isCompare()) {
             if (!(value instanceof Comparable)) {
                 return null;
             }
         }
 
-        // 规则: LIKE，如果值不包含 '%'，自动包裹为模糊匹配
         if (keyword.isLike()) {
             String s = value.toString();
             if (!s.contains("%")) {
