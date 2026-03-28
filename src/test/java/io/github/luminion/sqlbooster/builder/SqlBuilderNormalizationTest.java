@@ -1,7 +1,7 @@
 package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.model.query.Condition;
+import io.github.luminion.sqlbooster.model.Condition;
 import io.github.luminion.sqlbooster.support.BoosterTestFixtures;
 import org.junit.After;
 import org.junit.Before;

@@ -1,5 +1,7 @@
-package io.github.luminion.sqlbooster.metadata;
+package io.github.luminion.sqlbooster.extension.mybatis;
 
+import io.github.luminion.sqlbooster.metadata.TableMeta;
+import io.github.luminion.sqlbooster.metadata.TableResolver;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.EqualsAndHashCode;

@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.query;
+package io.github.luminion.sqlbooster.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

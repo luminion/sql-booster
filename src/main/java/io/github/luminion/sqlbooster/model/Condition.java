@@ -1,4 +1,4 @@
-package io.github.luminion.sqlbooster.model.query;
+package io.github.luminion.sqlbooster.model;
 
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import lombok.*;

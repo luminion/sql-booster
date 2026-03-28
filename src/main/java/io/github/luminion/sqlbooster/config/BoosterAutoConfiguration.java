@@ -2,9 +2,9 @@ package io.github.luminion.sqlbooster.config;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
+import io.github.luminion.sqlbooster.extension.mybatis.DefaultTableResolver;
 import io.github.luminion.sqlbooster.extension.mybatisplus.MpTableResolver;
 import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
-import io.github.luminion.sqlbooster.metadata.DefaultTableResolver;
 import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.metadata.TableResolver;
 import io.github.luminion.sqlbooster.util.BoosterMapperUtils;

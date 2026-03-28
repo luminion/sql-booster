@@ -3,8 +3,8 @@ package io.github.luminion.sqlbooster.builder;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
-import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.Sort;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.Sort;
 
 import java.util.Collection;
 import java.util.function.Consumer;

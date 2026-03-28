@@ -1,7 +1,5 @@
 package io.github.luminion.sqlbooster.model;
 
-import io.github.luminion.sqlbooster.model.query.ConditionSegment;
-import io.github.luminion.sqlbooster.model.query.Sort;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

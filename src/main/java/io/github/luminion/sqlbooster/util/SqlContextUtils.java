@@ -3,9 +3,9 @@ package io.github.luminion.sqlbooster.util;
 import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.ConditionSegment;
-import io.github.luminion.sqlbooster.model.query.Sort;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.ConditionSegment;
+import io.github.luminion.sqlbooster.model.Sort;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;

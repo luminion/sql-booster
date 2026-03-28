@@ -2,9 +2,9 @@ package io.github.luminion.sqlbooster.builder;
 
 import io.github.luminion.sqlbooster.enums.SqlKeyword;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.model.query.Condition;
-import io.github.luminion.sqlbooster.model.query.ConditionSegment;
-import io.github.luminion.sqlbooster.model.query.Sort;
+import io.github.luminion.sqlbooster.model.Condition;
+import io.github.luminion.sqlbooster.model.ConditionSegment;
+import io.github.luminion.sqlbooster.model.Sort;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
 import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import lombok.Getter;
