@@ -1,8 +1,6 @@
 package io.github.luminion.sqlbooster.metadata;
 
-import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.util.BeanPropertyUtils;
-import io.github.luminion.sqlbooster.util.LambdaUtils;
 import io.github.luminion.sqlbooster.util.StrConvertUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 /**
- * 默认的 {@link TableResolver} 实现。
- * <p>
- * 基于通用的命名约定（如类名转表名、"id"作为主键）来提供元信息。
+ * 默认的表元数据解析器。
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
@@ -25,37 +20,25 @@ public class DefaultTableResolver implements TableResolver {
     private final int priority;
 
     @Override
-    public <T> String getTableName(Class<T> clazz) {
-        return StrConvertUtils.pascalCaseToUnderscore(clazz.getSimpleName());
-    }
-
-    @Override
-    public <T> String getIdPropertyName(Class<T> clazz) {
-        try {
-            clazz.getMethod("getId");
-            return "id";
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
-        return LambdaUtils.resolveGetterPropertyName(getter);
-    }
-
-    @Override
-    public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
-        Set<String> beanPropertyNameSet = BeanPropertyUtils.getPropertyNames(clazz);
-        return beanPropertyNameSet.stream().collect(Collectors.toMap(
-                e -> e,
-                e -> String.format("a.%s", underscoreToCamelCase ? StrConvertUtils.camelCaseToUnderscore(e) : e)
-        ));
-    }
-
-    @Override
     public int getPriority() {
         return priority;
     }
 
+    @Override
+    public <T> TableMeta resolve(Class<T> clazz) {
+        String tableName = StrConvertUtils.pascalCaseToUnderscore(clazz.getSimpleName());
+        String idPropertyName = null;
+        try {
+            clazz.getMethod("getId");
+            idPropertyName = "id";
+        } catch (NoSuchMethodException e) {
+            // ignore
+        }
+        Set<String> beanPropertyNameSet = BeanPropertyUtils.getPropertyNames(clazz);
+        Map<String, String> propertyToColumnAliasMap = beanPropertyNameSet.stream().collect(Collectors.toMap(
+                e -> e,
+                e -> String.format("a.%s", underscoreToCamelCase ? StrConvertUtils.camelCaseToUnderscore(e) : e)
+        ));
+        return new TableMeta(tableName, idPropertyName, propertyToColumnAliasMap);
+    }
 }

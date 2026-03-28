@@ -3,12 +3,11 @@ package io.github.luminion.sqlbooster.support;
 import io.github.luminion.sqlbooster.core.BoosterEntity;
 import io.github.luminion.sqlbooster.core.BoosterService;
 import io.github.luminion.sqlbooster.core.BoosterSupport;
-import io.github.luminion.sqlbooster.function.SFunc;
 import io.github.luminion.sqlbooster.metadata.BoosterRegistry;
+import io.github.luminion.sqlbooster.metadata.TableMeta;
 import io.github.luminion.sqlbooster.metadata.TableMetaRegistry;
 import io.github.luminion.sqlbooster.metadata.TableResolver;
 import io.github.luminion.sqlbooster.model.SqlContext;
-import io.github.luminion.sqlbooster.util.LambdaUtils;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -169,28 +168,9 @@ public abstract class BoosterTestFixtures {
         }
 
         @Override
-        public <T> String getTableName(Class<T> entityClass) {
-            return entityClass == TestEntity.class ? "test_entity" : null;
-        }
-
-        @Override
-        public <T> String getIdPropertyName(Class<T> entityClass) {
-            return entityClass == TestEntity.class ? "id" : null;
-        }
-
-        @Override
-        public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
-            Class<T> getterClass = LambdaUtils.resolveGetterClass(getter);
-            if (getterClass == TestEntity.class) {
-                return LambdaUtils.resolveGetterPropertyName(getter);
-            }
-            return null;
-        }
-
-        @Override
-        public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> entityClass) {
+        public <T> TableMeta resolve(Class<T> entityClass) {
             if (entityClass != TestEntity.class) {
-                return Collections.emptyMap();
+                return null;
             }
             Map<String, String> map = new LinkedHashMap<>();
             map.put("id", "id");
@@ -198,7 +178,7 @@ public abstract class BoosterTestFixtures {
             map.put("age", "age");
             map.put("state", "state");
             map.put("role", "role");
-            return map;
+            return new TableMeta("test_entity", "id", map);
         }
     }
 }

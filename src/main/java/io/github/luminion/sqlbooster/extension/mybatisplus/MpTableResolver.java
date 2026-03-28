@@ -3,72 +3,52 @@ package io.github.luminion.sqlbooster.extension.mybatisplus;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import io.github.luminion.sqlbooster.metadata.TableMeta;
 import io.github.luminion.sqlbooster.metadata.TableResolver;
-import io.github.luminion.sqlbooster.function.SFunc;
-import io.github.luminion.sqlbooster.util.LambdaUtils;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 基于 Mybatis-Plus 的 {@link TableResolver} 实现。
- * <p>
- * 利用 Mybatis-Plus 的缓存和注解信息来提供表名、字段映射等元数据。
+ * 基于 MyBatis-Plus 的表元数据解析器。
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class MpTableResolver implements TableResolver {
+
     private final int priority;
-
-    @Override
-    public <T, R> String getGetterPropertyName(SFunc<T, R> getter) {
-        return LambdaUtils.resolveGetterPropertyName(getter);
-    }
-
-    @Override
-    public <T> String getIdPropertyName(Class<T> clazz) {
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
-        if (tableInfo == null){
-            return null;
-        }
-        return tableInfo.getKeyProperty();
-    }
-
-    @Override
-    public <T> Map<String, String> getPropertyToColumnAliasMap(Class<T> clazz) {
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
-        if (tableInfo == null) {
-            return null;
-        }
-        List<TableFieldInfo> fieldList = tableInfo.getFieldList();
-        if (fieldList == null || fieldList.isEmpty()) {
-            return null;
-        }
-        Map<String, String> map = fieldList.stream()
-                .collect(Collectors.toMap(TableFieldInfo::getProperty,
-                        e -> String.format("a.%s", e.getColumn())));
-        String keyProperty = tableInfo.getKeyProperty();
-        if (keyProperty != null) {
-            map.put(tableInfo.getKeyProperty(), String.format("a.%s", tableInfo.getKeyColumn()));
-        }
-        return map;
-    }
-
-    @Override
-    public <T> String getTableName(Class<T> clazz) {
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
-        if (tableInfo == null){
-            return null;
-        }
-        return tableInfo.getTableName();
-    }
 
     @Override
     public int getPriority() {
         return priority;
     }
 
+    @Override
+    public <T> TableMeta resolve(Class<T> clazz) {
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
+        if (tableInfo == null) {
+            return null;
+        }
+        List<TableFieldInfo> fieldList = tableInfo.getFieldList();
+        Map<String, String> propertyToColumnAliasMap = null;
+        if (fieldList != null && !fieldList.isEmpty()) {
+            propertyToColumnAliasMap = fieldList.stream()
+                    .collect(Collectors.toMap(TableFieldInfo::getProperty,
+                            e -> String.format("a.%s", e.getColumn()),
+                            (left, right) -> left,
+                            LinkedHashMap::new));
+        }
+        String keyProperty = tableInfo.getKeyProperty();
+        if (keyProperty != null) {
+            if (propertyToColumnAliasMap == null) {
+                propertyToColumnAliasMap = new LinkedHashMap<>();
+            }
+            propertyToColumnAliasMap.put(keyProperty, String.format("a.%s", tableInfo.getKeyColumn()));
+        }
+        return new TableMeta(tableInfo.getTableName(), keyProperty, propertyToColumnAliasMap);
+    }
 }

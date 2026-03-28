@@ -51,9 +51,7 @@ public class BoosterAutoConfiguration implements InitializingBean {
         }
 
         Map<String, TableResolver> providerMap = applicationContext.getBeansOfType(TableResolver.class);
-        for (TableResolver provider : providerMap.values()) {
-            TableMetaRegistry.addTableResolver(provider);
-        }
+        TableMetaRegistry.addTableResolvers(providerMap.values());
         log.debug("{} TableResolver registered", providerMap.size());
 
         Map<String, BoosterMapper> mapperMap = applicationContext.getBeansOfType(BoosterMapper.class);
