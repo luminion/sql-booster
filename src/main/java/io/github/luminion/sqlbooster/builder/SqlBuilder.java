@@ -3,11 +3,6 @@ package io.github.luminion.sqlbooster.builder;
 import io.github.luminion.sqlbooster.core.Booster;
 import io.github.luminion.sqlbooster.core.LambdaBooster;
 
-/**
- * SQL 查询构建器。
- *
- * @param <T> 实体类型
- */
 @SuppressWarnings("unused")
 public class SqlBuilder<T> extends LambdaSqlBuilder<T, SqlBuilder<T>> {
 

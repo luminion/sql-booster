@@ -81,10 +81,7 @@ public abstract class BoosterMapperUtils {
         try {
             tableName = TableMetaRegistry.getTableName(entityClass);
         } catch (IllegalStateException e) {
-            tableName = StrConvertUtils.camelCaseToUnderscore(entityClass.getName());
-            if (tableName.startsWith("_")) {
-                return tableName.substring(1);
-            }
+            tableName = StrConvertUtils.pascalCaseToUnderscore(entityClass.getSimpleName());
         }
         return getSqlContent(tableName);
     }

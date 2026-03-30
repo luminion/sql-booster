@@ -7,11 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-/**
- * 将 PageHelper 的 {@link PageInfo} 适配为 {@link BPage} 的包装类。
- *
- * @param <T> 记录的类型
- */
 @RequiredArgsConstructor
 public class PhPage<T> implements BPage<T> {
     private static final long serialVersionUID = 1L;

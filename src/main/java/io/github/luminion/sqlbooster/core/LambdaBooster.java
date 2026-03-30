@@ -5,12 +5,6 @@ import io.github.luminion.sqlbooster.model.BPage;
 
 import java.util.List;
 
-/**
- * 基于 Lambda 条件构建的增强查询执行器。
- *
- * @param <T> 实体类型
- * @param <V> 默认结果类型
- */
 @SuppressWarnings("unused")
 public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>> {
     private final Booster<T, V> booster;

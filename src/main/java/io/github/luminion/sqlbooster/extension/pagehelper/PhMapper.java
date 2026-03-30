@@ -7,9 +7,6 @@ import io.github.luminion.sqlbooster.extension.mybatis.BoosterMapper;
 import io.github.luminion.sqlbooster.model.BPage;
 import io.github.luminion.sqlbooster.model.SqlContext;
 
-/**
- * 基于 PageHelper 的 Mapper 接口。
- */
 public interface PhMapper<T, V> extends BoosterMapper<T, V> {
 
     @Override

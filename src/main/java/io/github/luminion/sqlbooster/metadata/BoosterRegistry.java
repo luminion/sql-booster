@@ -31,6 +31,13 @@ public abstract class BoosterRegistry {
         }
     }
 
+    public static boolean removeBooster(Booster<?, ?> booster) {
+        if (booster == null) {
+            return false;
+        }
+        return DEFAULT_BOOSTERS.entrySet().removeIf(entry -> entry.getValue().booster == booster);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T, V> Booster<T, V> getRequiredBooster(Class<T> entityClass, Class<V> resultClass) {
         Registration<?> registration = DEFAULT_BOOSTERS.get(entityClass);

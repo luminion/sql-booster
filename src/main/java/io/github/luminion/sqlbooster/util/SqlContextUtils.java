@@ -26,7 +26,6 @@ public abstract class SqlContextUtils {
 
     static {
         Map<String, String> map = new HashMap<>();
-        // 比较运算符
         map.put("Ne", SqlKeyword.NE.getSymbol());
         map.put("_ne", SqlKeyword.NE.getSymbol());
         map.put("Lt", SqlKeyword.LT.getSymbol());
@@ -37,29 +36,24 @@ public abstract class SqlContextUtils {
         map.put("_gt", SqlKeyword.GT.getSymbol());
         map.put("Gte", SqlKeyword.GTE.getSymbol());
         map.put("_gte", SqlKeyword.GTE.getSymbol());
-        // 模糊匹配
         map.put("Like", SqlKeyword.LIKE.getSymbol());
         map.put("_like", SqlKeyword.LIKE.getSymbol());
         map.put("NotLike", SqlKeyword.NOT_LIKE.getSymbol());
         map.put("_not_like", SqlKeyword.NOT_LIKE.getSymbol());
-        // 集合查询
         map.put("In", SqlKeyword.IN.getSymbol());
         map.put("_in", SqlKeyword.IN.getSymbol());
         map.put("NotIn", SqlKeyword.NOT_IN.getSymbol());
         map.put("_not_in", SqlKeyword.NOT_IN.getSymbol());
-        // Null 判断
         map.put("IsNull", SqlKeyword.IS_NULL.getSymbol());
         map.put("_is_null", SqlKeyword.IS_NULL.getSymbol());
         map.put("IsNotNull", SqlKeyword.IS_NOT_NULL.getSymbol());
         map.put("_is_not_null", SqlKeyword.IS_NOT_NULL.getSymbol());
-        // 位运算
         map.put("HasAnyBits", SqlKeyword.HAS_ANY_BITS.getSymbol());
         map.put("_has_any_bits", SqlKeyword.HAS_ANY_BITS.getSymbol());
         map.put("HasAllBits", SqlKeyword.HAS_ALL_BITS.getSymbol());
         map.put("_has_all_bits", SqlKeyword.HAS_ALL_BITS.getSymbol());
         map.put("HasNoBits", SqlKeyword.HAS_NO_BITS.getSymbol());
         map.put("_has_no_bits", SqlKeyword.HAS_NO_BITS.getSymbol());
-        // 兼容旧后缀
         map.put("BitAny", SqlKeyword.HAS_ANY_BITS.getSymbol());
         map.put("_bit_any", SqlKeyword.HAS_ANY_BITS.getSymbol());
         map.put("BitAll", SqlKeyword.HAS_ALL_BITS.getSymbol());

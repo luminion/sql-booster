@@ -21,19 +21,10 @@ import java.util.NoSuchElementException;
 public class ConditionSegment implements Serializable, Iterable<ConditionSegment> {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 当前节点包含的条件列表。
-     */
     protected LinkedHashSet<Condition> conditions = new LinkedHashSet<>();
 
-    /**
-     * 条件列表中条件的关系是否为并且，默认true (false时为或)。
-     */
     protected boolean and = true;
 
-    /**
-     * 指向下一个条件组
-     */
     protected ConditionSegment next;
 
     @Override
@@ -56,7 +47,6 @@ public class ConditionSegment implements Serializable, Iterable<ConditionSegment
         if (isAnd) {
             this.getConditions().addAll(conditions);
         } else {
-            // OR 条件，追加到链表末尾
             ConditionSegment conditionSegment = new ConditionSegment();
             conditionSegment.conditions.addAll(conditions);
             conditionSegment.and = false;
