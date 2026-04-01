@@ -3,14 +3,14 @@ package io.github.luminion.sqlbooster.metadata;
 import io.github.luminion.sqlbooster.core.Booster;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-/**
- * Booster 默认实现注册表。
- */
 public abstract class BoosterRegistry {
 
-    private static final Map<Class<?>, Registration<?>> DEFAULT_BOOSTERS = new ConcurrentHashMap<>();
+    // 同一实体可以挂多个结果类型，所以 key 不能只看 entityClass。
+    private static final Map<RegistrationKey, Registration<?>> DEFAULT_BOOSTERS = new ConcurrentHashMap<>();
 
     public static void clear() {
         DEFAULT_BOOSTERS.clear();
@@ -23,10 +23,12 @@ public abstract class BoosterRegistry {
     public static <T, V> void registerBooster(String sourceName, Booster<T, V> booster) {
         Registration<T> registration = new Registration<>(booster.boosterEntityClass(), booster.boosterResultClass(), booster,
                 sourceName);
-        Registration<?> existing = DEFAULT_BOOSTERS.putIfAbsent(registration.entityClass, registration);
+        RegistrationKey key = new RegistrationKey(registration.entityClass, registration.resultClass);
+        Registration<?> existing = DEFAULT_BOOSTERS.putIfAbsent(key, registration);
         if (existing != null && existing.booster != booster) {
             throw new IllegalStateException("Multiple default boosters found for entity "
-                    + registration.entityClass.getName() + ": " + existing.describe() + " and "
+                    + registration.entityClass.getName() + " and result type " + registration.resultClass.getName()
+                    + ": " + existing.describe() + " and "
                     + registration.describe());
         }
     }
@@ -40,16 +42,49 @@ public abstract class BoosterRegistry {
 
     @SuppressWarnings("unchecked")
     public static <T, V> Booster<T, V> getRequiredBooster(Class<T> entityClass, Class<V> resultClass) {
-        Registration<?> registration = DEFAULT_BOOSTERS.get(entityClass);
-        if (registration == null) {
-            throw new IllegalStateException("No default booster registered for entity " + entityClass.getName());
-        }
-        if (registration.resultClass.equals(resultClass)) {
+        Registration<?> registration = DEFAULT_BOOSTERS.get(new RegistrationKey(entityClass, resultClass));
+        if (registration != null) {
             return (Booster<T, V>) registration.booster;
         }
+        // 找不到精确结果类型时，把当前实体下已有的结果类型列出来，方便定位注册冲突或漏注册。
+        String availableResultTypes = DEFAULT_BOOSTERS.keySet().stream()
+                .filter(key -> key.entityClass.equals(entityClass))
+                .map(key -> key.resultClass.getName())
+                .sorted()
+                .collect(Collectors.joining(", "));
+        if (availableResultTypes.isEmpty()) {
+            throw new IllegalStateException("No default booster registered for entity " + entityClass.getName());
+        }
         throw new IllegalStateException("No default booster registered for entity " + entityClass.getName()
-                + " and result type " + resultClass.getName() + ", registered result type is "
-                + registration.resultClass.getName());
+                + " and result type " + resultClass.getName() + ", available result types are: "
+                + availableResultTypes);
+    }
+
+    private static final class RegistrationKey {
+        private final Class<?> entityClass;
+        private final Class<?> resultClass;
+
+        private RegistrationKey(Class<?> entityClass, Class<?> resultClass) {
+            this.entityClass = entityClass;
+            this.resultClass = resultClass;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof RegistrationKey)) {
+                return false;
+            }
+            RegistrationKey that = (RegistrationKey) o;
+            return Objects.equals(entityClass, that.entityClass) && Objects.equals(resultClass, that.resultClass);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(entityClass, resultClass);
+        }
     }
 
     private static final class Registration<T> {

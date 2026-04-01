@@ -32,7 +32,8 @@ build/
 .vscode/
 
 
+
 .claude
+.codex
 AGENTS.md
 CLAUDE.md
-/plans/*

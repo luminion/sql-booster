@@ -7,8 +7,8 @@ import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import java.util.List;
 
 /**
- * 基于原生 MyBatis 的通用 Mapper 接口，用于执行动态目标对象查询。
- * 默认不提供分页实现，分页查询方法需子类自行实现。
+ * 原生 MyBatis 场景的入口。
+ * 它负责把 `SqlContext` 规范化后交给 XML；如果要分页，需要具体实现自己接入分页插件。
  */
 public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
 
@@ -18,12 +18,5 @@ public interface BoosterMapper<T, V> extends BoosterSupport<T, V> {
         return selectByXml(normalize, page);
     }
 
-    /**
-     * 该方法需要由对应的 Mapper XML 文件实现。
-     *
-     * @param sqlContext 经过解析和校验的 SQL 上下文
-     * @param page 分页插件对象，可为 null
-     * @return 查询结果列表
-     */
     List<V> selectByXml(SqlContext<T> sqlContext, Object page);
 }

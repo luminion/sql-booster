@@ -13,13 +13,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Booster 运行时元数据注册表。
- */
 @Slf4j
 public abstract class TableMetaRegistry {
 
     private static final Comparator<TableResolver> RESOLVER_COMPARATOR = (left, right) -> {
+        // 先按显式优先级，再按类名兜底，保证不同 JVM 里解析顺序也稳定。
         int priorityCompare = Integer.compare(left.getPriority(), right.getPriority());
         if (priorityCompare != 0) {
             return priorityCompare;
@@ -42,6 +40,7 @@ public abstract class TableMetaRegistry {
         boolean added = RESOLVERS.add(tableResolver);
         if (added) {
             RESOLVERS.sort(RESOLVER_COMPARATOR);
+            // 解析器集合变了，旧缓存可能已经失效，必须整批清掉。
             clearCache();
         }
         return added;
@@ -118,6 +117,7 @@ public abstract class TableMetaRegistry {
     private static TableMeta getTableMeta(Class<?> entityClass) {
         return TABLE_META_CACHE.computeIfAbsent(entityClass, key -> {
             for (TableResolver tableResolver : RESOLVERS) {
+                // 命中第一个可解析的 resolver 就返回，后面的低优先级 resolver 不再参与。
                 TableMeta tableMeta = tableResolver.resolve(key);
                 if (tableMeta != null) {
                     return tableMeta;

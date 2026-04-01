@@ -16,9 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/**
- * SQL 上下文构建工具。
- */
 @Slf4j
 public abstract class SqlContextUtils {
 
@@ -32,10 +29,14 @@ public abstract class SqlContextUtils {
         map.put("_lt", SqlKeyword.LT.getSymbol());
         map.put("Lte", SqlKeyword.LTE.getSymbol());
         map.put("_lte", SqlKeyword.LTE.getSymbol());
+        map.put("Le", SqlKeyword.LTE.getSymbol());
+        map.put("_le", SqlKeyword.LTE.getSymbol());
         map.put("Gt", SqlKeyword.GT.getSymbol());
         map.put("_gt", SqlKeyword.GT.getSymbol());
         map.put("Gte", SqlKeyword.GTE.getSymbol());
         map.put("_gte", SqlKeyword.GTE.getSymbol());
+        map.put("Ge", SqlKeyword.GTE.getSymbol());
+        map.put("_ge", SqlKeyword.GTE.getSymbol());
         map.put("Like", SqlKeyword.LIKE.getSymbol());
         map.put("_like", SqlKeyword.LIKE.getSymbol());
         map.put("NotLike", SqlKeyword.NOT_LIKE.getSymbol());
@@ -65,6 +66,7 @@ public abstract class SqlContextUtils {
 
     public static void refreshDefaultSuffixes(Map<String, String> suffixToOperatorMap) {
         List<Map.Entry<String, String>> list = new ArrayList<>(suffixToOperatorMap.entrySet());
+        // 后缀要按长度倒序匹配，避免 `Like` 抢先吃掉 `NotLike` 这类更长的规则。
         list.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
         defaultSuffixes = list;
     }
@@ -109,14 +111,25 @@ public abstract class SqlContextUtils {
         return buildWithSuffix(entityClass, source, customSuffixMap);
     }
 
+    public static <T> SqlContext<T> normalize(Class<T> entityClass, SqlContext<?> source,
+                                              Map<String, String> customSuffixMap,
+                                              boolean includeDefaultSuffixes) {
+        return buildWithSuffix(entityClass, source, customSuffixMap, includeDefaultSuffixes);
+    }
+
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source) {
-        return buildWithSuffix(entityClass, source, null);
+        return buildContext(entityClass, source, defaultSuffixes);
     }
 
     public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source,
                                                     Map<String, String> customSuffixMap) {
-        SqlContext<T> context = buildBase(entityClass, source);
-        return resolveSuffixes(context, entityClass, customSuffixMap);
+        return buildWithSuffix(entityClass, source, customSuffixMap, false);
+    }
+
+    public static <T> SqlContext<T> buildWithSuffix(Class<T> entityClass, SqlContext<?> source,
+                                                    Map<String, String> customSuffixMap,
+                                                    boolean includeDefaultSuffixes) {
+        return buildContext(entityClass, source, resolveSuffixEntries(customSuffixMap, includeDefaultSuffixes));
     }
 
     public static <T> SqlContext<T> appendByMap(Class<T> entityClass, SqlContext<T> target, Map<?, ?> map) {
@@ -181,6 +194,8 @@ public abstract class SqlContextUtils {
             target.merge(normalized);
             return target;
         }
+        // strict 模式下要求“输入多少条件/排序，输出就成功解析多少”，
+        // 一旦有未识别字段或非法值就直接报错，而不是静默忽略。
         int sourceConditionCount = countConditions(source);
         int normalizedConditionCount = countConditions(normalized);
         if (normalizedConditionCount != sourceConditionCount
@@ -205,6 +220,11 @@ public abstract class SqlContextUtils {
     }
 
     private static <T> SqlContext<T> buildBase(Class<T> entityClass, SqlContext<?> source) {
+        return buildContext(entityClass, source, null);
+    }
+
+    private static <T> SqlContext<T> buildContext(Class<T> entityClass, SqlContext<?> source,
+                                                  List<Map.Entry<String, String>> suffixEntries) {
         if (entityClass == null) {
             throw new IllegalArgumentException("Entity class cannot be null");
         }
@@ -215,6 +235,9 @@ public abstract class SqlContextUtils {
         }
 
         result.getParams().putAll(source.getParams());
+        // 先处理原始 params，再处理条件节点里的 field。
+        // 这样 map/bean 输入和手工拼出的 SqlContext 都会走同一套后缀规则。
+        resolveParamSuffixes(result, entityClass, suffixEntries);
 
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
         Map<String, Object> params = result.getParams();
@@ -240,6 +263,16 @@ public abstract class SqlContextUtils {
                         log.debug("Direct condition field [{}] ignored: validation failed.", field);
                         params.putIfAbsent(field, condition.getValue());
                     }
+                } else if (suffixEntries != null && !suffixEntries.isEmpty()) {
+                    // 当前字段不是直接字段名时，再尝试按“字段名 + 后缀”拆解。
+                    // 例如 `ageGe` -> `age` + `Ge`。
+                    Condition finalCondition = resolveSuffixCondition(field, condition.getValue(), columnMap,
+                            suffixEntries);
+                    if (finalCondition != null) {
+                        validConditions.add(finalCondition);
+                    } else {
+                        params.putIfAbsent(field, condition.getValue());
+                    }
                 } else {
                     params.putIfAbsent(field, condition.getValue());
                 }
@@ -254,18 +287,32 @@ public abstract class SqlContextUtils {
         return result;
     }
 
-    private static <T> SqlContext<T> resolveSuffixes(SqlContext<T> context, Class<T> entityClass,
-                                                     Map<String, String> customSuffixMap) {
-        Map<String, Object> params = context.getParams();
-        if (params.isEmpty()) {
-            return context;
+    private static List<Map.Entry<String, String>> resolveSuffixEntries(Map<String, String> customSuffixMap,
+                                                                        boolean includeDefaultSuffixes) {
+        if (customSuffixMap == null || customSuffixMap.isEmpty()) {
+            return defaultSuffixes;
         }
+        if (!includeDefaultSuffixes) {
+            List<Map.Entry<String, String>> suffixEntries = new ArrayList<>(customSuffixMap.entrySet());
+            suffixEntries.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
+            return suffixEntries;
+        }
+        // 兼容模式：默认规则先铺底，再让自定义规则覆盖同名后缀。
+        Map<String, String> merged = new HashMap<>();
+        for (Map.Entry<String, String> entry : defaultSuffixes) {
+            merged.put(entry.getKey(), entry.getValue());
+        }
+        merged.putAll(customSuffixMap);
+        List<Map.Entry<String, String>> suffixEntries = new ArrayList<>(merged.entrySet());
+        suffixEntries.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
+        return suffixEntries;
+    }
 
-        List<Map.Entry<String, String>> suffixList = (customSuffixMap != null && !customSuffixMap.isEmpty())
-                ? new ArrayList<>(customSuffixMap.entrySet())
-                : defaultSuffixes;
-        if (customSuffixMap != null && !customSuffixMap.isEmpty()) {
-            suffixList.sort((a, b) -> Integer.compare(b.getKey().length(), a.getKey().length()));
+    private static <T> SqlContext<T> resolveParamSuffixes(SqlContext<T> context, Class<T> entityClass,
+                                                          List<Map.Entry<String, String>> suffixEntries) {
+        Map<String, Object> params = context.getParams();
+        if (params.isEmpty() || suffixEntries == null || suffixEntries.isEmpty()) {
+            return context;
         }
 
         Map<String, String> columnMap = TableMetaRegistry.getPropertyToColumnAliasMap(entityClass);
@@ -275,23 +322,32 @@ public abstract class SqlContextUtils {
             String field = entry.getKey();
             Object value = entry.getValue();
 
-            for (Map.Entry<String, String> suffixEntry : suffixList) {
-                String suffix = suffixEntry.getKey();
-                if (field.endsWith(suffix) && field.length() > suffix.length()) {
-                    String realField = field.substring(0, field.length() - suffix.length());
-                    String realColumn = columnMap.get(realField);
-                    if (realColumn != null) {
-                        Condition finalCondition = validateAndCreate(realColumn, suffixEntry.getValue(), value);
-                        if (finalCondition != null) {
-                            context.getConditions().add(finalCondition);
-                            it.remove();
-                        }
-                        break;
-                    }
-                }
+            Condition finalCondition = resolveSuffixCondition(field, value, columnMap, suffixEntries);
+            if (finalCondition != null) {
+                // 命中后缀规则后把它转回标准条件，并从 params 里移除，避免后面再次参与未识别字段判断。
+                context.getConditions().add(finalCondition);
+                it.remove();
             }
         }
         return context;
+    }
+
+    private static Condition resolveSuffixCondition(String field, Object value, Map<String, String> columnMap,
+                                                    List<Map.Entry<String, String>> suffixEntries) {
+        if (field == null || field.isEmpty() || suffixEntries == null || suffixEntries.isEmpty()) {
+            return null;
+        }
+        for (Map.Entry<String, String> suffixEntry : suffixEntries) {
+            String suffix = suffixEntry.getKey();
+            if (field.endsWith(suffix) && field.length() > suffix.length()) {
+                String realField = field.substring(0, field.length() - suffix.length());
+                String realColumn = columnMap.get(realField);
+                if (realColumn != null) {
+                    return validateAndCreate(realColumn, suffixEntry.getValue(), value);
+                }
+            }
+        }
+        return null;
     }
 
     private static void processSorts(Collection<Sort> sourceSorts, Map<String, String> columnMap,
@@ -357,6 +413,7 @@ public abstract class SqlContextUtils {
         if (keyword.isLike()) {
             String s = value.toString();
             if (!s.contains("%")) {
+                // 用户大多数时候传的是裸值，这里统一补成模糊匹配。
                 value = "%" + s + "%";
             }
         }

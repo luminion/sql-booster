@@ -5,6 +5,10 @@ import io.github.luminion.sqlbooster.model.BPage;
 
 import java.util.List;
 
+/**
+ * “边写条件边执行”的入口。
+ * 和 `SqlBuilder` 的区别是：这里已经绑定了具体 Booster，末尾可以直接 `list/first/page`。
+ */
 @SuppressWarnings("unused")
 public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>> {
     private final Booster<T, V> booster;
@@ -19,6 +23,9 @@ public class LambdaBooster<T, V> extends LambdaSqlBuilder<T, LambdaBooster<T, V>
         return new LambdaBooster<>(booster);
     }
 
+    /**
+     * 直接复用当前 builder 内部持有的 `sqlContext` 执行查询。
+     */
     public V first() {
         return booster.voFirst(this.sqlContext);
     }

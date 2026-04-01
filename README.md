@@ -377,3 +377,158 @@ SqlContext<SysUser> sqlContext = SqlBuilder.of(SysUser.class)
 - 当前推荐入口为 `lambdaBooster()`，`lambdaBuilder()` 与 `sqlBuilder()` 仅保留为兼容方法
 - `SqlBuilder` 推荐使用 `toSqlContext()`，`build()` 为兼容保留方法
 - 查询方法统一使用 `voById`、`voList`、`voPage`
+
+---
+
+## 技术实现
+
+### 1. `SqlBuilder` 到 `SqlContext` 的处理链
+
+完整链路可以分成 4 段：
+
+1. 构造阶段
+
+- `SqlBuilder.of(Entity.class)` 或 `booster.lambdaBooster()` 作为入口。
+- `eq / gte / like / in / orderBy...` 先生成最原始的 `Condition` / `Sort`。
+- `or(...)` 不会把条件平铺到当前节点，而是生成新的 `ConditionSegment` 节点，保留分组语义。
+
+2. Builder 归一化阶段
+
+- `fromMap / fromBean` 会先把输入统一包装成“字段 + EQ + 值”的条件。
+- 最终统一交给 `SqlContextUtils.buildWithSuffix(...)` 做标准化处理。
+- `toSqlContext()` 返回的是副本，不暴露 builder 内部的可变对象。
+
+3. `SqlContextUtils` 标准化阶段
+
+- 通过 `TableMetaRegistry` 获取实体的“属性名 -> 列别名”映射。
+- 先处理 `params` 中的后缀字段，再处理 `conditions` 中的字段。
+- 对每个字段依次做：
+  - 精确字段映射
+  - 后缀拆解，例如 `ageGe -> age + Ge`
+  - 操作符和值合法性校验
+- 排序字段也会走同样的字段映射，只允许映射后的列名进入最终 SQL。
+
+4. `Booster` 执行阶段
+
+- `SqlBuilder#boost(booster)` 会把当前 builder 的 `SqlContext` 交给新的 `LambdaBooster`。
+- `LambdaBooster#list/first/page` 最终回调到 `Booster#voList/voFirst/voPage`。
+- `BoosterMapper#doFetch` 在真正执行前会再次调用 `normalize(...)`，保证外部手工传入的 `SqlContext` 也会被规范化。
+- 最后由 Mapper XML 里的 `sqlbooster.conditions` 和 `sqlbooster.sorts` 片段生成 SQL。
+
+可以把整体流程理解成：
+
+`SqlBuilder / LambdaBooster`
+-> 收集原始条件
+-> `SqlContextUtils`
+-> 字段映射、后缀解析、值校验
+-> `Booster`
+-> 转发给执行器
+-> MyBatis XML
+-> 渲染 SQL
+
+### 2. `Booster` 在链路中的职责
+
+`Booster` 本身不是 SQL 生成器，而是统一查询协议。
+
+- `Booster#lambdaBooster()`：返回已绑定执行器的链式入口。
+- `BoosterSupport`：提供 `voById / voList / voPage` 等默认实现，并把查询落到 `doFetch(...)`。
+- `BoosterMapper`：MyBatis 场景下把标准化后的 `SqlContext` 交给 `selectByXml(...)`。
+- `BoosterService`：自己不执行 SQL，只是从 `BoosterRegistry` 里找到默认 Booster 再转发调用。
+- `BoosterRegistry`：按 `(entityClass, resultClass)` 维度管理默认 Booster。
+
+所以：
+
+- `SqlBuilder` 负责组条件
+- `SqlContextUtils` 负责标准化
+- `Booster` 负责把标准化后的上下文交给真正执行层
+
+### 3. 怎么防 SQL 注入
+
+防注入主要靠 3 层：
+
+1. 值参数化
+
+- 条件值统一通过 `#{...}` 绑定。
+- `IN` 查询中的每个元素也逐个走 `#{val}`。
+- 因此用户输入的值不会直接拼接到 SQL 字符串里。
+
+2. 字段白名单映射
+
+- XML 里虽然使用了 `${item.field}`，但 `item.field` 不是直接信任外部输入。
+- 所有字段都必须先经过 `TableMetaRegistry` 的元数据映射。
+- 只有这两类字段能进入最终 SQL：
+  - 命中实体属性映射的字段
+  - 已经等于合法列别名的字段
+- 未识别字段只会进入 `params`，不会被内置 SQL 片段消费。
+
+3. 操作符白名单
+
+- 操作符必须先经过 `SqlKeyword.resolve(...)` 校验。
+- 非法操作符不会进入最终 SQL。
+
+边界说明：
+
+- 如果你在自定义 XML 里自己对 `params` 使用 `${}` 拼接，那部分安全性由自定义 SQL 自己负责。
+- 内置 `sqlbooster.conditions` / `sqlbooster.sorts` 的安全前提是：字段和操作符都先经过库内映射和校验。
+
+### 4. 后缀是怎么映射的
+
+`fromMap` / `fromBean` 的后缀处理发生在 `SqlContextUtils.buildWithSuffix(...)`。
+
+默认后缀包括：
+
+- `Ne`
+- `Lt` / `Lte` / `Le`
+- `Gt` / `Gte` / `Ge`
+- `Like` / `NotLike`
+- `In` / `NotIn`
+- `IsNull` / `IsNotNull`
+- `HasAnyBits` / `HasAllBits` / `HasNoBits`
+
+同时支持下划线风格，例如：
+
+- `_gte`
+- `_not_like`
+- `_is_null`
+
+匹配规则如下：
+
+1. 先按后缀长度倒序匹配
+
+- 避免 `Like` 抢先匹配掉 `NotLike` 这类更长后缀。
+
+2. 先尝试精确字段映射，再尝试“字段 + 后缀”拆解
+
+- 例如 `ageGe -> age + Ge`
+- 如果 `nameLike` 本身就是实体字段，那么会优先命中真实字段。
+- 如果写成 `nameLikeLike`，则会拆成 `nameLike + Like`。
+
+3. 命中后会转成标准 `Condition`
+
+- `ageGe = 18` -> `a.age >= 18`
+- `nameLike = "tom"` -> `a.name LIKE "%tom%"`
+- `stateIn = [1,2,3]` -> `a.state IN (...)`
+
+4. 自定义后缀有两种模式
+
+- `buildWithSuffix(entityClass, source, customSuffixMap)`
+  - 只使用自定义后缀，替换默认规则
+- `buildWithSuffix(entityClass, source, customSuffixMap, true)`
+  - 默认规则先铺底，再叠加自定义后缀
+  - 同名后缀由自定义规则覆盖默认规则
+
+### 5. 值校验规则
+
+后缀或字段映射成功后，还会做一层值校验：
+
+- `LIKE`：如果值里不含 `%`，会自动补成 `%value%`
+- `IN / NOT IN`：空集合或空数组视为无效条件
+- 比较运算：要求值实现 `Comparable`
+- 位运算：只接受整数类型
+- `IS NULL / IS NOT NULL`：只有值为 `true` 才生成条件
+
+如果使用 strict 模式追加条件：
+
+- 输入多少条件和排序，就要求成功解析多少
+- 只要存在未识别字段或非法值，就直接抛异常
+- 不再静默忽略

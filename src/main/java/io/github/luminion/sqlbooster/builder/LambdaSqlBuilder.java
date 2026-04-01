@@ -9,12 +9,6 @@ import io.github.luminion.sqlbooster.model.Sort;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-/**
- * 使用 Lambda 表达式构建 SQL 的基类。
- *
- * @param <T> 实体类型
- * @param <S> 用于链式调用的返回类型
- */
 @SuppressWarnings({"unchecked", "unused"})
 public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> extends AbstractSqlBuilder<T, S> {
 
@@ -30,12 +24,11 @@ public abstract class LambdaSqlBuilder<T, S extends LambdaSqlBuilder<T, S>> exte
         return addSort(new Sort(TableMetaRegistry.getGetterPropertyName(getter), false));
     }
 
-    /**
-     * 添加一组 OR 连接的条件。
-     */
     public S or(Consumer<S> consumer) {
         S nested = newInstance();
         consumer.accept(nested);
+        // `or(...)` 不是把条件平铺到当前节点，而是单独挂一个 OR 节点，
+        // 后面生成 SQL 时才能保住分组语义。
         nested.sqlContext.setAnd(false);
         this.sqlContext.merge(nested.sqlContext);
         return (S) this;

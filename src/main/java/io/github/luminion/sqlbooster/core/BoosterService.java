@@ -8,11 +8,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Service 层的 booster 薄封装接口。
- * 仅负责从注册中心获取默认 booster 并转发查询调用。
- *
- * @param <T> 实体类型
- * @param <V> 默认结果类型
+ * Service 层入口。
+ * 自己不执行 SQL，只负责把调用转发给注册到 {@link BoosterRegistry} 里的默认 Booster。
  */
 public interface BoosterService<T, V> extends BoosterOperations<T, V> {
 
