@@ -1,0 +1,37 @@
+# 更新日志
+
+## [1.3.0]
+
+- 添加 LambdaSqlBuilder 条件开关，所有条件方法支持 `boolean condition` 前缀重载
+- 修复 Condition.value 默认值从 `""` 改为 `null`，消除语义歧义
+
+## [1.2.0]
+
+- 添加 TableMetaRegistry 统一表元数据注册中心和 TableResolver 接口
+- 添加 BoosterAutoConfiguration Spring Boot 自动配置
+- 添加 BoosterRegistry、BoosterEntity、BoosterService 接口
+- 添加 PageHelper 扩展（PhMapper、PhPage）
+- 添加自定义后缀规则支持（fromMap / fromBean）
+- 添加 SqlBuilder.boost() 切换到指定 Booster 执行查询
+- 重构包结构，model 类迁出到独立包
+- 重构 SqlKeyword 枚举为 HashMap + 别名机制
+- 废弃 lambdaBuilder()、build()、appendByMap()、bitAny() 等旧方法
+
+## [1.1.0]
+
+- 添加 LambdaBooster 链式查询构造器
+- 添加 SqlBuilder 独立构造器
+- 添加位运算操作符（hasAnyBits、hasAllBits、hasNoBits）
+- 添加操作符后缀映射（Gte、Lte、Like、In、IsNull 等）
+- 重构 Booster 接口为双泛型参数
+
+## [1.0.0]
+
+- 初始版本发布
+
+---
+
+[1.3.0]: https://github.com/luminion/sql-booster/compare/1.2.0...1.3.0
+[1.2.0]: https://github.com/luminion/sql-booster/compare/1.1.0...1.2.0
+[1.1.0]: https://github.com/luminion/sql-booster/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/luminion/sql-booster/releases/tag/1.0.0

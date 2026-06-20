@@ -17,6 +17,6 @@ public class Condition implements Serializable {
 
     protected String operator = SqlKeyword.EQ.getSymbol();
 
-    protected Object value = "";
+    protected Object value;
 
 }

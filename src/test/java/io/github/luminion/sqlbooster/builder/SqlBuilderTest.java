@@ -212,6 +212,68 @@ public class SqlBuilderTest {
         Assert.assertEquals(5L, booster.lastPageSize);
     }
 
+    @Test
+    public void shouldSkipConditionsWhenConditionFlagIsFalse() {
+        SqlContext<TestEntity> context = SqlBuilder.of(TestEntity.class)
+                .eq(true, TestEntity::getName, "张三")
+                .eq(false, TestEntity::getName, "skip-me")
+                .ne(false, TestEntity::getName, "skip-me")
+                .gt(false, TestEntity::getAge, 0)
+                .gte(false, TestEntity::getAge, 0)
+                .ge(false, TestEntity::getAge, 0)
+                .lt(false, TestEntity::getAge, 100)
+                .lte(false, TestEntity::getAge, 100)
+                .le(false, TestEntity::getAge, 100)
+                .like(false, TestEntity::getDescription, "skip")
+                .notLike(false, TestEntity::getDescription, "skip")
+                .in(false, TestEntity::getAge, Arrays.asList(1, 2))
+                .notIn(false, TestEntity::getAge, Arrays.asList(1, 2))
+                .isNull(false, TestEntity::getName)
+                .isNotNull(false, TestEntity::getName)
+                .hasAnyBits(false, TestEntity::getState, 1)
+                .hasAllBits(false, TestEntity::getState, 1)
+                .hasNoBits(false, TestEntity::getState, 1)
+                .or(false, seg -> seg.eq(TestEntity::getName, "skip"))
+                .orderByAsc(false, TestEntity::getAge)
+                .orderByDesc(false, TestEntity::getState)
+                .toSqlContext();
+
+        Assert.assertEquals(1, context.getConditions().size());
+        assertCondition(context.getConditions().iterator().next(), "a.name", "=", "张三");
+        Assert.assertTrue(context.getSorts().isEmpty());
+    }
+
+    @Test
+    public void shouldApplyConditionsWhenConditionFlagIsTrue() {
+        SqlContext<TestEntity> context = SqlBuilder.of(TestEntity.class)
+                .eq(true, TestEntity::getName, "张三")
+                .gt(true, TestEntity::getAge, 18)
+                .like(true, TestEntity::getDescription, "测试")
+                .in(true, TestEntity::getState, Arrays.asList(1, 2))
+                .isNull(true, TestEntity::getCreateTime)
+                .or(true, seg -> seg.eq(TestEntity::getName, "李四").eq(TestEntity::getName, "王五"))
+                .orderByAsc(true, TestEntity::getAge)
+                .toSqlContext();
+
+        Assert.assertEquals(5, context.getConditions().size());
+        Iterator<Condition> rootConditions = context.getConditions().iterator();
+        assertCondition(rootConditions.next(), "a.name", "=", "张三");
+        assertCondition(rootConditions.next(), "a.age", ">", 18);
+        assertCondition(rootConditions.next(), "a.description", "LIKE", "%测试%");
+        assertCondition(rootConditions.next(), "a.state", "IN", Arrays.asList(1, 2));
+        assertCondition(rootConditions.next(), "a.create_time", "IS NULL", true);
+
+        Iterator<ConditionSegment> segments = context.iterator();
+        segments.next(); // skip root
+        ConditionSegment orSeg = segments.next();
+        Assert.assertFalse(orSeg.isAnd());
+        Assert.assertEquals(2, orSeg.getConditions().size());
+
+        Iterator<Sort> sorts = context.getSorts().iterator();
+        assertSort(sorts.next(), "a.age", true);
+        Assert.assertFalse(sorts.hasNext());
+    }
+
     private static void assertCondition(Condition condition, String field, String operator, Object value) {
         Assert.assertEquals(field, condition.getField());
         Assert.assertEquals(operator, condition.getOperator());
