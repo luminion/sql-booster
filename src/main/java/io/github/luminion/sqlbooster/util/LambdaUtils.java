@@ -55,7 +55,7 @@ public abstract class LambdaUtils {
         String name = implMethodName;
 
         // 这里只接受标准 JavaBean getter，避免把普通方法引用误识别成字段。
-        if (name.startsWith("is")) {
+        if (name.startsWith("is") && name.length() > 2 && Character.isUpperCase(name.charAt(2))) {
             name = name.substring(2);
         } else if (name.startsWith("get") || name.startsWith("set")) {
             name = name.substring(3);

@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 public class SqlContext<T> extends ConditionSegment {

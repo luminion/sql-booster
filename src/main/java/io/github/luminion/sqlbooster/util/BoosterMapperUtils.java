@@ -52,6 +52,9 @@ public abstract class BoosterMapperUtils {
      */
     public static <T, V> String getMapperContent(Class<? extends Booster<T, V>> boostClass) {
         Class<?>[] classes = GenericTypeUtils.resolveTypeArguments(boostClass, Booster.class);
+        if (classes == null || classes.length < 2) {
+            throw new IllegalArgumentException("Unable to resolve type arguments from " + boostClass.getName());
+        }
         Class<?> entityClass = classes[0];
         Class<?> voClass = classes[1];
         return getMapperContent(entityClass, voClass);

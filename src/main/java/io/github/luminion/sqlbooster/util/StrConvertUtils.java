@@ -24,7 +24,14 @@ public abstract class StrConvertUtils {
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (Character.isUpperCase(c)) {
-                sb.append('_').append(Character.toLowerCase(c));
+                // 连续大写缩写（如 XML、HTTP）只在缩写结束前插入下划线，避免 XMLParser → x_m_l_parser。
+                // 规则：前一字符非大写，或后一字符是小写（说明当前是缩写最后一位，下一段是新单词）。
+                boolean prevNotUpper = i > 0 && !Character.isUpperCase(str.charAt(i - 1));
+                boolean nextIsLower = i + 1 < str.length() && Character.isLowerCase(str.charAt(i + 1));
+                if (i > 0 && (prevNotUpper || nextIsLower)) {
+                    sb.append('_');
+                }
+                sb.append(Character.toLowerCase(c));
             } else {
                 sb.append(c);
             }

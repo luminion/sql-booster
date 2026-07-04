@@ -2,7 +2,9 @@ package io.github.luminion.sqlbooster.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -20,6 +22,8 @@ public class ConditionSegment implements Serializable, Iterable<ConditionSegment
 
     protected boolean and = true;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     protected ConditionSegment next;
 
     @Override
