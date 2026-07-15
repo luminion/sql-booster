@@ -57,7 +57,8 @@ public abstract class LambdaUtils {
         // 这里只接受标准 JavaBean getter，避免把普通方法引用误识别成字段。
         if (name.startsWith("is") && name.length() > 2 && Character.isUpperCase(name.charAt(2))) {
             name = name.substring(2);
-        } else if (name.startsWith("get") || name.startsWith("set")) {
+        } else if ((name.startsWith("get") || name.startsWith("set"))
+                && name.length() > 3 && Character.isUpperCase(name.charAt(3))) {
             name = name.substring(3);
         } else {
             throw new IllegalArgumentException("Error parsing property name '" + implMethodName +

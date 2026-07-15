@@ -3,13 +3,31 @@ package io.github.luminion.sqlbooster.extension.pagehelper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import io.github.luminion.sqlbooster.model.BPage;
+import io.github.luminion.sqlbooster.model.SqlContext;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Arrays;
 
 public class PhPageTest {
 
+    @Test
+    public void shouldRejectPageArgumentsOutsidePageHelperRange() {
+        PhMapper<Object, Object> mapper = new PhMapper<Object, Object>() {
+            @Override
+            public List<Object> selectByXml(SqlContext<Object> sqlContext, Object page) {
+                return Collections.emptyList();
+            }
+        };
+
+        try {
+            mapper.voPage(new SqlContext<Object>(), (long) Integer.MAX_VALUE + 1L, 1L);
+            Assert.fail("Expected oversized page number to be rejected.");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
     @Test
     public void shouldExposePageDataAndConvertRecords() {
         Page<SourceRecord> page = new Page<SourceRecord>(2, 3);

@@ -9,12 +9,14 @@ import io.github.luminion.sqlbooster.model.Condition;
 import io.github.luminion.sqlbooster.model.ConditionSegment;
 import io.github.luminion.sqlbooster.model.Sort;
 import io.github.luminion.sqlbooster.model.SqlContext;
+import io.github.luminion.sqlbooster.util.SqlContextUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -273,7 +275,44 @@ public class SqlBuilderTest {
         assertSort(sorts.next(), "a.age", true);
         Assert.assertFalse(sorts.hasNext());
     }
+    @Test
+    public void shouldRejectNonBeanGetterPrefixes() {
+        try {
+            SqlBuilder.of(TestEntity.class).eq(TestEntity::getaway, "value");
+            Assert.fail("Expected non-bean getter to be rejected.");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            SqlBuilder.of(TestEntity.class).eq(TestEntity::isolation, true);
+            Assert.fail("Expected non-bean getter to be rejected.");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 
+    @Test
+    public void shouldIncludeConditionsInSqlContextEquality() {
+        SqlContext<TestEntity> first = new SqlContext<>();
+        first.getConditions().add(new Condition("id", "=", 1));
+        SqlContext<TestEntity> second = new SqlContext<>();
+        second.getConditions().add(new Condition("id", "=", 2));
+
+        Assert.assertNotEquals(first, second);
+    }
+
+    @Test
+    public void shouldCopyMutableConditionValues() {
+        List<Integer> values = new ArrayList<>(Arrays.asList(1, 2));
+        SqlContext<TestEntity> source = new SqlContext<>();
+        source.getConditions().add(new Condition("id", "IN", values));
+
+        SqlContext<TestEntity> copy = SqlContextUtils.copy(source);
+        values.clear();
+
+        Condition copied = copy.getConditions().iterator().next();
+        Assert.assertEquals(Arrays.asList(1, 2), copied.getValue());
+        Assert.assertNotSame(values, copied.getValue());
+
+    }
     private static void assertCondition(Condition condition, String field, String operator, Object value) {
         Assert.assertEquals(field, condition.getField());
         Assert.assertEquals(operator, condition.getOperator());
@@ -443,6 +482,14 @@ public class SqlBuilderTest {
 
         public String getNickname() {
             return nickname;
+        }
+
+        public String getaway() {
+            return null;
+        }
+
+        public boolean isolation() {
+            return false;
         }
     }
 

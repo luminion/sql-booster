@@ -38,6 +38,9 @@ public class BoosterOperationsTest {
 
         Assert.assertTrue(booster.voByIds(null).isEmpty());
         Assert.assertTrue(booster.voByIds(Collections.<Serializable>emptyList()).isEmpty());
+        List<String> empty = booster.voByIds(null);
+        empty.add("mutable");
+        Assert.assertEquals(1, empty.size());
         Assert.assertNull(booster.lastSqlContext);
     }
 

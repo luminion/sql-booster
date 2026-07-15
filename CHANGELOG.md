@@ -13,6 +13,12 @@
 
 - 添加 LambdaSqlBuilder 条件开关，所有条件方法支持 `boolean condition` 前缀重载
 - 修复 Condition.value 默认值从 `""` 改为 `null`，消除语义歧义
+- 修复 Lambda getter 解析误接受 `getaway()` 等非 JavaBean getter，避免查询条件被静默忽略
+- 修复 SqlContext 相等性忽略条件链的问题
+- 修复 toSqlContext 副本共享集合、Map 和数组值的问题
+- 修复 PageHelper 分页参数溢出及非正数未校验的问题
+- 修复多 SqlSessionFactory 场景下自动配置因单实例注入失败的问题
+- 修复 voByIds 空结果返回不可变集合的问题
 
 ## [1.2.0]
 

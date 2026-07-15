@@ -8,6 +8,7 @@ import io.github.luminion.sqlbooster.model.ConditionSegment;
 import io.github.luminion.sqlbooster.model.Sort;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -76,7 +77,9 @@ public abstract class SqlContextUtils {
         if (source == null) {
             return result;
         }
-        result.getParams().putAll(source.getParams());
+        for (Map.Entry<String, Object> entry : source.getParams().entrySet()) {
+            result.getParams().put(entry.getKey(), copyValue(entry.getValue()));
+        }
         for (Sort sort : source.getSorts()) {
             result.getSorts().add(new Sort(sort.getField(), sort.isAsc()));
         }
@@ -91,11 +94,32 @@ public abstract class SqlContextUtils {
             target.setAnd(node.isAnd());
             for (Condition condition : node.getConditions()) {
                 target.getConditions().add(new Condition(condition.getField(), condition.getOperator(),
-                        condition.getValue()));
+                        copyValue(condition.getValue())));
             }
             first = false;
         }
         return result;
+    }
+
+    private static Object copyValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Collection) {
+            return new ArrayList<>((Collection<?>) value);
+        }
+        if (value instanceof Map) {
+            Map<Object, Object> copy = new HashMap<>();
+            copy.putAll((Map<?, ?>) value);
+            return copy;
+        }
+        if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            Object copy = Array.newInstance(value.getClass().getComponentType(), length);
+            System.arraycopy(value, 0, copy, 0, length);
+            return copy;
+        }
+        return value;
     }
 
     public static <T> SqlContext<T> build(Class<T> entityClass, SqlContext<?> source) {

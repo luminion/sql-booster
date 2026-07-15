@@ -118,7 +118,12 @@ public class BoosterAutoConfiguration implements InitializingBean, DisposableBea
 
         @Bean
         @ConditionalOnBean(SqlSessionFactory.class)
-        public TableResolver mybatisProvider(SqlSessionFactory sqlSessionFactory) {
+        public TableResolver mybatisProvider(Map<String, SqlSessionFactory> sqlSessionFactories) {
+            SqlSessionFactory sqlSessionFactory = sqlSessionFactories.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(Map.Entry::getValue)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No SqlSessionFactory available"));
             boolean mapUnderscoreToCamelCase = sqlSessionFactory.getConfiguration().isMapUnderscoreToCamelCase();
             log.debug("DefaultTableResolver for mybatis configured");
             return new DefaultTableResolver(mapUnderscoreToCamelCase, Integer.MAX_VALUE);

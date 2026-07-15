@@ -8,7 +8,7 @@ import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.util.ObjectUtils;
 
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public interface BoosterOperations<T, V> extends Booster<T, V> {
     @Override
     default List<V> voByIds(Collection<? extends Serializable> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         String idPropertyName = TableMetaRegistry.getIdPropertyName(boosterEntityClass());
         if (ObjectUtils.isEmpty(idPropertyName)) {
