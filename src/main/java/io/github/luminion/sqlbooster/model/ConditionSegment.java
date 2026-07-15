@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Data
@@ -55,12 +57,18 @@ public class ConditionSegment implements Serializable, Iterable<ConditionSegment
         if (segment == null) {
             return this;
         }
+        // 先把源链表节点快照下来再追加：appendConditions 会往 this 尾部挂新节点，
+        // 若 segment == this（自合并）且含 OR 链，边遍历边追加会让迭代器不断遇到新节点导致死循环。
+        List<ConditionSegment> nodes = new ArrayList<>();
+        for (ConditionSegment node : segment) {
+            nodes.add(node);
+        }
         // 这里按链表节点逐段合并，而不是直接 copy `next`，
         // 这样不同来源的条件片段还能继续复用 appendConditions 的语义。
-        for (ConditionSegment node : segment) {
+        for (ConditionSegment node : nodes) {
             if (node.getConditions().isEmpty()) {
                 continue;
-}
+            }
             this.appendConditions(node.getConditions(), node.isAnd());
         }
         return this;

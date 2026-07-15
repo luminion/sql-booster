@@ -16,7 +16,14 @@ public abstract class GenericTypeUtils {
         }
         Class<?>[] result = new Class<?>[generics.length];
         for (int i = 0; i < generics.length; i++) {
-            result[i] = generics[i].resolve();
+            Class<?> resolved = generics[i].resolve();
+            // 泛型参数未绑定具体类型时 resolve() 返回 null，若放行会让调用方（如 getMapperContent）
+            // 在 voClass.getName() 处抛隐晦 NPE，这里与 resolveRequiredTypeArgument 保持一致，直接给明确错误。
+            if (resolved == null) {
+                throw new IllegalStateException("Unable to resolve type argument at index " + i + " for "
+                        + clazz.getName() + " as " + genericIfc.getName());
+            }
+            result[i] = resolved;
         }
         return result;
     }

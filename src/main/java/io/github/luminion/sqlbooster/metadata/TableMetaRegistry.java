@@ -115,15 +115,20 @@ public abstract class TableMetaRegistry {
     }
 
     private static TableMeta getTableMeta(Class<?> entityClass) {
-        return TABLE_META_CACHE.computeIfAbsent(entityClass, key -> {
-            for (TableResolver tableResolver : RESOLVERS) {
-                // 命中第一个可解析的 resolver 就返回，后面的低优先级 resolver 不再参与。
-                TableMeta tableMeta = tableResolver.resolve(key);
-                if (tableMeta != null) {
-                    return tableMeta;
-                }
+        TableMeta cached = TABLE_META_CACHE.get(entityClass);
+        if (cached != null) {
+            return cached;
+        }
+        for (TableResolver tableResolver : RESOLVERS) {
+            // 命中第一个可解析的 resolver 就返回，后面的低优先级 resolver 不再参与。
+            TableMeta tableMeta = tableResolver.resolve(entityClass);
+            if (tableMeta != null) {
+                TableMeta existing = TABLE_META_CACHE.putIfAbsent(entityClass, tableMeta);
+                return existing != null ? existing : tableMeta;
             }
-            return new TableMeta(null, null, null);
-        });
+        }
+        // 无人解析出结果时返回全空兜底，但不写缓存：resolver 可能尚未初始化完成（如 MP 的 TableInfo 懒加载），
+        // 若缓存空 meta，之后即使就绪也会一直命中空值而持续抛错。
+        return new TableMeta(null, null, null);
     }
 }

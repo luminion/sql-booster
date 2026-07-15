@@ -1,6 +1,5 @@
 package io.github.luminion.sqlbooster.util;
 
-import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -61,7 +60,6 @@ public abstract class BeanPropertyUtils {
         return copyProperties(sourceBean, newInstance(targetBeanClass));
     }
 
-    @SneakyThrows
     public static Map<String, Object> toMap(Object bean) {
         if (bean == null) {
             return Collections.emptyMap();
@@ -77,7 +75,9 @@ public abstract class BeanPropertyUtils {
             }
             // 一些查询 bean 会把 getter 设成非 public，这里统一放开访问限制。
             ReflectionUtils.makeAccessible(readMethod);
-            Object value = readMethod.invoke(bean);
+            // 用 Spring 的 invokeMethod：getter 自身抛异常时它会解包 InvocationTargetException，
+            // 让调用方拿到真实 cause，而不是被包一层的反射异常。
+            Object value = ReflectionUtils.invokeMethod(readMethod, bean);
             if (value != null) {
                 map.put(pd.getName(), value);
             }
@@ -85,7 +85,6 @@ public abstract class BeanPropertyUtils {
         return map;
     }
 
-    @SneakyThrows
     public static Object getProperty(Object bean, String propertyName) {
         if (bean == null) return null;
         PropertyDescriptor pd = getPropertyMap(bean.getClass()).get(propertyName);
@@ -94,7 +93,7 @@ public abstract class BeanPropertyUtils {
         }
         Method readMethod = pd.getReadMethod();
         ReflectionUtils.makeAccessible(readMethod);
-        return readMethod.invoke(bean);
+        return ReflectionUtils.invokeMethod(readMethod, bean);
     }
 
 }

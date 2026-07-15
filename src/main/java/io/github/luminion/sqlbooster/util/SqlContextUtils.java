@@ -13,9 +13,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 @Slf4j
 public abstract class SqlContextUtils {
@@ -81,7 +87,7 @@ public abstract class SqlContextUtils {
             result.getParams().put(entry.getKey(), copyValue(entry.getValue()));
         }
         for (Sort sort : source.getSorts()) {
-            result.getSorts().add(new Sort(sort.getField(), sort.isAsc()));
+            addSortDistinct(result.getSorts(), new Sort(sort.getField(), sort.isAsc()));
         }
         ConditionSegment target = result;
         boolean first = true;
@@ -101,17 +107,31 @@ public abstract class SqlContextUtils {
         return result;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static Object copyValue(Object value) {
         if (value == null) {
             return null;
         }
+        // 复制时保留原容器的顺序/排序语义：有序 Set/Map 若一律降级成 HashSet/HashMap，
+        // 依赖参数迭代顺序的调用方会拿到乱序副本。
+        if (value instanceof SortedSet) {
+            TreeSet<Object> copy = new TreeSet<>(((SortedSet<Object>) value).comparator());
+            copy.addAll((SortedSet<Object>) value);
+            return copy;
+        }
+        if (value instanceof Set) {
+            return new LinkedHashSet<>((Collection<?>) value);
+        }
         if (value instanceof Collection) {
             return new ArrayList<>((Collection<?>) value);
         }
-        if (value instanceof Map) {
-            Map<Object, Object> copy = new HashMap<>();
-            copy.putAll((Map<?, ?>) value);
+        if (value instanceof SortedMap) {
+            TreeMap<Object, Object> copy = new TreeMap<>(((SortedMap<Object, Object>) value).comparator());
+            copy.putAll((SortedMap<Object, Object>) value);
             return copy;
+        }
+        if (value instanceof Map) {
+            return new LinkedHashMap<>((Map<?, ?>) value);
         }
         if (value.getClass().isArray()) {
             int length = Array.getLength(value);
@@ -384,11 +404,26 @@ public abstract class SqlContextUtils {
                 column = field;
             }
             if (column != null) {
-                targetSorts.add(new Sort(column, sort.isAsc()));
+                addSortDistinct(targetSorts, new Sort(column, sort.isAsc()));
             } else {
                 log.debug("Sort field [{}] ignored: unmapped.", sort.getField());
             }
         }
+    }
+
+    /**
+     * 按字段名去重排序：同一字段只保留首个方向。
+     * <p>
+     * {@link Sort} 的 equals 含 asc，同字段的 ASC / DESC 会被当成两个不同元素同时进入
+     * {@code LinkedHashSet}，渲染出 {@code ORDER BY a.f, a.f DESC} 这种自相矛盾的子句。
+     */
+    private static void addSortDistinct(Collection<Sort> targetSorts, Sort sort) {
+        for (Sort existing : targetSorts) {
+            if (existing.getField().equals(sort.getField())) {
+                return;
+            }
+        }
+        targetSorts.add(sort);
     }
 
     private static Condition validateAndCreate(String column, String operatorStr, Object value) {

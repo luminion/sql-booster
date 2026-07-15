@@ -16,6 +16,10 @@ public interface MpMapper<T, V> extends BaseMapper<T>, BoosterMapper<T, V> {
 
     @Override
     default BPage<V> voPage(SqlContext<T> sqlContext, long pageNum, long pageSize) {
+        if (pageNum < 1 || pageSize < 1) {
+            throw new IllegalArgumentException("pageNum and pageSize must be positive, but got pageNum="
+                    + pageNum + ", pageSize=" + pageSize);
+        }
         PageDTO<V> pageInfo = new PageDTO<>(pageNum, pageSize);
         List<V> results = doFetch(sqlContext, pageInfo);
         pageInfo.setRecords(results);

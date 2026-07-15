@@ -2,6 +2,7 @@ package io.github.luminion.sqlbooster.util;
 
 import io.github.luminion.sqlbooster.function.SFunc;
 import lombok.SneakyThrows;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.beans.Introspector;
@@ -34,7 +35,9 @@ public abstract class LambdaUtils {
     public static <T, R> Class<T> resolveGetterClass(SFunc<T, R> getter) {
         SerializedLambda serializedLambda = resolveSerializedLambda(getter);
         String className = serializedLambda.getImplClass().replace("/", ".");
-        return (Class<T>) Class.forName(className);
+        // 用 getter 自身的 classloader 解析实体类，兼容 Tomcat 共享 lib、OSGi 等父子加载器隔离场景；
+        // Class.forName(name) 会用加载本库的 classloader，可能看不到 webapp 里的实体类。
+        return (Class<T>) ClassUtils.forName(className, getter.getClass().getClassLoader());
     }
 
     @SneakyThrows

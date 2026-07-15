@@ -3,6 +3,9 @@ package io.github.luminion.sqlbooster.util;
 public abstract class StrConvertUtils {
 
     public static String underscoreToCamelCase(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
         StringBuilder sb = new StringBuilder();
         boolean upperCase = false;
         for (int i = 0; i < str.length(); i++) {
@@ -20,6 +23,9 @@ public abstract class StrConvertUtils {
     }
 
     public static String camelCaseToUnderscore(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);

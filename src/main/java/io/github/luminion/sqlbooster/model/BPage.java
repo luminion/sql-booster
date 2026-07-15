@@ -14,7 +14,8 @@ public interface BPage<T> extends Serializable {
     long getSize();
 
     default long getPages() {
-        if (getSize() == 0) {
+        // size 非正时无法计算页数（负 size 在 MP 里表示不分页），直接返回 0，避免 total / 负数 得到负页数。
+        if (getSize() <= 0) {
             return 0L;
         }
         long pages = getTotal() / getSize();
